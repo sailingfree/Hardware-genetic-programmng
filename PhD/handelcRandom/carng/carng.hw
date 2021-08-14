@@ -1,0 +1,4 @@
+#@hw
+project carng.hp
+project ..\\carng32.hp
+project ..\\carng32\\carng32\\carng32.hp

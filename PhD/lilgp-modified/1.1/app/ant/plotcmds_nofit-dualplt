@@ -1,0 +1,13 @@
+set xlabel 'Program Length'
+set ylabel 'Number of Programs'
+set ytics rotate
+maxyval=51.46
+set key 
+plot 'tmp/nofit-dual_0.dat' title 'Gen 0' with lines
+replot 'tmp/nofit-dual_2.dat' title 'Gen 1' with lines
+replot 'tmp/nofit-dual_10.dat' title 'Gen 10' with lines
+replot 'tmp/nofit-dual_31.dat' title 'Gen 31' with lines
+set output 'nofit-dual.eps'
+set term postscript eps 'Times-Roman' 24
+replot
+pause 10

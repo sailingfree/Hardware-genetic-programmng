@@ -1,0 +1,689 @@
+#LyX 1.2 created this file. For more info see http://www.lyx.org/
+\lyxformat 220
+\textclass essex
+\begin_preamble
+%
+% Change this to input the prologue file for your own thesis
+%
+\input{shortheader.tex}
+\usepackage{url}
+\end_preamble
+\language english
+\inputencoding auto
+\fontscheme default
+\graphics default
+\float_placement htb
+\paperfontsize default
+\spacing single 
+\papersize Default
+\paperpackage a4
+\use_geometry 0
+\use_amsmath 0
+\use_natbib 0
+\use_numerical_citations 0
+\paperorientation portrait
+\secnumdepth 2
+\tocdepth 2
+\paragraph_separation skip
+\defskip medskip
+\quotes_language english
+\quotes_times 2
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+
+\layout Standard
+
+
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+spacing{2}
+\end_inset 
+
+
+\layout Standard
+
+This appendix describes the experimental setup used in for experimental
+ work in Chapters 
+\begin_inset LatexCommand \ref{main:implementation}
+
+\end_inset 
+
+, 
+\begin_inset LatexCommand \ref{main:Optimised implementation}
+
+\end_inset 
+
+ and 
+\begin_inset LatexCommand \ref{main:Behavioural analysis}
+
+\end_inset 
+
+.
+ It describes the platforms used for the experiments and associated software.
+ This appendix also gives the configuration commands and the commands to
+ execute the tools where relevant.
+ This information is included to assist others to replicate some or all
+ of the work reported in this thesis.
+ URLs are given for the various packages and vendors.
+\layout Section
+
+Experimental Platforms
+\layout Subsection
+
+Hardware
+\layout Standard
+
+The work in Chapter 
+\begin_inset LatexCommand \ref{main:implementation}
+
+\end_inset 
+
+ was performed using a 200\SpecialChar ~
+MHz AMD K6 PC with 128\SpecialChar ~
+KiB of memory and a 500\SpecialChar ~
+MHz
+ Pentium II PC, with 384\SpecialChar ~
+MiB of memory.
+ The work in Chapters 
+\begin_inset LatexCommand \ref{main:Optimised implementation}
+
+\end_inset 
+
+ and 
+\begin_inset LatexCommand \ref{main:Behavioural analysis}
+
+\end_inset 
+
+ was performed using a PC, consisting of a 1.4\SpecialChar ~
+GHz Athlon processor with 750\SpecialChar ~
+MiB
+ of 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+ac{DDR} RAM
+\end_inset 
+
+.
+ An extra 256\SpecialChar ~
+MiB was borrowed for the Boolean even-6-parity problem, bringing
+ the total to 1\SpecialChar ~
+GiB DDR RAM.
+\layout Subsection
+
+RC1000 FPGA Evaluation Board
+\layout Standard
+
+This board, available from Celoxica Ltd consists of:
+\layout Standard
+\added_space_top medskip 
+
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+indent 
+\end_inset 
+
+Xilinx XCV2000e, Virtex-E series FPGA, in a bg560 package.
+\layout Standard
+
+
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+indent 
+\end_inset 
+
+4 banks x 2\SpecialChar ~
+MiB 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+ac{SRAM}
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+indent 
+\end_inset 
+
+An Intel 21152 PCI-PCI bridge that connects the host bus to the RC1000.
+\layout Standard
+
+
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+indent 
+\end_inset 
+
+A PLX PCI9080 PCI controller chip.
+\layout Standard
+\added_space_bottom medskip 
+
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+indent 
+\end_inset 
+
+A Cypress IDC2061A programmable clock generator.
+ 
+\layout Standard
+
+
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+noindent 
+\end_inset 
+
+For full details of the hardware, refer to the RC1000 Hardware Reference
+ Manual 
+\begin_inset LatexCommand \cite{rc1000:hwref}
+
+\end_inset 
+
+.
+ For details of the APIs used to configure the board, refer to the Software
+ Reference Manual 
+\begin_inset LatexCommand \cite{rc1000:swref}
+
+\end_inset 
+
+ and the Functional Reference Manual 
+\begin_inset LatexCommand \cite{rc1000:fnref}
+
+\end_inset 
+
+.
+\layout Subsection
+
+Software
+\layout Standard
+
+The software environment used to run the Celoxica DK1 and Xilinx Alliance
+ software was Microsoft Windows\SpecialChar ~
+98 and Microsoft\SpecialChar ~
+NT\SpecialChar ~
+4.0 for the work described
+ in chapter 
+\begin_inset LatexCommand \ref{main:implementation}
+
+\end_inset 
+
+ and Microsoft Windows\SpecialChar ~
+2000 professional for the work described in chapters
+ 
+\begin_inset LatexCommand \ref{main:Optimised implementation}
+
+\end_inset 
+
+ and 
+\begin_inset LatexCommand \ref{main:Behavioural analysis}
+
+\end_inset 
+
+.
+\layout Standard
+
+The software environment for running the psim PowerPC simulation was Mandrake
+ Linux, version 8.0.
+\layout Section
+
+Software Tools
+\layout Subsection
+
+Celoxica DK1
+\layout Standard
+
+Version 3.0 of DK1 was used.
+ Service pack 1 was installed for the work in chapter 
+\begin_inset LatexCommand \ref{main:Optimised implementation}
+
+\end_inset 
+
+.
+\layout Subsection
+
+Celoxica RC1000 Drivers and Utilities
+\layout Standard
+
+Version 1.32 of the Windows\SpecialChar ~
+98 and Windows\SpecialChar ~
+2000 drivers were used 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+ 
+\backslash 
+url{http://www.celoxica.com}
+\end_inset 
+
+.
+\layout Subsection
+
+Xilinx Alliance
+\layout Standard
+
+Version 3.1 patch level 8.
+ 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+url{http://www.xilinx.com/}
+\end_inset 
+
+
+\layout Subsection
+
+Diehard
+\layout Standard
+
+Version 19950110 from 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+url{http://stat.fsu.edu/geo/}
+\end_inset 
+
+
+\layout Subsection
+
+PowerPC Cross Compiler and Simulator
+\layout Standard
+
+For the PowerPC simulation, the code was compiled using the GNU C compiler,
+ version 2.95.2.
+ This was obtained as part of the tpmp package, which contained the following
+ package files:
+\layout Standard
+\added_space_top medskip 
+
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+indent 
+\end_inset 
+
+tpmp2-binutils-2.9.1-1.i386.rpm
+\layout Standard
+
+
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+indent 
+\end_inset 
+
+tpmp2-gcc-2.95.2-1.i386.rpm
+\layout Standard
+\added_space_bottom medskip 
+
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+indent 
+\end_inset 
+
+tpmp2-glibc-2.1.3-1.noarch.rpm
+\layout Standard
+
+
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+noindent 
+\end_inset 
+
+ The PowerPC simulator is delivered as part of the GNU debugger (gdb) version
+ 5.1.1.
+ It was configured and built using:
+\layout Standard
+\added_space_top medskip \added_space_bottom medskip \noindent 
+
+\series bold 
+\shape slanted 
+
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+indent
+\end_inset 
+
+ > export CC=gcc; ./configure --target=ppc-unknown-eabi --enable-sim-ppc
+\newline 
+
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+indent
+\end_inset 
+
+ > make
+\newline 
+
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+indent
+\end_inset 
+
+ > make install
+\layout Standard
+
+
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+noindent 
+\end_inset 
+
+The code was compiled for the PowerPC target using the following commands:
+\layout Standard
+\added_space_top medskip \noindent 
+
+\series bold 
+\shape slanted 
+
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+indent
+\end_inset 
+
+ > ppc-linux-gcc -c hwgp.c -I.
+ -I/usr/include -DPSIM -D<problem-type>
+\layout Standard
+\added_space_bottom medskip \noindent 
+
+\series bold 
+\shape slanted 
+
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+indent
+\end_inset 
+
+ > ppc-linux-ld -o hwgp-ppc hwgp-ppc
+\layout Standard
+
+
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+noindent 
+\end_inset 
+
+ where problem-type is one of: 
+\family typewriter 
+ANT, XOR, REGRESSION, BOOLPARITY
+\family default 
+.
+\layout Standard
+
+
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+noindent 
+\end_inset 
+
+ The following command was used to obtain the cycle counts from the PowerPC
+ simulator:
+\layout Standard
+\added_space_top medskip \added_space_bottom medskip \noindent 
+
+\series bold 
+\shape slanted 
+
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+indent
+\end_inset 
+
+ > ppc-unknown-eabi-run -I hwgp-ppc
+\layout Standard
+
+
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+noindent 
+\end_inset 
+
+ The standard psim program needed to be modified to allow it to record more
+ than 
+\begin_inset Formula $4\times 10^{9}$
+\end_inset 
+
+ cycles.
+ This was because the standard program used variables of type 
+\family typewriter 
+unsigned\SpecialChar ~
+long
+\family default 
+ as counters.
+ Using gcc version 2.95 on an Intel 32 bit processor these are 32 bit integers
+ and can represent values up to 
+\begin_inset Formula $2^{32}-1$
+\end_inset 
+
+ or approximately 
+\begin_inset Formula $\textrm{4}\times 10^{9}$
+\end_inset 
+
+.
+ The counters were replaced with type 
+\family typewriter 
+unsigned\SpecialChar ~
+long\SpecialChar ~
+long
+\begin_inset Foot
+collapsed false
+
+\layout Standard
+
+The 
+\family typewriter 
+long\SpecialChar ~
+long
+\family default 
+ type specifier has been an unofficial extension to ANSI-C for many years
+ and was officially incorporated into the C language as part of ISO/IEC\SpecialChar ~
+9899-1999
+, Programming Languages -- C.
+\end_inset 
+
+
+\family default 
+ which, again using gcc 2.95, are 64 bit quantities and can represent integers
+ up to 
+\begin_inset Formula $2^{64}-1$
+\end_inset 
+
+ or approximately 
+\begin_inset Formula $1.8\times 10^{19}$
+\end_inset 
+
+.
+ The corresponding 
+\family typewriter 
+printf()
+\family default 
+ formats were changed to 
+\family typewriter 
+%ll
+\family default 
+.
+\layout Subsection
+
+Relational Database
+\layout Standard
+
+MySQL (version 3.23) was used to store the GP attribute data.
+ The Perl API was used to insert the data and perform the queries that produced
+ the results in Chapter 
+\begin_inset LatexCommand \ref{main:GP Introduction}
+
+\end_inset 
+
+.
+ A single table stored all the taxonomy data.
+\layout Subsection
+
+Graph Preparation Tools
+\layout Standard
+
+All the graphs were created using gnuplot version 3.7.
+ 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+url{http://www.ucc.ie/gnuplot/}
+\end_inset 
+
+
+\layout Section
+
+Other Tools
+\layout Standard
+
+The 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+LyX
+\end_inset 
+
+\SpecialChar ~
+\SpecialChar ~
+document preparation system (
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+url{http://www.lyx.org/}
+\end_inset 
+
+) and 
+\begin_inset ERT
+status Open
+
+\layout Standard
+
+\backslash 
+LaTeXe
+\end_inset 
+
+\SpecialChar ~
+\SpecialChar ~
+were used to prepare and print this thesis.
+ 
+\layout Standard
+
+
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+spacing{1}
+\end_inset 
+
+
+\the_end

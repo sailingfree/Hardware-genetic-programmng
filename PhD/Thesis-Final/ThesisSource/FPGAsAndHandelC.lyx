@@ -1,0 +1,2422 @@
+#LyX 1.2 created this file. For more info see http://www.lyx.org/
+\lyxformat 220
+\textclass essex
+\begin_preamble
+\input{shortheader.tex}
+\usepackage{listings}
+\end_preamble
+\language english
+\inputencoding auto
+\fontscheme default
+\graphics default
+\float_placement htb
+\paperfontsize default
+\spacing single 
+\papersize a4paper
+\paperpackage a4
+\use_geometry 0
+\use_amsmath 0
+\use_natbib 0
+\use_numerical_citations 0
+\paperorientation portrait
+\secnumdepth 2
+\tocdepth 2
+\paragraph_separation indent
+\defskip medskip
+\quotes_language english
+\quotes_times 2
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+
+\layout Standard
+
+The previous chapter highlighted two aspects of using 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+acf{GP}
+\end_inset 
+
+.
+ Firstly, some problems take a long time to execute because the fitness
+ evaluation is computationally expensive.
+ Secondly, running the GP algorithm is part of a process of experimentation
+ and refinement called Meta-GP, possibly requiring many GP runs.
+ For some problems, a long running time for GP is a barrier to exploring
+ and exploiting GP.
+ Therefore, a means of accelerating GP by implementing GP in hardware should
+ help in the exploration and exploitation of GP.
+\layout Standard
+
+This chapter reviews the hardware and software technologies that are available
+ for implementing GP in hardware.
+ First, the technology of 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+acf{FPGA}
+\end_inset 
+
+ devices is examined and then the role of FPGAs in evolutionary computing
+ is reviewed.
+ This is followed by a brief overview of high level language to hardware
+ compilation tools.
+ Finally, one particular high level language to hardware compilation system
+ called Handel-C is described in more detail.
+\layout Section
+
+Introduction
+\layout Standard
+
+The survey of GP in Chapter 
+\begin_inset LatexCommand \ref{main:GP Introduction}
+
+\end_inset 
+
+ identified two technologies that have been used to implement an evolutionary
+ computing device; a custom 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+acf{ASIC}
+\end_inset 
+
+ and uncommitted reconfigurable FPGAs.
+ Both technologies are sometimes referred to as 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+acf{VLSI}
+\end_inset 
+
+ devices.
+\layout Subsection
+
+ASIC Implementations
+\layout Standard
+
+An ASIC is a custom chip, designed for a particular application.
+ They are often designed using pre-defined libraries of functionality.
+ The work by Koizumi 
+\shape italic 
+et al.
+
+\shape default 
+ 
+\begin_inset LatexCommand \cite{koizumi:2001}
+
+\end_inset 
+
+ described a 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+acf{RISC}
+\end_inset 
+
+ processor designed for 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+acf{GA}
+\end_inset 
+
+ that is essentially a general purpose CPU, but with the addition of special
+ instructions designed to speed up the execution of a GA program.
+ The GA program for this device is written using a standard programming
+ language.
+ The program is then compiled using a modified compiler that uses the special
+ instructions.
+ The instructions chosen were those found to be beneficial during the crossover
+ and mutation portions of the GA and the 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+acf{RNG}
+\end_inset 
+
+.
+ They report a three-fold improvement with their optimised instruction set
+ when compared with an equivalent RISC processor without the specialised
+ instructions.
+ However, in GP the time needed to evaluate the fitness of the programs
+ often outweighs the time for crossover and mutation, so it is questionable
+ whether this approach would produce any great improvement if applied to
+ GP.
+ Other instances of VLSI technology for GAs include a proposed VLSI architecture
+ by Turton 
+\shape italic 
+et al.
+
+\shape default 
+ 
+\begin_inset LatexCommand \cite{turton:1994}
+
+\end_inset 
+
+ and a general purpose, problem independent parallel GA in VLSI by Yoshida
+ 
+\shape italic 
+et al.
+
+\shape default 
+ 
+\begin_inset LatexCommand \cite{yoshida:2001}
+
+\end_inset 
+
+.
+\layout Standard
+
+Current ASIC technology using 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+acf{CMOS}
+\end_inset 
+
+ processes and standard cell libraries allows designs to be clocked at near
+ GHz rates, so the potential for performance improvement is good.
+ Nevertheless, the economics of using an ASIC implementation need to be
+ examined carefully.
+ Designing an ASIC chip, even using standard libraries, is a specialised
+ task, normally requiring several man-years of effort.
+ The cost of fabricating an ASIC chip is in the order of $500\SpecialChar ~
+000
+\begin_inset Foot
+collapsed false
+
+\layout Standard
+
+Obtained using the ASIC cost estimator from Altera, at 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+url{http://www.altera.com/products/devices/cost/cst-cost_step1.jsp}
+\end_inset 
+
+, assuming a 474\SpecialChar ~
+K gate device using a 0.18\SpecialChar ~
+
+\begin_inset Formula $\mu $
+\end_inset 
+
+m process.
+\end_inset 
+
+ for a prototype run.
+ Therefore, it is seldom economic to use ASIC technologies for small scale
+ runs.
+ It must also be noted that once it has been committed to production, changes
+ to the design are prohibitively expensive.
+ Because of the high initial costs associated with a custom ASIC chip, and
+ the inflexibility of an ASIC once it has been produced, reconfigurable
+ devices such as FPGAs and 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+acf{CPLD}
+\end_inset 
+
+s have become popular as platforms for experimentation and prototyping,
+ though only FPGAs have featured in previously reported work on evolutionary
+ computation.
+\layout Section
+
+Field Programmable Gate Arrays
+\layout Standard
+
+FPGAs are a class of programmable hardware devices in which the logic is
+ initially uncommitted.
+ The uncommitted logic is configured by the end user for a particular task.
+ A common architecture is based on an array of 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+acf{CLB}s
+\end_inset 
+
+, 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+acf{IOB}s
+\end_inset 
+
+ that connect the logic to the outside world and configurable interconnections
+ that connect the CLBs to each other and the IOBs.
+ In the Xilinx 
+\begin_inset LatexCommand \cite{Xilinx:2001}
+
+\end_inset 
+
+ Virtex device used in this work, each CLB contains two slices, each slice
+ containing two 
+\emph on 
+Logic Cells
+\emph default 
+.
+ In addition some devices contain on-chip 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+ac{RAM}
+\end_inset 
+
+.
+ A simplified general model of an FPGA is shown in Figure 
+\begin_inset LatexCommand \ref{fig:FPGA-architecture}
+
+\end_inset 
+
+.
+\layout Standard
+
+
+\begin_inset Float figure
+placement tbh
+wide false
+collapsed false
+
+\layout Standard
+\align center 
+
+\begin_inset Graphics FormatVersion 1
+	filename images/fpga-1.eps
+	display color
+	size_type 1
+	height 8cm
+	keepAspectRatio
+	rotateOrigin center
+	lyxsize_type 1
+	lyxwidth 255pt
+	lyxheight 226pt
+\end_inset 
+
+
+\layout ShortCaption
+
+General model of an FPGA.
+\layout Caption
+
+
+\begin_inset LatexCommand \label{fig:FPGA-architecture}
+
+\end_inset 
+
+General model of an FPGA.
+ It consists of an array of 
+\shape italic 
+Configurable Logic Blocks
+\shape default 
+ (CLBs), 
+\shape italic 
+Input Output blocks
+\shape default 
+ (IOBs) that connect the logic to the outside world and configurable interconnec
+tions that connect the CLBs to each other and the IOBs.
+ Some devices also contain on-chip RAM.
+\end_inset 
+
+
+\layout Standard
+
+Figure 
+\begin_inset LatexCommand \ref{fig:CLB architecture}
+
+\end_inset 
+
+ shows a general model of a Xilinx Virtex Slice containing two Logic Cells.
+ Each Logic Cell consists of a four input function generator implemented
+ as a 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+acf{LUT},
+\end_inset 
+
+ a storage element or 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+acf{FF}
+\end_inset 
+
+ and internal 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+acf{CC}
+\end_inset 
+
+ logic.
+ Some devices also contain uncommitted RAM.
+ The chip contains a variety of routing resources for both localised and
+ global chip level routing of signals.
+\layout Standard
+
+These devices are configured by loading a configuration bit pattern, which
+ in the Virtex device is loaded into static RAM on the chip.
+ Because the RAM is volatile, this has to be done each time the chip is
+ re-powered.
+ For many devices available today, the configuration bit patterns are proprietar
+y and are generated using software tools that take a high level description
+ of the configuration information.
+ Keeping the configuration bit patterns secret has two important consequences.
+ Firstly, it protects the details of the device configuration from being
+ interpreted, and therefore makes it hard to reverse engineer the device.
+ This is important for the commercial adoption of these devices.
+ The second consequence is a limiting one in that only the vendor's specialised
+ tools can be used to configure the device, making it hard to dynamically
+ reconfigure the devices.
+\layout Standard
+
+
+\begin_inset Float figure
+placement tbh
+wide false
+collapsed false
+
+\layout Standard
+\align center 
+
+\begin_inset Graphics FormatVersion 1
+	filename images/fpga.eps
+	display color
+	size_type 1
+	height 8cm
+	rotateOrigin center
+	lyxsize_type 1
+	lyxwidth 203pt
+	lyxheight 226pt
+\end_inset 
+
+
+\layout ShortCaption
+
+General model of a Configurable Logic Block or Slice.
+\layout Caption
+
+
+\begin_inset LatexCommand \label{fig:CLB architecture}
+
+\end_inset 
+
+General model of a Configurable Logic Block or Slice.
+ Each Slice contains two Logic Cells.
+ Each Logic Cell consists of a function generator implemented as a 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+acf{LUT} 
+\end_inset 
+
+ a storage element or 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+acf{FF} 
+\end_inset 
+
+ and internal 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+acf{CC}
+\end_inset 
+
+.
+ 
+\end_inset 
+
+
+\layout Subsection
+
+Reconfigurability
+\layout Standard
+
+An early device -- the XC6200 series from Xilinx -- had an architecture
+ that allowed any arbitrary configuration pattern to be loaded into the
+ device without the possibility of damaging the device.
+ This was of great interest to the evolutionary hardware community because
+ it did not constrain how the devices could be used, and this device was
+ used by many researchers in the field of evolutionary computing.
+ Because the configuration was also accessible to the logic on the FPGA,
+ the FPGA could dynamically reconfigure itself.
+ Unfortunately, the Xilinx XC6200 series did not find commercial use and
+ is no longer in production
+\begin_inset LatexCommand \cite{alfke:2000}
+
+\end_inset 
+
+.
+ However, more recent devices have an architecture that supports many more
+ interconnections between the logic cells and so do not allow arbitrary
+ configurations since they could damage the chip.
+ The possibility of damage arises because of the potential for two or more
+ gate outputs to be directly wired together, as illustrated in Figure 
+\begin_inset LatexCommand \ref{fig:FPGA gate contention}
+
+\end_inset 
+
+.
+ If the output of logic block A is driven to a logic high and the output
+ of logic block B to a logic low, a large current would flow between the
+ output stages via the routing resources.
+ If many of these high current paths are created, then the power dissipated
+ by the device may exceed the safe limits specified by the manufacturer,
+ possibly destroying the device.
+ There is some anecdotal evidence that devices have been spectacularly destroyed
+ by this process
+\begin_inset Foot
+collapsed false
+
+\layout Standard
+
+Discussion between the author and an FPGA applications engineer, and postings
+ to comp.fpga.arch
+\end_inset 
+
+.
+\layout Standard
+
+
+\begin_inset Float figure
+placement htbp
+wide false
+collapsed false
+
+\layout Standard
+\align center 
+
+\begin_inset Graphics FormatVersion 1
+	filename images/logicgates.eps
+	display color
+	size_type 1
+	height 6cm
+	rotateOrigin center
+	lyxsize_type 1
+	lyxwidth 134pt
+	lyxheight 170pt
+\end_inset 
+
+
+\layout Caption
+
+
+\begin_inset LatexCommand \label{fig:FPGA gate contention}
+
+\end_inset 
+
+Consequences of illegal FPGA gate configuration.
+\end_inset 
+
+
+\layout Standard
+
+Because current FPGAs cannot accept arbitrary configurations there are two
+ consequences for the use of standard FPGA devices for evolutionary computation.
+ Firstly, during the creation of bit patterns for these devices, checks
+ need to be made to eliminate illegal configurations.
+ Secondly, it hampers the possibility of dynamically reconfiguring the device
+ while it is executing an algorithm.
+ To some extent these limitations are being addressed by the device manufacturer
+s.
+ For example, Xilinx provides a Java 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+ac{API}
+\end_inset 
+
+ called JBits that allows partial reconfiguration of some devices.
+ JBits has been used by Levi and Guccione to evolve stable circuits on standard
+ Xilinx devices 
+\begin_inset LatexCommand \cite{EHW:NASA99-Levi}
+
+\end_inset 
+
+.
+ Hollingworth 
+\shape italic 
+et al.
+
+\shape default 
+ 
+\begin_inset LatexCommand \cite{hollingworth00safe}
+
+\end_inset 
+
+ have also used this technique for intrinsic hardware evolution.
+ Another approach to solving the reconfigurability problem is to synthesise
+ a virtual configurable chip using a standard FPGA that has no restrictions
+ on the configurations 
+\begin_inset LatexCommand \cite{Sekanina:2000}
+
+\end_inset 
+
+.
+\layout Section
+
+
+\begin_inset LatexCommand \label{Existing fpga implementations}
+
+\end_inset 
+
+FPGAs and Evolutionary Computing
+\layout Standard
+
+Chapter 
+\begin_inset LatexCommand \ref{main:GP Introduction}
+
+\end_inset 
+
+ cited three examples of using an FPGA to implement part or all of a GP
+ system (
+\begin_inset LatexCommand \cite{heywood:2000:rbGPFPGA}
+
+\end_inset 
+
+,
+\begin_inset LatexCommand \cite{sidhu:1999}
+
+\end_inset 
+
+ and 
+\begin_inset LatexCommand \cite{koza:1997:ASILIMOAR}
+
+\end_inset 
+
+).
+ In this section a more detailed review of FPGAs that have featured in the
+ broader field of evolutionary computing is given.
+ 
+\layout Standard
+
+In Evolutionary Computing, FPGAs have previously been used in three main
+ areas: 1) as a means of implementing the fitness functions of Genetic Algorithm
+s or Genetic Programming; 2) as a platform for implementing the Genetic
+ or Evolutionary Algorithm; 3) in relation to evolving hardware using evolutiona
+ry techniques.
+ These three strands are surveyed separately.
+ A common theme running through previous work is the use of traditional
+ hardware design tools and languages such as Verilog or 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+ac{VHDL}
+\end_inset 
+
+ to design the logic for the FPGAs.
+\layout Subsection
+
+
+\begin_inset LatexCommand \label{fpga-ga-review}
+
+\end_inset 
+
+FPGAs for Speeding Up Fitness Evaluations.
+\layout Standard
+
+In this category only the fitness evaluation is performed by an FPGA.
+ The creation of the initial population and the breeding phases are carried
+ out by a host computer.
+\layout Standard
+
+Koza 
+\shape italic 
+et al.
+
+\shape default 
+ 
+\begin_inset LatexCommand \cite{koza:1997:ASILIMOAR}
+
+\end_inset 
+
+ used an FPGA to speed up the evaluation of fitness of a sorting network
+ where the FPGA was used solely to perform the fitness evaluation.
+ The initial population was created by a host computer, and then individuals
+ were downloaded to a pre-programmed FPGA and the FPGA instructed to evaluate
+ the fitness of the individual.
+ Subsequent selection and breeding were again performed by the host computer.
+ The configuration of the FPGA remained unchanged during the experiment.
+ This work used a Xilinx XC6200 device.
+\layout Standard
+
+Montana 
+\shape italic 
+et al.
+
+\shape default 
+ 
+\begin_inset LatexCommand \cite{montana:1998:}
+
+\end_inset 
+
+ developed a hybrid tool called EvolvaWare (see also 
+\begin_inset LatexCommand \cite{evlovaware:2002}
+
+\end_inset 
+
+) which was designed to generate VHDL circuits using GP.
+ This tool implemented a number of primitives (functions) on an FPGA.
+ It then used standard GP to evolve programs that used the FPGA hosted primitive
+s.
+ Although this approach showed some promise, they discovered that the hybrid
+ software/hardware system had some problems.
+ Notably, the interface between the software and the hardware was a bottleneck
+ due to the limited number of input/output pins.
+ They also discovered that the FPGA technology available in 1998 would not
+ allow complex primitives to be accommodated on the FPGA.
+ They did not report what FPGA was used for this work.
+\layout Standard
+
+Yamaguchi 
+\shape italic 
+et al.
+
+\shape default 
+ 
+\begin_inset LatexCommand \cite{Yamaguchi:2000}
+
+\end_inset 
+
+ used a Xilinx Virtex XCV1000 FPGA to implement a co-processor for evolutionary
+ computation to solve the iterated prisoners dilemma (IPD) problem.
+ They reported a 200 times performance speedup in processing the IPD functions
+ on the FPGA when compared to a 750\SpecialChar ~
+MHz Pentium processor.
+ 
+\layout Standard
+
+Seok 
+\emph on 
+et al
+\emph default 
+.
+ 
+\begin_inset LatexCommand \cite{seok:2000:arob}
+
+\end_inset 
+
+
+\begin_inset Foot
+collapsed false
+
+\layout Standard
+
+Additional implementation details obtained directly from the author via
+ email.
+\end_inset 
+
+ used a Xilinx XC6200 series device to implement a robot controller.
+ The evolution of the FPGA was performed off line and the FPGAs were embedded
+ in a robot.
+\layout Standard
+
+Harris 
+\begin_inset LatexCommand \cite{harris:2000:GPFF}
+
+\end_inset 
+
+ used a GA to evolve a 7-input parity function using an FPGA simulation.
+\layout Subsection
+
+
+\begin_inset LatexCommand \label{sec:Previous FPGA and GP work}
+
+\end_inset 
+
+
+\begin_inset LatexCommand \label{sub:Implementing-the-Logic}
+
+\end_inset 
+
+Implementing the Logic For Evolution Using FPGAs
+\layout Standard
+
+In this category the fitness evaluation and breeding, and in some cases
+ the initial population creation, is carried out on the FPGA.
+\layout Standard
+
+Scott 
+\begin_inset LatexCommand \cite{scott:1994}
+
+\end_inset 
+
+ 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbstart 
+\end_inset 
+
+ implemented HGA: A Hardware-based Genetic Algorithm.
+ The design was modelled on an existing software GA by Goldberg called 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbend 
+\end_inset 
+
+SGA
+\begin_inset LatexCommand \cite{Smit:1991}
+
+\end_inset 
+
+ 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbstart 
+\end_inset 
+
+ which allowed them to make meaningful comparisons of the performance between
+ a software and hardware implementation of similar algorithms.
+ The design allowed limited parameterisation of the population size, number
+ of generations PRNG seed and the mutation/crossover proportions.
+ Scott used a three stage coarse grained pipeline in which the selection
+ module, crossover/mutation module and the fitness module were all active
+ at the same time.
+ In addition, the design allowed for the pipeline to be replicated so increasing
+ the potential for speeding up the GA.
+ The prototype was realised using on Xilinx XC4003 FPGA for the PRNG and
+ crossover/mutation module, and three XC4005 devices that housed the fitness
+ function, selection and memory interface and the population sequencer.
+ The prototype was built using wire wrap technology which, because of signal
+ distortion and crosstalk between signals, limited the clock rate to 2\SpecialChar ~
+MHz,
+ although the simulation had indicated that 8\SpecialChar ~
+MHz should be possible.
+ The performance of the HGA was compared to the SGA running on a workstation
+ with four MIPS R3000 CPUs running at 33\SpecialChar ~
+MHz.
+ This produced a speedup of approximately 16 times when the number of clock
+ cycles was measured, but no speed up when the wall clock time was used.
+ However, Scott predicted that if the design was optimised using a PCB layout
+ and that further paralellisations were added that the design could be clocked
+ at between 30 and 40\SpecialChar ~
+MHz giving a speedup of two orders of magnitude over
+ the SGA running on the MIPS computer
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbend 
+\end_inset 
+
+.
+\layout Standard
+
+Graham 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbstart
+\end_inset 
+
+ and 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbend
+\end_inset 
+
+ Nelson
+\begin_inset LatexCommand \cite{Graham:96}
+
+\end_inset 
+
+ implemented a complete GA system using four Xilinx XC4010 FPGAs on the
+ Splash-2 board.
+ Each FPGA was programmed to carry out a different function; selection,
+ crossover, fitness and mutation and finally statistics.
+ Each FPGA passed its results to the next forming a pipeline.
+ The performance of their system was compared with a software implementation
+ running on a 125\SpecialChar ~
+MHz PA-RISC workstation and they showed an improvement
+ of 4 times.
+\layout Standard
+
+Kitaura 
+\shape italic 
+et al.
+
+\shape default 
+ 
+\begin_inset LatexCommand \cite{Kitaura:1999}
+
+\end_inset 
+
+ implemented 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbstart
+\end_inset 
+
+ a GA 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbend
+\end_inset 
+
+ machine that was designed to avoid pipeline stalls using a Lucent ATT2C40
+ FPGA.
+ They report a speedup of 730 times when compared with an equivalent software
+ system.
+ 
+\layout Standard
+
+Tufte and Haddow 
+\begin_inset LatexCommand \cite{EHW:NASA99-Tufte}
+
+\end_inset 
+
+ implemented 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbstart
+\end_inset 
+
+ a complete evolutionary 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbend
+\end_inset 
+
+ hardware system based on a GA -- called Complete Hardware Evolution (CHE)
+ -- on a Xilinx XC4044XL FPGA that used a pipeline to evolve hardware.
+ They also demonstrate CHE using a robot controller in
+\begin_inset LatexCommand \cite{haddow:1999}
+
+\end_inset 
+
+.
+\layout Standard
+
+Choi and Chung 
+\begin_inset LatexCommand \cite{Choi:2000}
+
+\end_inset 
+
+ implemented a 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbstart
+\end_inset 
+
+ steady state GA 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbend
+\end_inset 
+
+ using two Altera EPF10K100A devices.
+\layout Standard
+
+Perkins 
+\shape italic 
+et al.
+
+\shape default 
+ 
+\begin_inset LatexCommand \cite{EHW:ICES2000-Perkins}
+
+\end_inset 
+
+ describe a system where a complete GA system was realised on a single Virtex
+ 300 part.
+ Performance was compared with a C implementation, and they report an improvemen
+t of over 1000 times, though they do not specify the speed of the CPU used
+ for the C implementation.
+\layout Standard
+
+Aporntewan and Chongstitvatana 
+\begin_inset LatexCommand \cite{aporntewan:2001}
+
+\end_inset 
+
+ proposed a hardware implementation of a GA using a Xilinx Virtex XCV1000
+ FPGA that achieved a 1000 time speedup when compared with a 200\SpecialChar ~
+MHz SPARC
+ 2 workstation.
+ 
+\layout Standard
+
+Shackleford 
+\shape italic 
+et al.
+\shape default 
+
+\begin_inset LatexCommand \cite{shackleford:2001}
+
+\end_inset 
+
+ implemented 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbstart
+\end_inset 
+
+ a complete 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbend
+\end_inset 
+
+ GA system using a Xilinx XCV3200E chip.
+ Their implementation used extensive pipelines and parallel fitness evaluation
+ to get a performance increase of 320 times when compared with the same
+ algorithm running on a 366\SpecialChar ~
+MHz Pentium CPU.
+\layout Standard
+
+Finally in 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbstart
+\end_inset 
+
+ this category, FPGAs have been used to implement parts 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbend
+\end_inset 
+
+ of a GP system.
+ Sidhu 
+\shape italic 
+et al.
+
+\shape default 
+ 
+\begin_inset LatexCommand \cite{sidhu:1999}
+
+\end_inset 
+
+ presented a novel approach, that used self-reconfiguration of the FPGA,
+ to implement the fitness evaluation and evolution phases of GP.
+ The initial population was configured statically.
+ They used a Xilinx XC6264 device, and compared the performance with lilgp
+ running on a 200\SpecialChar ~
+MHz Pentium.
+ They reported a speedup of over 1000 for the Boolean 11 multiplexer problem
+ implemented using lilgp
+\begin_inset LatexCommand \cite{zonger:1996:lilgp-a}
+
+\end_inset 
+
+, though it is questionable whether a direct comparison to lilgp, which
+ uses a different internal representation, gives a true picture of the real
+ speedup.
+\layout Standard
+
+The system 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbstart
+\end_inset 
+
+ described by Heywood and 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbend
+\end_inset 
+
+ Zincir-Heywood
+\begin_inset LatexCommand \cite{heywood:2000:rbGPFPGA}
+
+\end_inset 
+
+ was simulated using traditional FPGA tools.
+ Their proposal used the FPGA for evaluating the individuals and performing
+ mutation and crossover.
+ Initial population creation was done off-line and downloaded to RAM for
+ use by the FPGA.
+ 
+\layout Standard
+
+It is important to note that none of the previously reported work using
+ FPGAs and GP has implemented a complete GP system, that is the initial
+ population creation, fitness evaluation, evolutionary operators and the
+ production of a program at the end of the run.
+\layout Subsection
+
+Evolutionary Hardware Using FPGAs
+\layout Standard
+
+FPGAs have featured regularly as platforms for evolutionary hardware research.
+ 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbstart 
+\end_inset 
+
+Higuchi 
+\emph on 
+et al
+\emph default 
+.
+ 
+\begin_inset LatexCommand \cite{higuchi:1993}
+
+\end_inset 
+
+ showed the feasibility of hardware evolution using 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+acf{HDL}
+\end_inset 
+
+ to evolve combinatorial logic circuits.
+ They used GP to evolve the HDL.
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbend
+\end_inset 
+
+
+\layout Standard
+
+Thompson suggested that FPGAs could be used to evolve hardware circuits
+ 
+\begin_inset LatexCommand \cite{thom:95}
+
+\end_inset 
+
+.
+ This was demonstrated using a simulation of the evolution of an FPGA configurat
+ion to evolve an oscillator.
+ Thompson 
+\begin_inset LatexCommand \cite{thompson:1996:SiE}
+
+\end_inset 
+
+ also demonstrated, for the first time, a physical FPGA being used as the
+ target for evolutionary hardware.
+ His work is interesting for several reasons: Firstly, it used an FPGA --
+ the Xilinx XC6200 -- that supported direct reconfiguration of its logic
+ cells.
+ Secondly, his work relied on the asynchronous behaviour of the FPGA to
+ obtain the results, in contrast to much of the current work using FPGAs
+ which is very firmly focussed on the synchronous use of FPGAs.
+ Thirdly, the evolutionary approach discovered an analogue behaviour of
+ the FPGA that resulted in the circuit operating correctly, but only within
+ a limited temperature range.
+ Subsequent work by Thompson and Layzell 
+\begin_inset LatexCommand \cite{Thompson:1999}
+
+\end_inset 
+
+ describes the physics of this behaviour.
+ Thompson also demonstrated how a miniature Khepera robot, fitted with a
+ Xilinx XC6216 FPGA, could evolve wall-avoiding behaviour 
+\begin_inset LatexCommand \cite{thompson:1997:er97}
+
+\end_inset 
+
+.
+ In this case the evolutionary algorithm was executed on an external PC
+ connected using a serial cable.
+\layout Standard
+
+The work by Fogarty 
+\shape italic 
+et al.
+
+\shape default 
+ 
+\begin_inset LatexCommand \cite{Fogarty:miller:Thompson:1998}
+
+\end_inset 
+
+ described how logic circuits could be evolved directly on a Xilinx XC6000
+ FPGA without having to place and route a netlist
+\begin_inset Foot
+collapsed false
+
+\layout Standard
+
+A netlist is a formal description of the gates and their connections.
+\end_inset 
+
+ first.
+ Levi and Guccione 
+\begin_inset LatexCommand \cite{EHW:NASA99-Levi}
+
+\end_inset 
+
+ described a method of generating the FPGA configuration data for Xilinx
+ XC4000EX and XC4000XL devices that avoids illegal FPGA configurations and
+ ensures the FPGAs are stable.
+\layout Standard
+
+Kajitani 
+\shape italic 
+et al.
+
+\shape default 
+ 
+\begin_inset LatexCommand \cite{Kajitani:1998}
+
+\end_inset 
+
+ described a simulation of an evolvable hardware system using a single LSI
+ chip that contained the GA operations as well as a 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+acf{PLA}
+\end_inset 
+
+.
+ This work uses traditional GA techniques to evolve the circuits which are
+ executed on the integrated PLAs meaning that the chip can autonomously
+ synthesise hardware circuits.
+\layout Standard
+
+Jamro and Wiatr 
+\begin_inset LatexCommand \cite{jamro:2001}
+
+\end_inset 
+
+ investigated the use of GP to evolve optimised adders for use in image
+ convolution on FPGAs.
+ Once the adders had been evolved the tool generated optimised VHDL for
+ the required convolver.
+ However, they discovered that 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+acf{SA}
+\end_inset 
+
+ performed better than GP in this application.
+\layout Section
+
+Configuring FPGAs and Hardware Compilation
+\layout Standard
+
+FPGAs have traditionally been configured by hardware engineers using a 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+acf{HDL}
+\end_inset 
+
+.
+ The two principal languages being used in 2002 are Verilog
+\begin_inset LatexCommand \cite{Verilog:2002}
+
+\end_inset 
+
+ and 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+ac{VHDL}
+\end_inset 
+
+
+\begin_inset LatexCommand \cite{VHDL:2002}
+
+\end_inset 
+
+.
+ Both languages are similar, and the choice of which one to use is often
+ based on personal preferences, tool availability, or business and commercial
+ issues 
+\begin_inset LatexCommand \cite{smith:hdl:1997}
+
+\end_inset 
+
+.
+ VHDL has been used to implement hardware GAs and GP ( 
+\begin_inset LatexCommand \cite{scott:1994}
+
+\end_inset 
+
+, 
+\begin_inset LatexCommand \cite{Graham:96}
+
+\end_inset 
+
+,, 
+\begin_inset LatexCommand \cite{EHW:ICES2000-Perkins}
+
+\end_inset 
+
+, 
+\begin_inset LatexCommand \cite{heywood:2000:rbGPFPGA}
+
+\end_inset 
+
+, and 
+\begin_inset LatexCommand \cite{shackleford:2001}
+
+\end_inset 
+
+).
+ Both languages support a behavioural or algorithmic modelling capability,
+ but the majority of tools cannot translate a behavioural model directly
+ into hardware.
+ Instead, the designer must create a structural model that maps to the hardware.
+ Verilog and VHDL are specialised design techniques that are not immediately
+ accessible to software engineers, who have often been trained using imperative
+ programming languages.
+ Consequently, over the last few years there have been several attempts
+ at translating algorithmic oriented programming languages directly into
+ hardware descriptions.
+ These have taken a number of different approaches to this problem and these
+ are briefly reviewed in this section.
+ 
+\layout Standard
+
+Synopsis 
+\begin_inset LatexCommand \cite{systemc:2002}
+
+\end_inset 
+
+ produce a product called System Level Design that models the hardware using
+ a set of C++ classes.
+ Frontier Design 
+\begin_inset LatexCommand \cite{Frontier:2002}
+
+\end_inset 
+
+ produce a product called A|RT (Algorithm to Register Transfer) which allows
+ the designer to use a C style language to express the algorithm.
+ However, the designer of the C code is forced to use a particular coding
+ style that uses register transfer semantics.
+ CynApps 
+\begin_inset LatexCommand \cite{CynApps}
+
+\end_inset 
+
+ produce a tool called Cynthesis in which the designer needs to re-write
+ algorithmic C code to reflect the hardware architectural view.
+\layout Standard
+
+Another approach is to use a high level language to target part of the system
+ implemented in an FPGA, typically as a co-processor.
+ Clark 
+\begin_inset LatexCommand \cite{Clark:1996}
+
+\end_inset 
+
+ used the freely available C compiler lcc 
+\begin_inset LatexCommand \cite{Fraser:lcc:1995}
+
+\end_inset 
+
+ to compile specific instructions that targeted pre-compiled hardware functions
+ in a co-processor.
+ Callahan and Wawryzynek 
+\begin_inset LatexCommand \cite{Callahan:1998}
+
+\end_inset 
+
+ also used a C compiler to target a custom processor built using FPGAs.
+ Wirth 
+\begin_inset LatexCommand \cite{Wirth:1998}
+
+\end_inset 
+
+ suggested how parts of a C program could be compiled into programmable
+ hardware.
+\layout Standard
+
+A third method is to include the algorithm to hardware mapping in the compilatio
+n process.
+ This approach does not require substantial changes to the underlying algorithm
+ when compared with the previous approaches.
+ The transmogrifier work by Galloway 
+\begin_inset LatexCommand \cite{galloway95transmogrifier}
+
+\end_inset 
+
+ used this approach.
+ Maruyama and Hoshino 
+\begin_inset LatexCommand \cite{Maruyama:2000}
+
+\end_inset 
+
+, demonstrated how loops and recursion could be implemented directly.
+ Page 
+\begin_inset LatexCommand \cite{page:1991}
+
+\end_inset 
+
+
+\begin_inset LatexCommand \cite{page:1996-a}
+
+\end_inset 
+
+ recognised the need for a formalism to map between algorithmic constructs
+ and hardware.
+ The early work used 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+ac{CSP}
+\end_inset 
+
+ and Occam.
+ However, because Occam was regarded as an academic language, the work was
+ extended to use a C like language, called Handel-C, thereby making it more
+ appealing to industrial users.
+ Handel-C is now a commercial product produced by Celoxica 
+\begin_inset LatexCommand \cite{Celoxica:website}
+
+\end_inset 
+
+.
+\layout Standard
+
+Because Handel-C uses a C like language and because it does not force the
+ designer to adopt a structural approach to coding, it is accessible to
+ software engineers.
+ For these reasons Handel-C was used for implementing GP on an FPGA.
+ The next section describes Handel-C in greater detail.
+\layout Section
+
+Handel-C
+\layout Standard
+
+This section is not intended to be a full description of the tool and language,
+ but it does describe the most important features, especially those that
+ influence the design decisions described later in this thesis.
+ For full details of the language and development environment the reader
+ is referred to the user guides and reference material from the manufactures
+ 
+\begin_inset LatexCommand \cite{HandelC:refManual}
+
+\end_inset 
+
+.
+ Handel-C has been used in a number of applications including the rapid
+ implementation of a RISC microprocessor core 
+\begin_inset LatexCommand \cite{sulik:2000}
+
+\end_inset 
+
+, the implementation of video algorithms 
+\begin_inset LatexCommand \cite{page:video:1997}
+
+\end_inset 
+
+ and an SS7 transceiver 
+\begin_inset LatexCommand \cite{marconi:ss7}
+
+\end_inset 
+
+.
+ Other examples of applications can be found in 
+\begin_inset LatexCommand \cite{celoxica:academic}
+
+\end_inset 
+
+.
+\layout Subsection
+
+Parallel Hardware Generation
+\layout Standard
+
+One of the advantages of using hardware is the ability to exploit parallelism
+ directly.
+ This is in contrast to the simulated software parallelism that is found
+ on single 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+ac{CPU}
+\end_inset 
+
+ computers achieved using time-slicing.
+ Note 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbstart
+\end_inset 
+
+ that 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbend
+\end_inset 
+
+ although modern processors found in standard PCs and workstations have
+ multiple pipelines that attempt to execute more than one instruction simultaneo
+usly, they are only able to process one instruction sequence at a time.
+ Consequently, Handel-C has additional constructs to support the parallelisation
+ of code using the 
+\family typewriter 
+\series bold 
+par
+\family default 
+\series default 
+ statement.
+ For example, the block
+\layout Standard
+
+
+\begin_inset Minipage
+position 0
+inner_position 0
+height "0pt"
+width "8cm"
+collapsed false
+
+\layout LyX-Code
+
+
+\series bold 
+par
+\series default 
+ {
+\newline 
+    a=10; 
+\newline 
+    b=20;
+\newline 
+}
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+noindent 
+\end_inset 
+
+ generates hardware to assign the value 10 to 
+\family typewriter 
+a
+\family default 
+ and 20 to 
+\family typewriter 
+b
+\family default 
+ in a single clock cycle.
+ Using this statement, large blocks of functionality can be generated that
+ execute in parallel.
+ Hardware can be replicated using the construct
+\layout Standard
+
+
+\begin_inset Minipage
+position 0
+inner_position 0
+height "0pt"
+width "8cm"
+collapsed false
+
+\layout LyX-Code
+
+
+\series bold 
+par
+\series default 
+ (i=0;i<10;i++) { 
+\newline 
+    a[i] = b[i];
+\newline 
+}
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+noindent 
+\end_inset 
+
+ which results in 10 parallel assignment operations.
+ Multiple copies of functions may be created by using the macro language
+ of Handel-C, by using the 
+\family typewriter 
+\series bold 
+inline
+\family default 
+\series default 
+ keyword which instantiates a copy of a function every time it is referenced
+ or by explicitly defining an array of functions as in the following fragment
+ that defines 32 instances of a function:
+\layout Standard
+
+
+\begin_inset Minipage
+position 0
+inner_position 0
+height "0pt"
+width "100page%"
+collapsed false
+
+\layout LyX-Code
+
+
+\series bold 
+void
+\series default 
+ evaluate[32](
+\series bold 
+unsigned int
+\series default 
+ population)
+\layout LyX-Code
+
+{
+\layout LyX-Code
+
+    ...
+\layout LyX-Code
+
+}
+\end_inset 
+
+
+\layout Subsection
+
+Efficient Use of FPGA Resources
+\layout Standard
+
+To make efficient use of the hardware, Handel-C requires the programmer
+ to declare the width of all data, for example, 
+\layout LyX-Code
+
+
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+setlistspace
+\newline 
+
+\end_inset 
+
+
+\series bold 
+int
+\series default 
+ 5 count;
+\layout Standard
+
+
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+noindent
+\end_inset 
+
+ is a signed integer that is 5 bits wide, and so will be able to represent
+ the values 
+\begin_inset Formula $-16\leq count\leq +15$
+\end_inset 
+
+.
+ Handel-C has a single native Integer data type, but fixed and floating
+ point data types are supported by means of a library.
+\layout Subsection
+
+Bit Level Operators
+\layout Standard
+\added_space_bottom medskip 
+Handel-C provides a number of bit manipulation operators that are not available
+ in ISO-C.
+ The following bit operators are provided:
+\layout Standard
+
+
+\begin_inset  Tabular
+<lyxtabular version="3" rows="4" columns="2">
+<features>
+<column alignment="left" valignment="top" width="0pt">
+<column alignment="left" valignment="top" width="0pt">
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\family typewriter 
+y\SpecialChar ~
+=\SpecialChar ~
+x\SpecialChar ~
+<-\SpecialChar ~
+n
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Takes the 
+\emph on 
+n
+\emph default 
+ least significant bits from 
+\family typewriter 
+x
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\family typewriter 
+y\SpecialChar ~
+=\SpecialChar ~
+x\SpecialChar ~
+
+\backslash 
+
+\backslash 
+\SpecialChar ~
+n
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Drops the 
+\emph on 
+n
+\emph default 
+ least significant bits from 
+\family typewriter 
+x
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\family typewriter 
+y\SpecialChar ~
+=\SpecialChar ~
+x\SpecialChar ~
+@\SpecialChar ~
+z
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Concatenates the 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbstart 
+\end_inset 
+
+ bit patterns that represent 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbend 
+\end_inset 
+
+ 
+\family typewriter 
+x
+\family default 
+ and 
+\family typewriter 
+z
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\family typewriter 
+y\SpecialChar ~
+=\SpecialChar ~
+x[5:3]
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Selects bits 3,4 and 5 from 
+\family typewriter 
+x
+\end_inset 
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset 
+
+
+\layout Standard
+\added_space_top medskip 
+
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+noindent
+\end_inset 
+
+ The 
+\family typewriter 
+\series bold 
+width
+\family default 
+\series default 
+ operator returns the number of bits in an expression.
+\layout Subsection
+
+Simple Timing Semantics
+\layout Standard
+
+According to the Handel-C documentation, the simple rule about timing of
+ statements is that 
+\begin_inset Quotes eld
+\end_inset 
+
+assignment takes 1 clock cycle, the rest is free
+\begin_inset Quotes erd
+\end_inset 
+
+.
+ In practice this means that expressions are constructed using combinatorial
+ logic, and data is clocked into a register only when an assignment is performed.
+ For example, Handel-C would generate hardware for the following statement
+ that executed in a single clock cycle.
+\layout LyX-Code
+
+
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+setlistspace
+\newline 
+
+\end_inset 
+
+y = ((x*x)+3*x);
+\layout Standard
+
+
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+noindent
+\end_inset 
+
+ This feature makes it straightforward to predict the number of clock cycles
+ a section of code will require.
+ However, the more complex the expression, the deeper the logic required
+ to implement the expression.
+ This in turn limits the maximum clock rate at which the design can be run
+ because of the propagation delays associated with deep logic.
+ In practice this means that the designer needs to trade clock cycles against
+ clock rate, and this is typically an iterative process.
+\layout Subsection
+
+External Communication
+\layout Standard
+
+Communication between the hardware and the outside world is performed using
+ interfaces.
+ These may be specified as input or output, and, as with assignment, a write-to
+ or a read-from an interface will take one clock cycle.
+ The language allows the designer to target particular hardware, assign
+ input and output pins, specify the timing of signals, and generally control
+ the low level hardware interfacing details.
+ Macros are available to help target particular devices.
+\layout Subsection
+
+Some Restrictions When Using Handel-C and FPGAs
+\layout Standard
+
+Because Handel-C targets hardware, it imposes some programming restrictions
+ when compared to a traditional ISO-C compiler.
+ These need to be taken into consideration when designing code that can
+ be compiled by Handel-C.
+ Some of these restrictions particularly affect the building of a GP system.
+ 
+\layout Standard
+
+Firstly, there is no stack available, so recursive functions cannot be directly
+ supported by the language.
+ This in turn means that standard tree based GP, which relies heavily on
+ recursion, cannot be implemented without some modification.
+ A solution to this restriction is discussed in Section 
+\begin_inset LatexCommand \ref{Internal program representation}
+
+\end_inset 
+
+.
+\layout Standard
+
+Secondly, the size of memory that can be implemented using standard logic
+ cells on an FPGA is limited, because implementing memory is an inefficient
+ use of FPGA resources.
+ However, some FPGAs have internal RAM that can be used by Handel-C.
+ For example, the Xilinx Virtex and Spartan series support internal memory
+ that Handel-C allows the user to declare as RAM or 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+ac{ROM}
+\end_inset 
+
+.
+ For example the definition 
+\layout LyX-Code
+
+
+\series bold 
+ram int
+\series default 
+ 8 mem[128]; 
+\layout Standard
+
+
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+noindent
+\end_inset 
+
+ declares a RAM block of 128 cells, each 8 bits wide, which can be accessed
+ as a standard array.
+\layout Standard
+
+A limitation of using RAM or ROM is that it cannot be accessed more than
+ once per clock cycle.
+ This restricts the potential for parallel execution of code that accesses
+ RAM or ROM.
+\layout Standard
+
+Thirdly, expressions are not allowed to have side effects, since this would
+ break the single cycle assignment rule.
+ Therefore code such as 
+\layout Standard
+
+
+\begin_inset Minipage
+position 0
+inner_position 0
+height "0pt"
+width "100page%"
+collapsed false
+
+\layout LyX-Code
+
+a = ++b;
+\end_inset 
+
+
+\begin_inset ERT
+status Open
+
+\layout Standard
+
+\backslash 
+noindent is
+\end_inset 
+
+ is not allowed and needs to be re-written as:
+\layout Standard
+
+
+\begin_inset Minipage
+position 0
+inner_position 0
+height "0pt"
+width "100page%"
+collapsed false
+
+\layout LyX-Code
+
+b = b + 1;
+\newline 
+a = b;
+\end_inset 
+
+
+\layout Subsection
+
+Targets Supported by Handel-C
+\layout Standard
+
+Handel-C supports two targets.
+ The first is a simulator target that allows development and testing of
+ code without the need to use any hardware.
+ This is supported by a debugger and other tools.
+ The second target is the synthesis of a netlist for input to place and
+ route
+\begin_inset Foot
+collapsed false
+
+\layout Standard
+
+Place and route is the process of translating a netlist into a hardware
+ layout.
+\end_inset 
+
+ tools.
+ This allows the design to be translated into configuration data for particular
+ chips.
+ An overview of the process is shown in Figure 
+\begin_inset LatexCommand \ref{Process of using Handel-C}
+
+\end_inset 
+
+.
+ When compiling the design for a hardware target, Handel-C emits the design
+ in 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+acf{EDIF}
+\end_inset 
+
+ format.
+ A cycle count is available from the simulator, and an estimate of gate
+ count is generated by the Handel-C compiler.
+ To get definitive timing information and actual hardware usage, the place
+ and route tools need to be invoked.
+\layout Standard
+
+
+\begin_inset Float figure
+placement htbp
+wide false
+collapsed false
+
+\layout Standard
+\align center 
+
+\begin_inset Graphics FormatVersion 1
+	filename images/process.eps
+	display color
+	size_type 1
+	height 3in
+	rotateOrigin center
+	lyxsize_type 1
+	lyxwidth 283pt
+	lyxheight 216pt
+\end_inset 
+
+
+\layout ShortCaption
+
+Overview of the process of translating code into hardware using Handel-C.
+\layout Caption
+
+
+\begin_inset LatexCommand \label{Process of using Handel-C}
+
+\end_inset 
+
+Overview of the process of translating code into hardware using Handel-C
+ and the critical outputs for analysis of the solution
+\end_inset 
+
+
+\layout Subsection
+
+Translating ANSI-C to Handel-C and Code Portability
+\layout Standard
+
+With care it is possible to re-use the same code for a design implemented
+ in hardware, and a design realised as a traditional software program.
+ The differences in syntax and the various extensions can be made portable
+ using the C pre-processor.
+ For example, the need to supply a width specifier and 
+\family typewriter 
+\series bold 
+par
+\family default 
+\series default 
+ block statements for Handel-C can be hidden from an ANSI C compiler as
+ follows:
+\layout Standard
+
+
+\begin_inset Minipage
+position 0
+inner_position 0
+height "0pt"
+width "100page%"
+collapsed false
+
+\layout LyX-Code
+
+#
+\series bold 
+if defined
+\series default 
+ HANDELC
+\newline 
+
+\series bold 
+typedef unsigned
+\series default 
+ 
+\series bold 
+int
+\series default 
+ 5 Uint_5;
+\newline 
+#
+\series bold 
+define
+\series default 
+ PAR 
+\series bold 
+par
+\layout LyX-Code
+
+#
+\series bold 
+else
+\series default 
+
+\newline 
+
+\series bold 
+typedef unsigned int
+\series default 
+ Uint_5;
+\newline 
+#
+\series bold 
+define
+\series default 
+ PAR
+\layout LyX-Code
+
+#
+\series bold 
+endif
+\series default 
+
+\newline 
+...
+ 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbstart 
+\end_inset 
+
+
+\newline 
+Uint_5 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbend 
+\end_inset 
+
+ x;
+\newline 
+...
+\newline 
+PAR {
+\newline 
+    // parallel statements
+\layout LyX-Code
+
+}
+\end_inset 
+
+
+\layout Standard
+
+The issue of code portability is of interest when it comes to testing new
+ ideas.
+ The time required by Handel-C to compile an algorithm for an FPGA can be
+ measured in tens of minutes to many hours, depending on the complexity
+ of the algorithm and the level of optimisation specified.
+ In contrast, a standard ISO-C compiler on a 1.4\SpecialChar ~
+GHz Athlon based PC can recompile
+ an application in the lilgp suite 
+\begin_inset LatexCommand \cite{zonger:1996:lilgp-a}
+
+\end_inset 
+
+ in a little over 10 seconds.
+ Clearly, testing an algorithm is much easier and more productive using
+ standard programming techniques.
+ Having proved the algorithm, it is usually advantageous to reuse the algorithm
+ directly in the hardware implementation, thereby reducing the potential
+ for errors in transcription or translation that would occur if the two
+ environments were different.
+ This issue is examined in more detail in Chapter 
+\begin_inset LatexCommand \ref{main:Economic considerations}
+
+\end_inset 
+
+ where the economic and software engineering issues are discussed.
+\layout Section
+
+Summary
+\layout Standard
+
+This chapter has surveyed two technologies that have previously been used
+ to implement GAs and GP in hardware.
+ Because ASICs are usually considered to be faster than FPGAs, a custom
+ VLSI implementation using ASIC technology would appear to be highly desirable,
+ but because of the cost implications of using a custom designed VLSI chip,
+ the use of uncommitted reconfigurable devices is a preferred route for
+ experimentation and prototyping.
+ 
+\layout Standard
+
+Because traditional methods of programming FPGAs require a structural approach
+ and because they use specialised languages, the direct use of FPGAs has
+ been inaccessible to software engineers.
+ To remedy this, high level language to hardware design tools have been
+ developed.
+ The use of these tools is appealing to the software engineering community
+ because it allows a traditional imperative programming style to be used
+ to design and implement algorithms in hardware.
+ Handel-C is one of the high level languages available.
+ It provides an algorithmic route to hardware design, allows code to be
+ ported between software and hardware environments and enables the parallelism
+ inherent in hardware to be exploited.
+ Handel-C has an established track record, having been used to implement
+ other algorithms.
+ For these reasons Handel-C was the tool chosen for the implementation of
+ GP in hardware.
+\the_end

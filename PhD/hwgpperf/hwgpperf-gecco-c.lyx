@@ -1,0 +1,1419 @@
+#LyX 1.1 created this file. For more info see http://www.lyx.org/
+\lyxformat 218
+\textclass gecco-article
+\begin_preamble
+
+\end_preamble
+\language english
+\inputencoding auto
+\fontscheme default
+\graphics default
+\float_placement h+tb
+\paperfontsize default
+\spacing single 
+\papersize Default
+\paperpackage a4
+\use_geometry 0
+\use_amsmath 0
+\paperorientation portrait
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\defskip medskip
+\quotes_language english
+\quotes_times 2
+\papercolumns 2
+\papersides 1
+\paperpagestyle default
+
+\layout LaTeX
+
+
+\backslash 
+title {Analysis of the Behavior of a Hardware Implementation of Genetic
+ Programming using FPGAs and Handel-C}
+\layout LaTeX
+
+
+\backslash 
+author{ {
+\backslash 
+bf Peter Martin and Riccardo Poli} 
+\backslash 
+
+\backslash 
+
+\newline 
+Department of Computer Science,
+\backslash 
+
+\backslash 
+
+\newline 
+Colchester University,
+\newline 
+Wivenhoe Park,
+\backslash 
+
+\backslash 
+
+\newline 
+Colchester, CO4 3SQ UK }
+\layout Title
+\added_space_top vfill \added_space_bottom vfill 
+A title
+\layout LaTeX
+
+
+\backslash 
+maketitle
+\layout Abstract
+
+This paper analyses the behavior of a hardware implementation of Genetic
+ Programming using Field Programmable Gate Arrays.
+ Three crossover operators that limit the lengths of programs are analyzed.
+ A truncating operator, a limiting operator that constrains the lengths
+ of both offspring and a limiting operator that only constrains the length
+ of one offspring.
+ The latter has some interesting properties that suggest a new method of
+ limiting code growth in the presence of fitness.
+\layout Section
+
+Introduction
+\layout Standard
+
+Previous work has described an implementation of Genetic Programming using
+ Field Programmable Arrays and a high level language to hardware compilation
+ system called Handel-C 
+\begin_inset LatexCommand \cite{martin:2001:gpem}
+
+\end_inset 
+
+.
+ This was tested using the XOR and symbolic regression problems.
+ Further work described a pipelined implementation that improved the performance
+ and demonstrated that the technique could be used to solve the artificial
+ ant problem 
+\begin_inset LatexCommand \cite{martin:2002:eurogp2002}
+
+\end_inset 
+
+.
+ In both cases the work concentrated on the implementation issues and increasing
+ the clock speed of the implementation, but put to one side the study of
+ the behavior of the system with respect to standard GP.
+ Now that the raw throughput issues have been considered it is time to look
+ at the behavior, and investigate and analyze some alternative implementation
+ issues.
+\layout Standard
+
+Because of limited hardware resources in an FPGA and to keep the design
+ simple and therefore efficient, the maximum program size is fixed.
+ To ensure that crossover always generate programs that are shorter than
+ the maximum, the crossover operator limits the program size by truncating
+ programs that exceed the fixed maximum.
+ The effect of this decision is investigated in this paper and then some
+ other alternative methods of limiting program length are explored.
+\layout Standard
+
+The paper begins with a brief description of the implementation of a GP
+ system using FPGAs.
+ This is followed by an analysis of the crossover operator, with comparisons
+ to standard GP systems.
+ We then consider two alternative crossover operators and analyze their
+ behavior.
+ The analysis is then discussed and finally some further work is suggested
+ and some conclusions are given.
+\layout Section
+
+A Hardware Implementation of GP using FPGAs
+\layout Standard
+
+For a review of previous work using FPGAs in Evolutionary Computing refer
+ to 
+\begin_inset LatexCommand \cite{martin:2001:gpem}
+
+\end_inset 
+
+.
+\layout Subsection
+
+Description of Handel-C
+\layout Standard
+
+Handel-C is a high level language that is at the heart of a hardware compilation
+ system known as Celoxica DK1 
+\begin_inset LatexCommand \cite{Celoxica:website}
+
+\end_inset 
+
+ which is designed to compile programs written in a C-like high level language
+ into synchronous hardware.
+ The output from Handel-C is used to create the configuration data for the
+ FPGA.
+ A description of the process used by Handel-C to transform a high level
+ language into hardware and examples of the hardware generated can be found
+ in 
+\begin_inset LatexCommand \cite{page:1996}
+
+\end_inset 
+
+.
+ Handel-C has its roots in CSP and Occam.
+\layout Standard
+
+The C-like syntax makes the tool appealing to software engineers with little
+ or no experience of hardware.
+ They can quickly translate a software algorithm into hardware, without
+ having to learn about VHDL or FPGAs in detail.
+ Handel-C has extended the C syntax to support the parallelization of code.
+\layout Subsection
+
+Target Hardware
+\layout Standard
+
+The target hardware for this work is a Celoxica RC1000 FPGA development
+ board fitted with a Xilinx XCV2000E Virtex-E FPGA 
+\begin_inset LatexCommand \cite{Xilinx:2001}
+
+\end_inset 
+
+ having 43,200 logic cells and 655,360 bits of block ram, a PCI bridge that
+ communicates between the RC1000 board and the host computer's PCI bus,
+ and four banks of Static Random Access Memory (SRAM).
+\layout Subsection
+
+Program Representation
+\layout Standard
+
+Handel-C does not support a stack, which means that a standard tree based
+ representation is not straight forward to implement because recursion is
+ not supported by the language.
+ An alternative to a tree representation is a linear representation which
+ has been used by others to solve some hard GP problems 
+\begin_inset LatexCommand \cite{Nordin:1995:tcp}
+
+\end_inset 
+
+.
+ Using a linear representation, a program consists of a sequence of words
+ which are interpreted by the problem specific fitness function.
+ 
+\layout Section
+
+Analysis of the Hardware Implementation
+\layout Standard
+
+The hardware design uses a linear program representation with a fixed maximum
+ size.
+ The choice of a fixed maximum size was made to make the storage of programs
+ in on-chip RAM and off-chip RAM efficient and simple to implement.
+ Consequently a method of limiting the program size during crossover was
+ needed.
+ The first implementation used a truncating crossover.
+ This is compared to a second method of limiting lengths, called the limiting
+ crossover operator.
+\layout Subsection
+
+Artificial Ant 
+\layout Standard
+
+This popular test problem was originally described by Jefferson 
+\begin_inset LatexCommand \cite{jefferson:1992}
+
+\end_inset 
+
+ and in the context of GP is described by Koza 
+\begin_inset LatexCommand \cite{koza:book}
+
+\end_inset 
+
+.
+ It involves finding a program for an ant-like machine that enables it to
+ navigate its way round a trail of food on a 32x32 toroidal grid of cells
+ within a fixed number of time steps.
+ The function set 
+\begin_inset Formula \( {\cal F}=\{IF\_FOOD,PROGN2\} \)
+\end_inset 
+
+ where 
+\begin_inset Formula \( IF\_FOOD \)
+\end_inset 
+
+ is a two argument function that looks at the cell ahead and if it contains
+ food evaluate the first terminal, otherwise evaluate the second terminal.
+ 
+\begin_inset Formula \( PROGN2 \)
+\end_inset 
+
+ evaluates its first and second terminals in sequence.
+ The terminal set 
+\begin_inset Formula \( {\cal T}=\{LEFT,RIGHT,MOVE,NOP\} \)
+\end_inset 
+
+, where 
+\begin_inset Formula \( LEFT \)
+\end_inset 
+
+ and 
+\begin_inset Formula \( RIGHT \)
+\end_inset 
+
+ change the direction the ant is facing, 
+\begin_inset Formula \( MOVE \)
+\end_inset 
+
+ moves the ant one space forwards to a new cell, and if the new cell contains
+ food, the food is eaten.
+ 
+\begin_inset Formula \( NOP \)
+\end_inset 
+
+ is a no-operation terminal and has no effect on the ant.
+ The 
+\begin_inset Formula \( NOP \)
+\end_inset 
+
+ terminal is included to make the number of terminals a power of 2, which
+ simplifies the hardware logic.
+ Each time 
+\begin_inset Formula \( LEFT,RIGHT \)
+\end_inset 
+
+ or 
+\begin_inset Formula \( MOVE \)
+\end_inset 
+
+ is executed, the ant consumes one time step.
+ The run stops when either all the time steps have been used, or the ant
+ has eaten all the food.
+ This test problem was chosen because it is known to be a hard problem for
+ GP to solve 
+\begin_inset LatexCommand \cite{langdon:1998:antspace}
+
+\end_inset 
+
+.
+\layout Standard
+
+All the results in this section use the Santa Fe trail, which has 89 pellets
+ of food.
+ Each experiment was run 500 times and the average of all the runs taken.
+ In all cases, unless stated otherwise, the population size is 1024, the
+ maximum program length is 31 and all experiments were run for 32 generations.
+ The maximum number of time steps for the ant to complete its trail is 1024.
+\layout Subsection
+
+Behavior Analysis
+\layout Standard
+
+The measurement of overall GP behavior is frequently limited to plotting
+ the average population fitness vs.
+ generation.
+ This is shown for the artificial ant problem using the original hardware
+ implementation in figure 
+\begin_inset LatexCommand \ref{fig:Initial Performance}
+
+\end_inset 
+
+.
+ 
+\begin_float fig 
+\layout Standard
+\align center 
+
+\begin_inset Figure size 226 127
+file images/hw_trunc_lfsr_perf.eps
+width 1 8
+height 1 4.5
+flags 9
+
+\end_inset 
+
+
+\layout Caption
+
+
+\begin_inset LatexCommand \label{fig:Initial Performance}
+
+\end_inset 
+
+GP Performance of the original design
+\end_float 
+\layout Standard
+
+This will be used as a baseline when looking at changes to the original
+ design.
+\layout Standard
+
+However, when looking for the reasons to explain why a feature of an operator
+ or representation has an effect, raw performance gives us a very restricted
+ view of what is happening, and more analytical methods are needed.
+ One such method is to consider one or more aspects of the internal population
+ dynamics during a run.
+ Recently a lot of work has been done to develop exact schema theories for
+ Genetic Programming 
+\begin_inset LatexCommand \cite{poli:2001:EuroGP_general}
+
+\end_inset 
+
+
+\begin_inset LatexCommand \cite{poli:2001:EuroGP_exact}
+
+\end_inset 
+
+, which, among other things, give us a description of the expected changes
+ in the program length distribution during a GP run.
+ The asymptotic distribution of program lengths is important to us because
+ it is a way of comparing the sampling behavior (search bias) of different
+ crossover operators and replacement strategies.
+\layout Standard
+
+Two separate implementations were used during the analysis.
+ Firstly, a simple GP implementation without fitness evaluation was used
+ to show the expected program length distributions in the absence of fitness.
+ Secondly, the hardware implementation was used to obtain results both with
+ and without fitness.
+\layout Standard
+
+Starting with the standard GP model using standard subtree crossover, uniform
+ initial length distribution and ignoring the effects of fitness, figure
+ 
+\begin_inset LatexCommand \ref{fig:DIST sim stdgp}
+
+\end_inset 
+
+ shows the expected length distribution for generations 0,1,10 and 31.
+ In this case there is no maximum program size.
+ This agrees with the results in 
+\begin_inset LatexCommand \cite{poli:2001:EuroGP_exact}
+
+\end_inset 
+
+ where the distribution asymptotically converges to a discrete Gamma distributio
+n.
+\layout Standard
+
+\begin_float fig 
+\layout Standard
+\align center 
+
+\begin_inset Figure size 226 127
+file images/sim_nofit_stdgp.eps
+width 1 8
+height 1 4.5
+flags 9
+
+\end_inset 
+
+
+\layout Caption
+
+
+\begin_inset LatexCommand \label{fig:DIST sim stdgp}
+
+\end_inset 
+
+Program length distribution for standard GP crossover using a linear program
+ representation, a global replacement strategy, non-steady state and a flat
+ fitness landscape.
+\end_float 
+\layout Subsection
+
+Truncating Crossover Operator
+\layout Standard
+
+This crossover operator ensures programs do not exceed the maximum program
+ length by selecting crossover points in two individuals at random and exchangin
+g the tail portions up to the maximum program length.
+ Crossovers that result in programs exceeding the maximum length are truncated
+ at the maximum length.
+ This crossover operator was chosen to minimize the amount of logic required
+ and the number of clock cycles needed.
+ This is illustrated in figure 
+\begin_inset LatexCommand \ref{fig:Truncating crossover operator}
+
+\end_inset 
+
+.
+\layout Standard
+
+\begin_float fig 
+\layout Standard
+\align center 
+
+\begin_inset Figure size 226 127
+file images/crossover1.eps
+width 1 8
+height 1 4.5
+flags 9
+
+\end_inset 
+
+
+\layout Caption
+
+
+\begin_inset LatexCommand \label{fig:Truncating crossover operator}
+
+\end_inset 
+
+Truncating crossover operator
+\end_float 
+\layout Standard
+
+For two programs 
+\begin_inset Formula \( a \)
+\end_inset 
+
+ and 
+\begin_inset Formula \( b \)
+\end_inset 
+
+, with lengths 
+\begin_inset Formula \( l_{a} \)
+\end_inset 
+
+ and 
+\begin_inset Formula \( l_{b} \)
+\end_inset 
+
+, two crossover points 
+\begin_inset Formula \( x_{a} \)
+\end_inset 
+
+ and 
+\begin_inset Formula \( x_{b} \)
+\end_inset 
+
+ are chosen at random so that 
+\begin_inset Formula \( 0\leq x_{a}<l_{a} \)
+\end_inset 
+
+ and 
+\begin_inset Formula \( 0\leq x_{b}<l_{b} \)
+\end_inset 
+
+.
+ The program size limit is 
+\begin_inset Formula \( L_{max} \)
+\end_inset 
+
+.
+ After crossover the new lengths are 
+\begin_inset Formula \( l_{a}'=\min ((x_{a}+l_{b}-x_{b}),L_{max}) \)
+\end_inset 
+
+ and 
+\begin_inset Formula \( l_{b}'=\min ((x_{b}+l_{a}-x_{a}),L_{max}) \)
+\end_inset 
+
+.
+\layout Standard
+
+When standard GP simulator is modified to implement the truncating crossover,
+ the result is shown in figure 
+\begin_inset LatexCommand \ref{fig:DIST sim nofit trunc}
+
+\end_inset 
+
+ for the flat fitness landscape case.
+\layout Standard
+
+\begin_float fig 
+\layout Standard
+\align center 
+
+\begin_inset Figure size 226 127
+file images/sim_nofit_trunc.eps
+width 1 8
+height 1 4.5
+flags 9
+
+\end_inset 
+
+
+\layout Caption
+
+
+\begin_inset LatexCommand \label{fig:DIST sim nofit trunc}
+
+\end_inset 
+
+Program length distribution with truncating crossover for standard GP on
+ a flat fitness landscape.
+\end_float 
+\layout Standard
+
+The behavior of the hardware implementation using the truncating crossover
+ operator is shown in figure 
+\begin_inset LatexCommand \ref{fig:DIST hw nofit trunc}
+
+\end_inset 
+
+.
+\layout Standard
+
+\begin_float fig 
+\layout Standard
+\align center 
+
+\begin_inset Figure size 226 127
+file images/hw_nofit_trunc.eps
+width 1 8
+height 1 4.5
+flags 9
+
+\end_inset 
+
+
+\layout Caption
+
+
+\begin_inset LatexCommand \label{fig:DIST hw nofit trunc}
+
+\end_inset 
+
+Program length distribution using truncating crossover using a linear program
+ representation on a flat fitness landscape.
+ From the hardware implementation.
+\end_float 
+\layout Standard
+
+A feature of this result is that there is initially a large peak at the
+ maximum program size of 31, but in subsequent generations the distribution
+ tends to resemble a Gamma distribution like the one in 
+\begin_inset LatexCommand \ref{fig:DIST sim stdgp}
+
+\end_inset 
+
+.
+ However, it is important to note that it not the same Gamma distribution,
+ because the mean program length tends to decrease with this crossover operator.
+ The reason is that with the truncation the amount of genetic material removed
+ from the parents when creating the offspring may be bigger than the amount
+ of genetic material replacing it.
+ The differences between figures 
+\begin_inset LatexCommand \ref{fig:DIST sim nofit trunc}
+
+\end_inset 
+
+ and 
+\begin_inset LatexCommand \ref{fig:DIST hw nofit trunc}
+
+\end_inset 
+
+ are believed to arise because the simulator uses generational GP, while
+ the hardware implementation uses steady state GP.
+\layout Standard
+
+When fitness is used, the length distribution changes as shown in figure
+ 
+\begin_inset LatexCommand \ref{fig:DIST hw fit trunc}
+
+\end_inset 
+
+, but it still retains some of the features of a Gamma distribution.
+ The striking feature is the large peak at the maximum program length limit
+ which represents 13% of the total population.
+\layout Standard
+
+\begin_float fig 
+\layout Standard
+\align center 
+
+\begin_inset Figure size 226 127
+file images/hw_fit_trunc.eps
+width 1 8
+height 1 4.5
+flags 9
+
+\end_inset 
+
+
+\layout Caption
+
+
+\begin_inset LatexCommand \label{fig:DIST hw fit trunc}
+
+\end_inset 
+
+Program length distribution using truncating crossover using a linear program
+ representation with fitness.
+ From the hardware implementation.
+\end_float 
+\layout Subsection
+
+Limiting Crossover Operator
+\layout Standard
+
+An alternative method of ensuring that programs do not exceed the fixed
+ limit is to choose crossover points that result in programs that are below
+ the program size limit 
+\begin_inset Formula \( L_{max} \)
+\end_inset 
+
+.
+\layout Standard
+
+For two programs 
+\begin_inset Formula \( a \)
+\end_inset 
+
+ and 
+\begin_inset Formula \( b \)
+\end_inset 
+
+, with lengths 
+\begin_inset Formula \( l_{a} \)
+\end_inset 
+
+ and 
+\begin_inset Formula \( l_{b} \)
+\end_inset 
+
+, two crossover points 
+\begin_inset Formula \( x_{a} \)
+\end_inset 
+
+ and 
+\begin_inset Formula \( x_{b} \)
+\end_inset 
+
+ are chosen so that 
+\begin_inset Formula \( 0\leq x_{a}<l_{a} \)
+\end_inset 
+
+ and 
+\begin_inset Formula \( 0\leq x_{b}<l_{b} \)
+\end_inset 
+
+.
+ After crossover the new lengths are simply 
+\begin_inset Formula \( l_{a}'=x_{a}+l_{b}-x_{b} \)
+\end_inset 
+
+ and 
+\begin_inset Formula \( l_{b}'=x_{b}+l_{a}-x_{a} \)
+\end_inset 
+
+.
+ If 
+\begin_inset Formula \( l_{a}'>L_{max} \)
+\end_inset 
+
+ or 
+\begin_inset Formula \( l_{b}'>L_{max} \)
+\end_inset 
+
+ the selection of 
+\begin_inset Formula \( x_{a} \)
+\end_inset 
+
+ and 
+\begin_inset Formula \( x_{b} \)
+\end_inset 
+
+ is repeated until 
+\begin_inset Formula \( l_{a}'\le L_{max} \)
+\end_inset 
+
+ AND 
+\begin_inset Formula \( l_{b}'\le L_{max} \)
+\end_inset 
+
+.
+\layout Standard
+
+This is the approach taken in lilgp when the 
+\family typewriter 
+keep_trying
+\family default 
+ parameter is enabled 
+\begin_inset LatexCommand \cite{zonger:1996:lilgp}
+
+\end_inset 
+
+, and other tree based GP systems, to limit the tree depth and the total
+ number of nodes in a program tree.
+ When this crossover operator is implemented in the GP simulator the program
+ length distribution changes, as shown in figure 
+\begin_inset LatexCommand \ref{fig:DIST sim nofit limit single}
+
+\end_inset 
+
+.
+ 
+\layout Standard
+
+\begin_float fig 
+\layout Standard
+\align center 
+
+\begin_inset Figure size 226 127
+file images/sim_nofit_limit.eps
+width 1 8
+height 1 4.5
+flags 9
+
+\end_inset 
+
+
+\layout Caption
+
+
+\begin_inset LatexCommand \label{fig:DIST sim nofit limit single}
+
+\end_inset 
+
+Program length distribution using limiting crossover operator and a global
+ replacement strategy on a flat fitness landscape.
+\end_float 
+\layout Standard
+
+A feature of this result is that the mean program length moves towards smaller
+ values.
+ After 31 generations, the population size distribution shape resembles
+ standard GP.
+ 
+\layout Standard
+
+When this method of limiting the program length was implemented in the hardware
+ version, we obtained the distribution shown in figure 
+\begin_inset LatexCommand \ref{fig:DIST hw nofit limit dual}
+
+\end_inset 
+
+.
+ In contrast to the GP simulator the program length distribution remains
+ reasonably static between generations 1 and 31.
+\layout Standard
+
+\begin_float fig 
+\layout Standard
+\align center 
+
+\begin_inset Figure size 226 127
+file images/hw_nofit_limit.eps
+width 1 8
+height 1 4.5
+flags 9
+
+\end_inset 
+
+
+\layout Caption
+
+
+\begin_inset LatexCommand \label{fig:DIST hw nofit limit dual}
+
+\end_inset 
+
+Program length distribution using limiting crossover on a flat fitness landscape
+, from the hardware implementation.
+\end_float 
+\layout Standard
+
+In an effort to understand the different behavior between the results in
+ figures 
+\begin_inset LatexCommand \ref{fig:DIST sim nofit limit single}
+
+\end_inset 
+
+ and 
+\begin_inset LatexCommand \ref{fig:DIST hw nofit limit dual}
+
+\end_inset 
+
+ it was noted that the hardware implementation required both of the offspring
+ programs 
+\begin_inset Formula \( a' \)
+\end_inset 
+
+ AND 
+\begin_inset Formula \( b' \)
+\end_inset 
+
+ to be shorter than 
+\begin_inset Formula \( L_{max} \)
+\end_inset 
+
+ but that the simulation only required 
+\begin_inset Formula \( a' \)
+\end_inset 
+
+ OR 
+\begin_inset Formula \( b' \)
+\end_inset 
+
+ to be shorter.
+ The latter case is referred to as the single-child variant in the rest
+ of this paper, and the original the dual-child variant.
+ In the case of the single-child variant, if one of the programs was larger
+ than the maximum, it was simply discarded and the parent substituted in
+ its place.
+ When the hardware implementation was modified to incorporate the single-child
+ variant limiting method, the result shown in figure 
+\begin_inset LatexCommand \ref{fig:DIST hw nofit limit single}
+
+\end_inset 
+
+ was obtained, closely matching that from the simulation.
+ 
+\layout Standard
+
+\begin_float fig 
+\layout Standard
+\align center 
+
+\begin_inset Figure size 226 127
+file images/hw_nofit_limit_single.eps
+width 1 8
+height 1 4.5
+flags 9
+
+\end_inset 
+
+
+\layout Caption
+
+
+\begin_inset LatexCommand \label{fig:DIST hw nofit limit single}
+
+\end_inset 
+
+Program length distribution using limiting crossover on a flat fitness landscape
+ and the single-child variant.
+ From the hardware implementation.
+\end_float 
+\layout Standard
+
+When fitness is enabled using the dual-child variant, there is a large bias
+ in favor of longer programs as shown in figure 
+\begin_inset LatexCommand \ref{fig:DIST hw fit limit dual}
+
+\end_inset 
+
+.
+ An interesting artifact of this graph is the sharp rise in program lengths
+ for generations 10 and 31 above length 15, and the plateau after length
+ 15, though at this time we have no detailed explanation for this.
+\begin_float fig 
+\layout Standard
+\align center 
+
+\begin_inset Figure size 226 127
+file images/hw_fit_limit.eps
+width 1 8
+height 1 4.5
+flags 9
+
+\end_inset 
+
+
+\layout Caption
+
+
+\begin_inset LatexCommand \label{fig:DIST hw fit limit dual}
+
+\end_inset 
+
+Program length distribution using limiting crossover with fitness and the
+ dual-child variant.
+ From the hardware implementation.
+\end_float 
+However, when the program length distribution using the single-child variant
+ was plotted, shown in figure 
+\begin_inset LatexCommand \ref{fig:DIST hw fit limit single}
+
+\end_inset 
+
+, 
+\layout Standard
+
+\begin_float fig 
+\layout Standard
+\align center 
+
+\begin_inset Figure size 226 127
+file images/hw_fit_limit_single.eps
+width 1 8
+height 1 4.5
+flags 9
+
+\end_inset 
+
+
+\layout Caption
+
+
+\begin_inset LatexCommand \label{fig:DIST hw fit limit single}
+
+\end_inset 
+
+Program length distribution using limiting crossover with fitness and the
+ single-child variant.
+ From the hardware implementation.
+\end_float 
+\layout Standard
+
+the length distribution peaking at around the mean of 
+\begin_inset Formula \( L_{max} \)
+\end_inset 
+
+.
+ This unexpected behavior in interesting since it appears to have avoided
+ the phenomenon commonly known as bloat.
+\layout Standard
+
+The effect of using the limiting crossover operator with and without the
+ single-child variant on the behavior of the system is shown in figure 
+\begin_inset LatexCommand \ref{fig:PERF combined}
+
+\end_inset 
+
+ together with the original behavior.
+ This graph shows that all three crossover implementations have a similar
+ rate of improvement, with the limiting crossover operator with single-child
+ variant maybe performing slightly better.
+\begin_float fig 
+\layout Standard
+\align center 
+
+\begin_inset Figure size 226 127
+file images/hw_limit_lfsr_single_perf.eps
+width 1 8
+height 1 4.5
+flags 9
+
+\end_inset 
+
+
+\layout Caption
+
+
+\begin_inset LatexCommand \label{fig:PERF combined}
+
+\end_inset 
+
+Comparative GP behavior of the hardware implementation for the ant problem
+ using truncating crossover and limiting crossover.
+\end_float 
+\layout Standard
+
+Finally, the distribution of 100% correct program lengths was measured for
+ truncating and both limiting crossovers.
+ The hardware implementation was run 500 times, and if a 100% correct program
+ was generated, the length was recorded.
+ These are shown in figures 
+\begin_inset LatexCommand \ref{fig:LEN truncate}
+
+\end_inset 
+
+, 
+\begin_inset LatexCommand \ref{fig:LEN limit dual}
+
+\end_inset 
+
+ and 
+\begin_inset LatexCommand \ref{fig:LEN limit single}
+
+\end_inset 
+
+ respectively.
+ 
+\layout Standard
+
+\begin_float fig 
+\layout Standard
+\align center 
+
+\begin_inset Figure size 226 127
+file images/hw_trunc_lengths.eps
+width 1 8
+height 1 4.5
+flags 9
+
+\end_inset 
+
+
+\layout Caption
+
+
+\begin_inset LatexCommand \label{fig:LEN truncate}
+
+\end_inset 
+
+Distribution of lengths of 100% correct programs using the truncating crossover
+ operator.
+\end_float 
+\layout Standard
+
+\begin_float fig 
+\layout Standard
+\align center 
+
+\begin_inset Figure size 226 127
+file images/hw_limit_lengths.eps
+width 1 8
+height 1 4.5
+flags 9
+
+\end_inset 
+
+
+\layout Caption
+
+
+\begin_inset LatexCommand \label{fig:LEN limit dual}
+
+\end_inset 
+
+Distribution of lengths of 100% correct programs using the dual-child variant
+ limiting crossover operator.
+\end_float 
+\begin_float fig 
+\layout Standard
+\align center 
+
+\begin_inset Figure size 226 127
+file images/hw_limit_lengths_single.eps
+width 1 8
+height 1 4.5
+flags 9
+
+\end_inset 
+
+
+\layout Caption
+
+
+\begin_inset LatexCommand \label{fig:LEN limit single}
+
+\end_inset 
+
+Distribution of lengths of 100% correct programs using the the single-child
+ variant limiting crossover operator.
+\end_float 
+\layout Standard
+
+The truncating crossover has allowed GP to find more 100% correct programs
+ than the limiting crossover using the dual-child variant.
+ However, when using the single-child variant, limiting crossover found
+ the most 100% correct programs.
+ 
+\layout Standard
+
+It is interesting to note that the results shown in figure 
+\begin_inset LatexCommand \ref{fig:PERF combined}
+
+\end_inset 
+
+ do not show this difference in the outcome, highlighting the weakness of
+ using the standard measure of performance.
+\layout Standard
+
+The results shown in figures 
+\begin_inset LatexCommand \ref{fig:LEN truncate}
+
+\end_inset 
+
+
+\begin_inset LatexCommand \ref{fig:LEN limit dual}
+
+\end_inset 
+
+ and 
+\begin_inset LatexCommand \ref{fig:LEN limit single}
+
+\end_inset 
+
+ suggest that for the artificial ant problem implemented in hardware, programs
+ of length 4 or 5 are most likely to be correct.
+ It was then observed that the peak program length in figure 
+\begin_inset LatexCommand \ref{fig:DIST hw fit limit single}
+
+\end_inset 
+
+ was larger than length 4.
+ It was then conjectured that if the maximum program length was changed
+ so that the peak was moved so that it was closer to the most frequently
+ successful program, that GP would find even more successful programs.
+ The maximum length was therefore changed to 16 and 8.
+ The results of running the hardware implementation with these mosified
+ lengths is shown in figures 
+\begin_inset LatexCommand \ref{fig:LEN limit single 16}
+
+\end_inset 
+
+ and 
+\begin_inset LatexCommand \ref{fig:LEN limit single 8}
+
+\end_inset 
+
+.
+\layout Standard
+
+\begin_float fig 
+\layout Standard
+\align center 
+
+\begin_inset Figure size 226 127
+file images/hw_limit_lengths_single_16.eps
+width 1 8
+height 1 4.5
+flags 9
+
+\end_inset 
+
+
+\layout Caption
+
+
+\begin_inset LatexCommand \label{fig:LEN limit single 16}
+
+\end_inset 
+
+Distribution of lengths of 100% correct programs using the the single-child
+ variant limiting crossover operator and a length limit of 16
+\end_float 
+\layout Standard
+
+\begin_float fig 
+\layout Standard
+\align center 
+
+\begin_inset Figure size 226 127
+file images/hw_limit_lengths_single_8.eps
+width 1 8
+height 1 4.5
+flags 9
+
+\end_inset 
+
+
+\layout Caption
+
+
+\begin_inset LatexCommand \label{fig:LEN limit single 8}
+
+\end_inset 
+
+Distribution of lengths of 100% correct programs using the the single-child
+ variant limiting crossover operator and a length limit of 8
+\end_float 
+This confirmed the idea that by limiting the program lengths that GP is
+ allowed to create, that GP could create more 100% correct programs.
+ The coresponding program length distributions are shown in figures 
+\begin_inset LatexCommand \ref{fig:DIST hw fit limit single 16}
+
+\end_inset 
+
+ and 
+\begin_inset LatexCommand \ref{fig:DIST hw fir limit single 8}
+
+\end_inset 
+
+.
+\layout Standard
+
+\begin_float fig 
+\layout Standard
+\align center 
+
+\begin_inset Figure size 226 127
+file images/hw_fit_limit_single-16.eps
+width 1 8
+height 1 4.5
+flags 9
+
+\end_inset 
+
+
+\layout Caption
+
+
+\begin_inset LatexCommand \label{fig:DIST hw fit limit single 16}
+
+\end_inset 
+
+Program length distribution using limiting crossover with fitness and the
+ single-child variant.
+ Maximum length limited to 16.
+ From the hardware implementation.
+\end_float 
+\begin_float fig 
+\layout Standard
+\align center 
+
+\begin_inset Figure size 226 127
+file images/hw_fit_limit_single-8.eps
+width 1 8
+height 1 4.5
+flags 9
+
+\end_inset 
+
+
+\layout Caption
+
+
+\begin_inset LatexCommand \label{fig:DIST hw fir limit single 8}
+
+\end_inset 
+
+Program length distribution using limiting crossover with fitness and the
+ single-child variant.
+ Maximum length limited to 8.
+ From the hardware implementation.
+\end_float 
+Again these show that the program length distribution peaks near the peak
+ of the successful programs.
+\layout Section
+
+Discussion
+\layout Standard
+
+The differences between the dual-child and single-child variants can be
+ explained by considering first the dual-child case.
+ Starting with a uniform distribution of program lengths, the average program
+ length is given by 
+\begin_inset Formula \( L_{avg}=\frac{L_{max}}{2} \)
+\end_inset 
+
+ and the average crossover point is 
+\begin_inset Formula \( \frac{L_{avg}}{2} \)
+\end_inset 
+
+.
+ Every crossover produces two offspring, the average length of which is
+ 
+\begin_inset Formula \( \frac{L_{max}}{2} \)
+\end_inset 
+
+, with one small and one large program produced.
+ When one of the offspring exceeds 
+\begin_inset Formula \( L_{max} \)
+\end_inset 
+
+ both crossover points are re-selected until both programs satisfy the length
+ constraint.
+ The result is that the average program length using this crossover will
+ remain around 
+\begin_inset Formula \( \frac{L_{max}}{2} \)
+\end_inset 
+
+.
+ However, in the single-child case, only one child needs to meet the length
+ constraint.
+ With one long and one short offspring, the short offspring will be more
+ likely to satisfy the constraint and so be selected for propagation.
+ Because the shorter program is preferred, the mean program length will
+ tend to continually decrease.
+ In summary, in the absence of fitness, the single-child variant selects
+ programs that are on average smaller than 
+\begin_inset Formula \( \frac{L_{max}}{2} \)
+\end_inset 
+
+.
+\layout Standard
+
+In the presence of fitness we believe that this pressure to decrease the
+ mean program length competes with the well documented tendency of GP programs
+ to grow in the presence of fitness.
+ The result is that when using the sigle length constraint and an upper
+ bound on the program length, that the program length distribution does
+ not have a strong bias to longer lengths.
+\layout Standard
+
+A practical penalty of the limiting crossover approach is that multiple
+ passes may be required to obtain two crossover points that satisfy the
+ length constraints.
+ Depending on the implementation this could have an impact on the time needed
+ to complete a GP run.
+ In practice for most problems the time required for crossover in a standard
+ GP system is much smaller that the time for evaluating programs, and so
+ will only extend the time required by a small factor.
+ In the hardware implementation, crossover is performed in parallel with
+ evaluation, so there will be no impact for most problems, where fitness
+ evaluation takes longer than selection and breeding.
+ For the artificial ant problem implemented in hardware, the limiting crossover
+ operators did not have any effect on the overall behavior of the design,
+ both the clock speed and number of clock cycles remained the same as the
+ truncating crossover implementation.
+ It is worth noting that the single-child limiting crossover will need fewer
+ iterations to find a legal offspring, so this will have a smaller effect
+ on the overall performance.
+\layout Standard
+
+The beneficial effect of moving the program length limit so that the peak
+ in the length distribution is closer to the peak of correct program lengths
+ suggests that allowing programs to be unlimited in length may not always
+ be the best way to run GP.
+\layout Section
+
+Further work
+\layout Standard
+
+From the results in 
+\begin_inset LatexCommand \cite{poli:2001:EuroGP_general}
+
+\end_inset 
+
+ we would expect similar behavior when these techniques are applied to standard
+ tree based GP, and this is being investigated.
+\layout Standard
+
+Other techniques have been suggested for controlling the program size during
+ evolution, such as the smooth operators 
+\begin_inset LatexCommand \cite{page:1999:smuxspmGP}
+
+\end_inset 
+
+, homologous and size fair operators 
+\begin_inset LatexCommand \cite{langdon:1999:fairxo}
+
+\end_inset 
+
+ which could also be adapted to a hardware implementation.
+\layout Standard
+
+Only one problem has been analyzed using the hardware implementation of
+ GP and to get a more complete picture of the effects of the design decisions
+ more problems need to be implemented and analyzed.
+\layout Section
+
+Conclusions
+\layout Standard
+
+This analysis, based on measuring the program length distributions was inspired
+ by the results from the work on a general schema thory of GP.
+ It has led us to an implementation of crossover that allows us to contrain
+ the maximum program lengths.
+ For the ant problem we have discovered a mechanism that avoids the effects
+ of unconstrained program growth, and indeed allows us to obtain far more
+ correct programs than standard GP achieves.
+\layout Standard
+
+In conclusion, all three crossover operators are effective in the hardware
+ implementation when applied to the artificial ant problem, with the single-chil
+d limiting crossover performing ahead of the other two.
+ The behavior of the single-child limiting crossover in the presence of
+ fitness is interesting and suggests another mechanism for controlling code
+ growth.
+ 
+\layout Subsubsection*
+
+Acknowledgements
+\layout Standard
+
+The first author would like to thank Marconi plc for supporting this work.
+\layout Standard
+
+
+\begin_inset LatexCommand \BibTeX[abbrv]{handelc}
+
+\end_inset 
+
+
+\the_end

@@ -1,0 +1,414 @@
+#LyX 1.2 created this file. For more info see http://www.lyx.org/
+\lyxformat 220
+\textclass essex
+\begin_preamble
+%
+% Change this to input the prologue file for your own thesis
+%
+\input{shortheader.tex}
+\end_preamble
+\language english
+\inputencoding auto
+\fontscheme default
+\graphics default
+\float_placement htb
+\paperfontsize default
+\spacing single 
+\papersize Default
+\paperpackage a4
+\use_geometry 0
+\use_amsmath 0
+\use_natbib 0
+\use_numerical_citations 0
+\paperorientation portrait
+\secnumdepth 2
+\tocdepth 2
+\paragraph_separation indent
+\defskip medskip
+\quotes_language english
+\quotes_times 2
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+
+\layout Standard
+
+This appendix presents the algorithm used in the pipelined implementation
+ as described in Chapter 
+\family roman 
+
+\begin_inset LatexCommand \ref{main:Optimised implementation}
+
+\end_inset 
+
+
+\family default 
+.
+ Only the top level procedures are shown here.
+ Keywords are in 
+\series bold 
+bold
+\series default 
+ and comments are in 
+\emph on 
+italics
+\emph default 
+.
+ Variables are shown in 
+\family typewriter 
+typewriter
+\family default 
+ font.
+\layout Standard
+
+A 
+\series bold 
+par
+\family typewriter 
+\series default 
+ {...}
+\family default 
+ block denotes that all statements inside the
+\family typewriter 
+ {}
+\family default 
+ braces are executed in parallel.
+ A 
+\series bold 
+seq
+\family typewriter 
+\series default 
+{...}
+\family default 
+ block denotes that all statements inside the 
+\family typewriter 
+{}
+\family default 
+ braces are executed sequentially.
+ There are a number of global variables and arrays.
+ The array BRAM[2] contains two separate sets of individuals.
+ The array is accessed using two indexes: 
+\family typewriter 
+PhaseBreed
+\family default 
+ is used by the WriteBack/Select/Breed sub stage, and 
+\family typewriter 
+PhaseEval
+\family default 
+ is used by the Evaluate/Replace sub stage.
+\layout LyX-Code
+\added_space_bottom bigskip \line_top \line_bottom 
+
+\family roman 
+\shape italic 
+The main hardware GP procedure
+\series bold 
+\shape default 
+
+\newline 
+
+\newline 
+begin
+\family default 
+\series default 
+ 
+\family roman 
+proc HardwareGP()
+\newline 
+    initialise random seed
+\newline 
+    initialise cycle counter
+\newline 
+    
+\series bold 
+par
+\series default 
+ {
+\newline 
+        Random()
+\newline 
+        CycleCount()
+\newline 
+        MainGP()
+\newline 
+    }
+\newline 
+
+\series bold 
+end
+\series default 
+ HardwareGP
+\layout LyX-Code
+\added_space_bottom bigskip \line_top \line_bottom 
+
+\family roman 
+\shape italic 
+The random number generator main loop 
+\newline 
+This loop runs continuously, generating a new
+\newline 
+pseudo random number every cycle.
+\newline 
+It writes the random number to a global variable
+\newline 
+called 
+\family default 
+\shape default 
+RandReg
+\newline 
+
+\newline 
+
+\family roman 
+\series bold 
+begin
+\series default 
+ proc Random()
+\newline 
+    
+\series bold 
+repeat
+\series default 
+
+\newline 
+        
+\family default 
+RandReg
+\family roman 
+:= new pseudo random integer
+\newline 
+    
+\series bold 
+forever
+\series default 
+
+\newline 
+
+\series bold 
+end
+\series default 
+ Random
+\layout LyX-Code
+\added_space_bottom bigskip \line_top \line_bottom 
+
+\family roman 
+\shape italic 
+The CycleCount procedure increments the global variable 
+\series bold 
+\shape default 
+ 
+\family default 
+\series default 
+CycleCount
+\family roman 
+\series bold 
+
+\newline 
+
+\series default 
+\shape italic 
+once every clock cycle.
+\series bold 
+\shape default 
+
+\newline 
+ 
+\newline 
+begin
+\series default 
+ proc CycleCount()
+\newline 
+    
+\series bold 
+repeat
+\series default 
+ 
+\newline 
+        
+\family default 
+CycleCount
+\family roman 
+:= 
+\family default 
+CycleCount
+\family roman 
++1
+\newline 
+    
+\series bold 
+forever
+\series default 
+
+\newline 
+
+\series bold 
+end
+\series default 
+ CycleCount
+\layout LyX-Code
+
+ 
+\layout LyX-Code
+\line_top 
+
+\family roman 
+\shape italic 
+The Main GP procedure.
+\newline 
+N is the number of parallel fitness evaluations and is fixed at compile
+ time.
+\newline 
+
+\layout LyX-Code
+\line_bottom 
+
+\family roman 
+\series bold 
+begin
+\series default 
+ proc MainGP()
+\newline 
+    Initialise variables
+\newline 
+    
+\family default 
+PhaseEval
+\family roman 
+:= 0
+\newline 
+    
+\family default 
+PhaseBreed
+\family roman 
+:= 1
+\newline 
+    Create initial population in SRAM
+\newline 
+    Select N individuals from SRAM and copy to BRAM[
+\family default 
+PhaseEval
+\family roman 
+]
+\newline 
+    Select N individuals from SRAM and copy to BRAM[
+\family default 
+PhaseBreed
+\family roman 
+]
+\newline 
+    
+\series bold 
+repeat
+\series default 
+  for all generations
+\newline 
+        WaitSelect:= 1
+\newline 
+        
+\series bold 
+par
+\series default 
+ {
+\newline 
+            
+\series bold 
+seq
+\series default 
+ {
+\newline 
+                
+\shape italic 
+Stage 2a
+\shape default 
+
+\newline 
+                WriteBack BRAM[
+\family default 
+PhaseBreed
+\family roman 
+]  
+\shape italic 
+ The previous PhaseEval
+\shape default 
+
+\newline 
+                
+\family default 
+WaitSelect
+\family roman 
+: = 0
+\newline 
+                Select N individuals and copy to BRAM[
+\family default 
+PhaseBreed
+\family roman 
+]
+\newline 
+                Breed new individuals
+\newline 
+            }
+\newline 
+            
+\series bold 
+seq
+\series default 
+ { 
+\newline 
+                
+\shape italic 
+Stage 2b
+\shape default 
+
+\newline 
+                EvaluateFitness using BRAM[
+\family default 
+PhaseEval
+\family roman 
+]
+\newline 
+                
+\series bold 
+while
+\series default 
+ 
+\family default 
+WaitSelect
+\family roman 
+ == 1
+\newline 
+                    delay
+\newline 
+                
+\series bold 
+end
+\series default 
+ While
+\newline 
+                Choose individuals for replacement
+\newline 
+           } 
+\newline 
+       }
+\newline 
+        PhaseEval:= !PhaseEval
+\newline 
+        PhaseBreed:= !PhaseBreed
+\newline 
+    
+\series bold 
+end
+\series default 
+ Repeat 
+\newline 
+    Output results
+\newline 
+
+\series bold 
+end
+\series default 
+ MainGP         
+\family default 
+      
+\layout LyX-Code
+
+\the_end

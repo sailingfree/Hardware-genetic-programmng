@@ -1,0 +1,360 @@
+#!/usr/bin/perl -w
+##########################################################################
+# Run the hwgp and produce the size distribution graphs 
+# This runs the iso-c implementation on a workstation.
+# It compiles hwgp for :
+# 1 Truncating xover without fitness
+# 2 Truncating xover with fitness
+##########################################################################
+ 
+use diagnostics;
+print "Creating size distribution graphs\n";
+
+$usage = "Please supply the number of runs for experiment";
+
+$arg1 = shift(@main::ARGV) || die $usage;    
+$maxrun=$arg1;
+@hist = 0;
+@leng = 0;
+@hits = 0;
+$maxyval=0;
+$maxxval=0;
+$maxnodes=100000;
+
+%probparms = (
+	      "nofit-single" => ["dofitness = no", "keep_trying1 = yes", "keep_trying2 = no",  "max_nodes = $maxnodes"],
+	      "fit-single" => ["dofitness = yes", "keep_trying1 = yes", "keep_trying2 = no",   "max_nodes = $maxnodes"],
+	      "nofit-dual" => ["dofitness = no", "keep_trying1 = yes", "keep_trying2 = yes",   "max_nodes = $maxnodes"],
+	      "fit-dual" => ["dofitness = yes", "keep_trying1 = yes", "keep_trying2 = yes",    "max_nodes = $maxnodes"],
+	      "fit-dual-long" => ["dofitness = yes", "keep_trying1 = yes", 
+				  "keep_trying2 = yes"],
+	      "nofit-dual-long" => ["dofitness = no", "keep_trying1 = yes", 
+				  "keep_trying2 = yes"],
+
+
+	      "fit-single-32" => ["dofitness = yes", "keep_trying1 = yes", "keep_trying2 = no",  "max_nodes = 32"],
+
+	      "fit-single-25" => ["dofitness = yes", "keep_trying1 = yes", "keep_trying2 = no",  "max_nodes = 25"],
+
+	      "fit-single-50" => ["dofitness = yes", "keep_trying1 = yes", "keep_trying2 = no",  "max_nodes = 50"],
+	      "fit-single-75" => ["dofitness = yes", "keep_trying1 = yes", "keep_trying2 = no",  "max_nodes = 75"],
+	      "fit-single-100" => ["dofitness = yes", "keep_trying1 = yes", "keep_trying2 = no", "max_nodes = 100"],
+	      "fit-single-125" => ["dofitness = yes", "keep_trying1 = yes", "keep_trying2 = no", "max_nodes = 125"],
+	      "fit-single-150" => ["dofitness = yes", "keep_trying1 = yes", "keep_trying2 = no", "max_nodes = 150"],
+	      "fit-single-175" => ["dofitness = yes", "keep_trying1 = yes", "keep_trying2 = no", "max_nodes = 175"],
+	      "fit-single-200" => ["dofitness = yes", "keep_trying1 = yes", "keep_trying2 = no", "max_nodes = 200"],
+	      "fit-single-225" => ["dofitness = yes", "keep_trying1 = yes", "keep_trying2 = no", "max_nodes = 225"],
+	      "fit-single-250" => ["dofitness = yes", "keep_trying1 = yes", "keep_trying2 = no", "max_nodes = 250"],
+
+
+	      "fit-dual-25" => ["dofitness = yes", "keep_trying1 = yes", "keep_trying2 = yes", 	 "max_nodes = 25"],
+
+	      "fit-dual-32" => ["dofitness = yes", "keep_trying1 = yes", "keep_trying2 = yes", 	 "max_nodes = 32"],
+
+
+	      "fit-dual-50" => ["dofitness = yes", "keep_trying1 = yes", "keep_trying2 = yes", 	 "max_nodes = 50"],
+	      "fit-dual-75" => ["dofitness = yes", "keep_trying1 = yes", "keep_trying2 = yes", 	 "max_nodes = 75"],
+	      "fit-dual-100" => ["dofitness = yes", "keep_trying1 = yes", "keep_trying2 = yes",  "max_nodes = 100"],
+	      "fit-dual-125" => ["dofitness = yes", "keep_trying1 = yes", "keep_trying2 = yes",  "max_nodes = 125"],
+	      "fit-dual-150" => ["dofitness = yes", "keep_trying1 = yes", "keep_trying2 = yes",  "max_nodes = 150"],
+	      "fit-dual-175" => ["dofitness = yes", "keep_trying1 = yes", "keep_trying2 = yes",  "max_nodes = 175"],
+	      "fit-dual-200" => ["dofitness = yes", "keep_trying1 = yes", "keep_trying2 = yes",  "max_nodes = 200"],
+	      "fit-dual-225" => ["dofitness = yes", "keep_trying1 = yes", "keep_trying2 = yes",  "max_nodes = 225"],
+	      "fit-dual-250" => ["dofitness = yes", "keep_trying1 = yes", "keep_trying2 = yes",  "max_nodes = 250"],
+
+	      );
+
+mkdir 'tmp';
+
+runtest('gp', ' -q -f ','nofit-dual',  '', '');
+runtest('gp', ' -q -f ','fit-dual',  '', '');
+#runtest('gp', ' -q -f ','fit-dual-32',  '', '');
+#runtest('gp', ' -q -f ','fit-dual-25',  '', '');
+#runtest('gp', ' -q -f ','fit-dual-50',  '', '');
+#runtest('gp', ' -q -f ','fit-dual-75',  '', '');
+#runtest('gp', ' -q -f ','fit-dual-125',  '', '');
+#runtest('gp', ' -q -f ','fit-dual-150',  '', '');
+#runtest('gp', ' -q -f ','fit-dual-175',  '', '');
+#runtest('gp', ' -q -f ','fit-dual-200',  '', '');
+#runtest('gp', ' -q -f ','fit-dual-225',  '', '');
+#runtest('gp', ' -q -f ','fit-dual-250',  '', '');
+
+
+#runtest('gp', ' -q -f ','nofit-single',  '', '');
+#runtest('gp', ' -q -f ','fit-single-32',  '', '');
+#runtest('gp', ' -q -f ','fit-single-50',  '', '');
+#runtest('gp', ' -q -f ','fit-single-75',  '', '');
+#runtest('gp', ' -q -f ','fit-single-100',  '', '');
+##runtest('gp', ' -q -f ','fit-single-125',  '', '');
+#runtest('gp', ' -q -f ','fit-single-150',  '', '');
+#runtest('gp', ' -q -f ','fit-single-175',  '', '');
+#runtest('gp', ' -q -f ','fit-single-200',  '', '');
+#runtest('gp', ' -q -f ','fit-single-225',  '', '');
+#runtest('gp', ' -q -f ','fit-single-250',  '', '');
+
+
+#runtest('gp', ' -q -f ','fit-dual',  '', '');
+
+#runtest('gp', ' -q -f ','fit-single-long',  '', '');
+#runtest('gp', ' -q -f ','fit-dual-long',  '', '');
+#runtest('gp', ' -q -f ','nofit-single-long',  '', '');
+#runtest('gp', ' -q -f ','nofit-dual-long',  '', '');
+
+
+sub makeparms {
+    my $exp = shift (@_);
+
+    @stdparms =  ("app.trail = santafe.trl",
+		  "app.maxtime = 400",
+		  "max_generations = 50",
+		  "pop_size = 1024",
+		  "output.basename = $exp",
+		  "# how to generate the initial population",
+		  "init.method = full",
+		  "init.depth = 6-6",
+		  "init.random_attempts = 1000",
+		  "# limits on tree size.",
+		  "#max_depth = 17",
+		  "## breeding parameters (emulates Koza Ch. 7)",
+		  "breed_phases = 2",
+		  "breed[1].operator = crossover, select=fitness_overselect",
+		  "breed[1].rate = 0.9",
+		  "breed[2].operator = reproduction, select=fitness_overselect",
+		  "breed[2].rate = 0.1");
+
+    open PARMS, ">input.$exp" || die "Cannot create parameter file";
+
+    print PARMS "# Auto-generated parameter file for experiment $exp\n";
+    foreach $l (@stdparms) {
+	print PARMS "$l\n";
+    }
+
+    foreach $p (@{$probparms{$exp}}) {
+	print PARMS "$p\n";
+
+    }
+    close PARMS;
+}
+
+sub runtest {
+    my $prog  = shift(@_);
+    my $pargs = shift(@_);
+    my $exp   = shift(@_);
+    my $flags = shift(@_);
+    my $keypos = shift(@_);
+
+    makeparms($exp);
+    readin($prog, $pargs, $exp);
+    plot($exp, $keypos, $maxyval);
+    my ($maxy, $total) = analysehits($exp);
+    plothits($exp, $maxy, $total);
+}
+
+sub readin {
+    my $prog  = shift(@_);
+    my $pargs = shift(@_);
+    my $exp   = shift(@_);
+
+    my $gen  = 0;
+    my $bins = 0;
+    my $topgen=0;
+    my $tophits=8;
+
+    my $parmfile = "input.$exp";
+    reset('hist');
+    reset('leng');
+    reset('hits');
+    for($i=0;$i<=$tophits;$i++) {
+	$hits[$i]=0;
+    }
+    $leng[0]=0;
+    $maxyval = 0;
+    $maxxval = 0;
+
+    print "Running experiment $exp prog $prog and with control file $pargs\n";
+
+    for($runs=0;$runs<$maxrun;$runs++) {
+	print "Run number $runs\r";
+	open RUN, "./$prog $pargs $parmfile |";
+	while(<RUN>) {
+	    print "$_";
+	}
+	close RUN;
+	$gen=0;
+
+
+	open LENS, "$exp.len" || die "Cannot open length file";
+	while(<LENS>) {
+	    chop;
+	    @len = split / /, $_;
+	    foreach $val (@len) {
+		if($val>$maxxval) {
+		    for($i=$maxxval; $i<=$val;$i++) {
+			$hist[$gen][$i]=0;
+		    }
+		    $maxxval = $val;
+		}
+		if($val >= $leng[$gen]) {
+		    $leng[$gen]=$val+1;
+		}
+		$hist[$gen][$val]++;
+		if($hist[$gen][$val] > $maxyval) {
+		    $maxyval = $hist[$gen][$val];
+		}
+	    }
+	    $gen++;
+	    if($gen>=$topgen) {
+		$leng[$topgen+1]=0;
+	    }
+	    $topgen = $gen;
+	}
+	close LENS;
+	open BST, "$exp.bst" || die "Cannot open BST file";
+#	print "Opened BST file\n";
+	while(<BST>) {
+	    chop;
+#	    print "$_\n";
+	    if (/nodes/) {
+		(my $s,$nodes) = split;
+	    }
+	    if (/hits/) {
+		print "$_\n";		
+		(my $h,$num) = split;
+		if($num eq 89) {
+		    print "REALHITS = $num Nodes = $nodes\n";
+		    if($nodes>$tophits) {
+			for($i=$tophits+1;$i<=$nodes;$i++) {
+			    $hits[$i]=0;
+			}
+			$tophits = $nodes;
+			}
+		    $hits[$nodes]++;
+		}
+		last;
+	    }
+	}
+	    
+		
+    }
+
+    for($g=0;$g<$gen;$g++) {
+	analyse($g, $leng[$g], $exp, $maxrun);
+    }
+    close RUN;
+    $maxyval /= $runs;
+}
+
+sub analyse {
+    my $gen   = shift(@_);
+    my $bins  = shift(@_);
+    my $exp   = shift(@_);
+    my $runs  = shift(@_);
+    my $fname = 'tmp/'. $exp . '_' . $gen;
+
+    open HIST, ">$fname.dat" || die "Unable to open the histogram output";
+
+    print HIST "0\n";
+    for($i=1;$i<$bins;$i++) {
+#	print "GEN=$gen, I=$i RUNS=$runs\n";
+	$val = ($hist[$gen][$i])/$runs;
+        print HIST "$val\n";
+    }
+    print HIST "0\n";
+    close HIST;
+}
+
+sub analysehits {
+    my $exp = shift(@_);
+
+    my $total = 0;
+    $maxy=0;
+
+    print "Generating the histogram of program lengths\n";
+    open FITVAL, ">$exp.hist" || die "Unable to open the output file";
+    foreach  $val (@hits) {
+	print FITVAL "$val\n";
+	print "$val\n";
+	if($val>$maxy) {
+	    $maxy=$val;
+	}
+	$total += $val;
+    }
+    close FITVAL;
+    return ($maxy, $total);
+}
+
+sub plot {
+    my $exp = shift (@_);
+    my $keypos = shift(@_);
+    my $max    = shift(@_);
+
+    my $cmds = "plotcmds_" . $exp . "plt";
+
+    print "MAX=$max\n";
+    open GNUPLOT, ">$cmds" || die "Unable to create plot commands\n";
+    print GNUPLOT "set xlabel 'Program Length'\n";
+    print GNUPLOT "set ylabel 'Number of Programs'\n";
+    print GNUPLOT "set ytics rotate\n";
+    print GNUPLOT "maxyval=$max\n";
+    print GNUPLOT "set key $keypos\n";
+    #print GNUPLOT "set yrange [0:200]\n";
+    
+
+    $fname = $exp . '_0';
+    print GNUPLOT "plot 'tmp/$fname.dat' title 'Gen 0' with lines\n";
+
+    $fname =  $exp . '_2';
+    print GNUPLOT "replot 'tmp/$fname.dat' title 'Gen 1' with lines\n";
+
+    $fname =  $exp . '_10';
+    print GNUPLOT "replot 'tmp/$fname.dat' title 'Gen 10' with lines\n";
+
+    $fname =  $exp . '_31';
+    print GNUPLOT "replot 'tmp/$fname.dat' title 'Gen 31' with lines\n";
+
+    print GNUPLOT "set output '$exp.eps'\n";
+    print GNUPLOT "set term postscript eps 'Times-Roman' 24\n";
+    print GNUPLOT "replot\n";
+    print GNUPLOT "pause 10\n";
+    close GNUPLOT;
+
+    open PLOT, "|gnuplot $cmds";
+    close PLOT;
+}
+
+sub plothits {
+    my ($exp, $maxy, $total) = @_;
+    my $title1 = "A title";
+    
+    my $cmds = "plotcmds_hist_" . $exp . "plt";
+
+    my $label = "'$total correct programs out of $maxrun runs'";
+    my $plt   = $exp . "_lengths." . "eps";
+
+    if($total == 0) {
+	return;
+    }
+
+
+    open GNUPLOT, ">$cmds" || die "Unable to create plot commands\n";
+    print GNUPLOT "set title 'Lengths of 100% correct programs'\n";
+    print GNUPLOT "set xlabel 'Program Length'\n";
+    print GNUPLOT "set ylabel 'Frequency\n";
+    print GNUPLOT "set ytics rotate\n";
+    print GNUPLOT "set nokey\n";
+    print GNUPLOT "maxy=$maxy\n";
+    print GNUPLOT "xpos=10\n";
+    print GNUPLOT "ypos=maxy+1\n";
+    print GNUPLOT "set yrange [0:maxy+(maxy/20)+2]\n";
+    print GNUPLOT "set label $label at 30,ypos right\n";
+    print GNUPLOT "plot '$exp.hist' with boxes\n";
+    print GNUPLOT "set output '$plt'\n";
+    print GNUPLOT "set term postscript eps 'Times-Roman' 24\n";
+    print GNUPLOT "replot\n";
+    print GNUPLOT "pause 2\n";
+    close GNUPLOT;
+
+    open PLOT, "|gnuplot $cmds";
+    close PLOT;
+
+}

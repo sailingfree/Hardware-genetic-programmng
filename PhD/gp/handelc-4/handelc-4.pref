@@ -1,0 +1,64 @@
+[WorkState_v1_2.Frames.ChildFrames.Document-2]
+ptn_Child1=ViewFrame-0
+
+[WorkState_v1_2.Frames.ChildFrames.Document-2.ViewFrame-0]
+DocPathName=C:\Program Files\Celoxica\RC1000\fpga\DK1\pp1000.h
+DocumentString=
+DocTemplateIndex=2
+WindowPlacement=MCAAAAAAAAAAAAAABAAAAAAAPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPECAAAAAAGCAAAAAAIBDAAAAAGKBAAAAA
+IsActiveChildFrame=False
+
+[WorkState_v1_2]
+ptn_Child1=Frames
+ptn_Child2=DK1 Design Suite Preferences
+ptn_Child3=Breakpoints
+ptn_Child4=WatchVars
+
+[WorkState_v1_2.Frames]
+ptn_Child1=ChildFrames
+
+[WorkState_v1_2.Frames.ChildFrames]
+ptn_Child1=Document-0
+ptn_Child2=Document-1
+
+[WorkState_v1_2.Frames.ChildFrames.Document-0]
+ptn_Child1=ViewFrame-0
+
+[WorkState_v1_2.Frames.ChildFrames.Document-0.ViewFrame-0]
+DocPathName=C:\handelc-4\hwgp.c
+DocumentString=
+DocTemplateIndex=1
+WindowPlacement=MCAAAAAAAAAAAAAABAAAAAAAPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPECAAAAAAEDAAAAAAOIDAAAAACCCAAAAA
+IsActiveChildFrame=True
+
+[WorkState_v1_2.Frames.ChildFrames.Document-1]
+ptn_Child1=ViewFrame-0
+
+[WorkState_v1_2.Frames.ChildFrames.Document-1.ViewFrame-0]
+DocPathName=C:\handelc-4\hwgph.h
+DocumentString=
+DocTemplateIndex=2
+WindowPlacement=MCAAAAAAAAAAAAAABAAAAAAAPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPCBAAAAAACBAAAAAAAFDAAAAAMACAAAAA
+IsActiveChildFrame=False
+
+[WorkState_v1_2.DK1 Design Suite Preferences]
+Active Project Index=0
+Active Configuration Index=2
+
+[WorkState_v1_2.WatchVars]
+ptn_Child1=Watch0
+ptn_Child2=Watch1
+ptn_Child3=Watch2
+ptn_Child4=Watch3
+
+[WorkState_v1_2.WatchVars.Watch0]
+empty=True
+
+[WorkState_v1_2.WatchVars.Watch1]
+empty=True
+
+[WorkState_v1_2.WatchVars.Watch2]
+empty=True
+
+[WorkState_v1_2.WatchVars.Watch3]
+empty=True

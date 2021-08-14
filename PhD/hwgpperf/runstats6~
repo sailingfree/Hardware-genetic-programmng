@@ -1,0 +1,127 @@
+#!/usr/bin/perl -w
+##########################################################################
+# COmpile and run the hwgp program and plot the lengths of the 100% fit
+# programs
+##########################################################################
+
+$MAXSIZE=256;
+@hist = 0;
+$cmds="plotcmds";
+$usage="Please give number of runs to do";
+
+$arg1 = shift(@main::ARGV) || die $usage;    
+
+$maxrun=$arg1;
+
+#runtest('hwgp', ' -t -s', 'hw_bool_parity-6_lengths-256',    '-DBOOLPARITY  -DLIMITED  -DPARITYBITS=6 -DREGBITS=4 -DPOPSIZE=4096 -DGENERATION=128 -DMAXPROGLEN=256 -DCONGRNG -O7', 'Limiting - parity');
+#runtest('hwgp', ' -t -s', 'hw_bool_parity-6_lengths-128',    '-DBOOLPARITY  -DLIMITED  -DPARITYBITS=6 -DREGBITS=4 -DPOPSIZE=2048 -DGENERATION=64 -DMAXPROGLEN=128 -DCONGRNG -O7', 'Limiting - parity');
+#runtest('hwgp', ' -t -s', 'hw_bool_parity-6_lengths-64',    '-DBOOLPARITY  -DLIMITED  -DPARITYBITS=6 -DREGBITS=4 -DPOPSIZE=2048 -DGENERATION=64 -DMAXPROGLEN=64 -DCONGRNG -O7', 'Limiting - parity');
+#runtest('hwgp', ' -t -s', 'hw_bool_parity-6_lengths-dual',  '-DBOOLPARITY  -DLIMITED  -DDUALXOVER -DPARITYBITS=6 -DREGBITS=4 -DPOPSIZE=2048 -DGENERATION=64 -DMAXPROGLEN=256 -DCONGRNG -O7', 'Limiting - parity');
+runtest('hwgp', ' -t -s', 'hw_bool_parity-6_lengths-truncate',    '-DBOOLPARITY  -DTRUNCATE -DPARITYBITS=6 -DREGBITS=4 -DPOPSIZE=2048 -DGENERATION=64 -DMAXPROGLEN=256 -DCONGRNG -O7', 'Limiting - parity');
+exit 1;
+
+#runtest('hwgp', ' -t -s', 'hw_bool_parity-4',    '-DBOOLPARITY  -DLIMITED  -DLFSR -DPARITYBITS=4 -DREGBITS=3 -DPOPSIZE=1024 -DGENERATION=64 -DMAXPROGLEN=32', 'Limiting - parity');
+#runtest('hwgp', ' -t -s', 'hw_trunc_lengths',    '-DANT  -DTRUNCATE -DLFSR', 'Truncating');
+#runtest('hwgp', ' -t -s', 'hw_limit_lengths',    '-DANT  -DLIMITED  -DLFSR -DDUALXOVER', 'Limiting');
+#runtest('hwgp', ' -t -s', 'hw_limit_lengths_single_32',    '-DANT  -DLIMITED  -DLFSR -DMAXPROGLEN=32', 'Limiting - single child');
+#runtest('hwgp', ' -t -s', 'hw_limit_lengths_single_16',    '-DANT  -DLIMITED  -DLFSR -DMAXPROGLEN=16', 'Limiting - single child');
+#runtest('hwgp', ' -t -s', 'hw_limit_lengths_single_8',    '-DANT  -DLIMITED  -DLFSR -DMAXPROGLEN=8', 'Limiting - single child');
+
+
+runtest('hwgp', ' -t -s', 'hw_trunc_cong_lengths',    '-DCONGRNG -DANT  -DTRUNCATE', 'Truncating');
+#runtest('hwgp', ' -t -s', 'hw_trunc_16lfsr_lengths',    '-DLFSR_16 -DANT  -DTRUNCATE', 'Truncating');
+#runtest('hwgp', ' -t -s', 'hw_trunc_16ca_lengths',    '-DCA_16 -DANT  -DTRUNCATE', 'Truncating');
+
+sub runtest {
+    my $prog  = shift(@_);
+    my $pargs = shift(@_);
+    my $exp   = shift(@_);
+    my $flags = shift(@_);
+    my $title1 = shift(@_);
+    my $exp2  = shift(@_);
+    my $title2 = shift(@_);
+ 
+    unlink $prog;
+    open CC, "gcc -o $prog $prog.c $flags -I. -Wall -g |" || die "Failed to compile test";
+    close CC;
+
+    readin($prog, $pargs, $exp);
+    my ($maxy, $total) = analyse($exp);
+    plot($exp, $title1, $maxy, $total);
+}
+
+sub readin {
+    my $prog  = shift(@_);
+    my $pargs = shift(@_);
+    my $exp   = shift(@_);
+    
+    my $topgen = 0;
+    my $gen = 0;
+    my $run =0;
+    
+    reset('hist');
+    for($i=0;$i<$MAXSIZE;$i++) {
+	$hist[$i]=0;
+    }
+
+    while($run < $maxrun ) {
+	printf ("Run number $run\r");
+	open RUN, "./$prog $pargs|";
+	while(<RUN>) {
+	    $val = $_;
+	    $hist[$val]++;
+	    print "Whahoo ! Found program. length $val\n";
+	}
+	close RUN;
+	$run++;
+    }
+}
+
+sub analyse {
+    my $exp = shift(@_);
+
+    my $total = 0;
+    $maxy=0;
+
+    print "Generating the histogram of program lengths\n";
+    open FITVAL, ">$exp.dat" || die "Unable to open the output file";
+    foreach  $val (@hist) {
+	print FITVAL "$val\n";
+	if($val>$maxy) {
+	    $maxy=$val;
+	}
+	$total += $val;
+    }
+    close FITVAL;
+    return ($maxy, $total);
+}
+
+sub plot {
+    my ($exp, $title1, $maxy, $total) = @_;
+    
+    my $label = "'$total correct programs out of $maxrun runs'";
+
+    print "TOTAL=$total\n";
+    open GNUPLOT, ">$cmds" || die "Unable to create plot commands\n";
+    print GNUPLOT "set title 'Lengths of 100% correct programs'\n";
+    print GNUPLOT "set xlabel 'Program Length'\n";
+    print GNUPLOT "set ylabel 'Frequency\n";
+    print GNUPLOT "set ytics rotate\n";
+    print GNUPLOT "set nokey\n";
+    print GNUPLOT "maxy=$maxy\n";
+    print GNUPLOT "xpos=10\n";
+    print GNUPLOT "ypos=maxy+1\n";
+    print GNUPLOT "set yrange [0:maxy+(maxy/20)+2]\n";
+    print GNUPLOT "set xrange [0:$MAXSIZE]\n";
+    print GNUPLOT "set label $label at 200,ypos right\n";
+    print GNUPLOT "plot '$exp.dat' title '$title1' with boxes\n";
+    print GNUPLOT "set output '$exp.eps'\n";
+    print GNUPLOT "set term postscript eps 'Times-Roman' 24\n";
+    print GNUPLOT "replot\n";
+    print GNUPLOT "pause 10\n";
+    close GNUPLOT;
+
+    open PLOT, "|gnuplot $cmds";
+    close PLOT;
+
+}

@@ -1,0 +1,4554 @@
+#LyX 1.2 created this file. For more info see http://www.lyx.org/
+\lyxformat 220
+\textclass essex
+\begin_preamble
+\input{shortheader.tex}
+\end_preamble
+\options oneside
+\language english
+\inputencoding latin1
+\fontscheme pslatex
+\graphics default
+\float_placement !htb
+\paperfontsize default
+\spacing single 
+\papersize a4paper
+\paperpackage a4
+\use_geometry 1
+\use_amsmath 0
+\use_natbib 0
+\use_numerical_citations 0
+\paperorientation portrait
+\leftmargin 4cm
+\topmargin 2cm
+\rightmargin 3cm
+\bottommargin 2cm
+\secnumdepth 2
+\tocdepth 2
+\paragraph_separation indent
+\defskip medskip
+\quotes_language english
+\quotes_times 2
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+
+\layout Comment
+
+
+\size huge 
+Chapter 4
+\layout Standard
+
+This chapter describes the general design decisions taken to implement 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+acf{GP}
+\end_inset 
+
+ in hardware using a 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+acf{FPGA}
+\end_inset 
+
+ as the platform, and Handel-C as the software environment used to program
+ the FPGA.
+\layout Section
+
+A Complete GP System On a Chip
+\layout Standard
+
+The 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbstart 
+\end_inset 
+
+ principal 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbend 
+\end_inset 
+
+ aim of the work described in this chapter was to explore the feasibility
+ of implementing a complete GP system in hardware, that is initial population
+ generation, fitness evaluation, breeding and the delivery of the final
+ result.
+ This is in contrast to all other examples of using FPGAs with Genetic Programmi
+ng reviewed in Chapter 
+\begin_inset LatexCommand \ref{main:FPGAs and HandelC}
+
+\end_inset 
+
+, Section 
+\begin_inset LatexCommand \ref{sec:Previous FPGA and GP work}
+
+\end_inset 
+
+, which only implemented the fitness evaluation and possibly some of the
+ other stages of GP.
+ This high level aim guided many of the design decisions.
+ As the aim was to explore the feasibility of using Handel-C and FPGAs,
+ the work focused on the functionality of the GP system.
+ Consequently, it was accepted that there were probably going to be limitations
+ imposed by Handel-C and the use of FPGAs with regard to program and population
+ sizes.
+ It was also recognised that some compromises would be need to be made with
+ regard to the throughput of the system.
+ In the light of the experience gained during this work a number of improvements
+ were identified to increase the program and population sizes and increase
+ the throughput.
+ These improvements are described in Chapter 
+\begin_inset LatexCommand \ref{main:Optimised implementation}
+
+\end_inset 
+
+.
+\layout Subsection
+
+
+\begin_inset LatexCommand \label{Internal program representation}
+
+\end_inset 
+
+Internal Program Representation
+\layout Standard
+
+Tree based GP normally uses recursion to traverse the tree, but the lack
+ of a built-in stack when using Handel-C precludes the use of recursion.
+ Although there are well known methods of removing recursion from algorithms
+ (eg.
+ 
+\begin_inset LatexCommand \cite{sedgewick}
+
+\end_inset 
+
+), a stack of some form is still required to store intermediate results.
+ Tree representations also have a storage overhead because of the need to
+ store the links from a node to its children.
+ Because FPGAs have a limited amount of storage available when compared
+ with a modern computer that has many 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbstart 
+\end_inset 
+
+ megabytes 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbend 
+\end_inset 
+
+ of 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+ac{RAM}
+\end_inset 
+
+, the use of tree based GP was considered to be too expensive in terms of
+ silicon real estate.
+ However, the survey of GP in Chapter 
+\begin_inset LatexCommand \ref{main:GP Introduction}
+
+\end_inset 
+
+, Section 
+\begin_inset LatexCommand \ref{sec:representations}
+
+\end_inset 
+
+, showed that internal representations other than trees have been used for
+ GP.
+ One alternative to the standard tree representation is the linear GP system,
+ examples of which were used by Nordin and Banzhaf 
+\begin_inset LatexCommand \cite{Nordin:1995:tcp}
+
+\end_inset 
+
+, Banzhaf 
+\shape italic 
+et al.
+
+\shape default 
+ 
+\begin_inset LatexCommand \cite{banzhaf:1997:book}
+
+\end_inset 
+
+ and others, in which a linear string of machine code instructions was executed
+ directly by a 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+acf{RISC}
+\end_inset 
+
+ CPU.
+ Subsequent work extended this to 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+acf{CISC}
+\end_inset 
+
+ CPUs 
+\begin_inset LatexCommand \cite{nordin:1999:aigp3}
+
+\end_inset 
+
+ and 
+\begin_inset LatexCommand \cite{Kuhling:2002}
+
+\end_inset 
+
+.
+ Other examples of linear GP include Atkin and Cohen 
+\begin_inset LatexCommand \cite{Atkin:1994:LMSDGP}
+
+\end_inset 
+
+, Bhattacharya 
+\shape italic 
+et al.
+
+\shape default 
+ 
+\begin_inset LatexCommand \cite{bhattacharya:2001:HIS}
+
+\end_inset 
+
+ and Deschain 
+\shape italic 
+et al.
+
+\shape default 
+ 
+\begin_inset LatexCommand \cite{Deschain:2001:ASTC}
+
+\end_inset 
+
+.
+\layout Standard
+
+A linear structure was chosen for implementing GP in an FPGA because the
+ representation is simple to implement, and requires very little overhead
+ for representing a program.
+ A further argument for using a linear structure is that it has been shown
+ to be able to solve hard problems.
+ Some examples of the use of a linear structure for hard problems include
+ the evolution of a hand-eye controller for a robot 
+\begin_inset LatexCommand \cite{langdon:2001}
+
+\end_inset 
+
+, data mining 
+\begin_inset LatexCommand \cite{deschain:2000:ASTC}
+
+\end_inset 
+
+ and real-world design simulation
+\begin_inset LatexCommand \cite{Deschain:2001:ASTC}
+
+\end_inset 
+
+.
+ The internal program representation is a linear string of nodes which can
+ be thought of as primitive instructions.
+ The details of the internal representation depend on the word size, number
+ of functions and number of terminals used, and these are dependent on the
+ problem being tackled.
+ 
+\layout Standard
+
+A general purpose load-store register architecture 
+\begin_inset LatexCommand \cite{patterson:1996}
+
+\end_inset 
+
+ was chosen for its simplicity and because it is similar to the work done
+ by Nordin and others using RISC instruction sets, though a load-store register
+ machine is by no means the only machine that could be used.
+ Alternatives to a general purpose register machine include single register
+ or accumulator machines, register (register-memory) and memory-memory machines
+ in which the instructions address memory directly without the use of registers
+ .
+ If the storage concerns can be addressed then stack machines could also
+ be used.
+ Other possibilities include implementing a high level language virtual
+ machine in hardware, such as a Forth language machine 
+\begin_inset LatexCommand \cite{moore&leach70}
+
+\end_inset 
+
+, 
+\begin_inset LatexCommand \cite{moore_b:2002}
+
+\end_inset 
+
+ and 
+\begin_inset LatexCommand \cite{koopman:1989}
+
+\end_inset 
+
+, the 
+\shape italic 
+p-code
+\shape default 
+ machine 
+\begin_inset LatexCommand \cite{clark:1981}
+
+\end_inset 
+
+ used by the Pascal language, or even a Java virtual machine 
+\begin_inset LatexCommand \cite{java:2002}
+
+\end_inset 
+
+.
+ GP using the Java virtual machine has been investigated by Lukschandl 
+\shape italic 
+et al.
+
+\shape default 
+ 
+\begin_inset LatexCommand \cite{lukschandl:1998:1java}
+
+\end_inset 
+
+ and Klahold 
+\shape italic 
+et al.
+
+\shape default 
+ 
+\begin_inset LatexCommand \cite{klahold:1998:eprGPJb}
+
+\end_inset 
+
+.
+ The ability to tailor the machine is explored later in this chapter (Section
+ 
+\begin_inset LatexCommand \vref{sub:problem-sepcific-opcodes}
+
+\end_inset 
+
+) and is exploited in the next chapter when the artificial ant problem is
+ implemented in hardware.
+\layout Standard
+
+A program consists of an array of instructions and some control information.
+ The programs have a fixed maximum size, which simplifies the storage of
+ individuals.
+ A general layout of an instruction is shown in Figure 
+\begin_inset LatexCommand \ref{fig:instruction picture}
+
+\end_inset 
+
+.
+ 
+\layout Standard
+
+
+\begin_inset Float figure
+placement H
+wide false
+collapsed false
+
+\layout Standard
+\align center 
+
+\begin_inset Graphics FormatVersion 1
+	filename images/instruction.eps
+	display color
+	size_type 1
+	width 12cm
+	keepAspectRatio
+	rotateOrigin center
+	lyxsize_type 1
+	lyxwidth 8cm
+
+\end_inset 
+
+
+\layout ShortCaption
+
+Layout of an instruction.
+\layout Caption
+
+
+\begin_inset LatexCommand \label{fig:instruction picture}
+
+\end_inset 
+
+Layout of an instruction where there are eight possible opcodes and two
+ effective addresses: EA1 and EA2.
+ The details of what the opcodes do and the use of the effective addresses
+ is problem specific.
+\end_inset 
+
+
+\layout Standard
+
+The layout shows an example in which there are eight possible opcodes.
+ Each opcode can use zero, one or two effective addresses.
+ All instructions are the same length which simplifies the design of the
+ machine.
+ The use of fixed length instructions also makes the crossover operator
+ straightforward to implement when compared with variable length instructions
+ as found in CISC machines 
+\begin_inset LatexCommand \cite{nordin:1999:aigp3}
+
+\end_inset 
+
+.
+ The details of what the opcodes do and the effective addresses is problem
+ specific and the number of functions and effective addresses will vary
+ according to the problem.
+\layout Standard
+
+The control information for a program consists of the program length and
+ the raw fitness of the program.
+\layout Section
+
+Parallelism
+\layout Standard
+
+When discussing parallelism it is important to distinguish between different
+ forms.
+ Here four types of parallelism are used; 
+\emph on 
+intrinsic
+\emph default 
+, 
+\emph on 
+geometric
+\emph default 
+, 
+\emph on 
+algorithmic
+\emph default 
+ and 
+\emph on 
+asynchronous
+\emph default 
+.
+ These will now be explained.
+\layout Standard
+
+Firstly, the Handel-C language supports parallelism directly, as already
+ discussed in Chapter 
+\begin_inset LatexCommand \ref{main:FPGAs and HandelC}
+
+\end_inset 
+
+, enabling efficient implementation of instructions that would normally
+ be executed serially on a standard microprocessor.
+ This, in itself, gives a substantial increase in performance when compared
+ to a standard microprocessor.
+ Since this form of parallelism is built into Handel-C, this is called 
+\shape italic 
+\emph on 
+intrinsic
+\shape default 
+\emph default 
+ 
+\shape italic 
+\emph on 
+parallelism
+\shape default 
+\emph default 
+.
+\layout Standard
+
+The second use of parallelism is in the implementation of the Genetic Programmin
+g algorithm.
+ Chapter 
+\begin_inset LatexCommand \ref{main:GP Introduction}
+
+\end_inset 
+
+, Section 
+\begin_inset LatexCommand \ref{sec:GP implementation details and parallelism}
+
+\end_inset 
+
+, introduced parallelism as an attribute of GP.
+ The type of parallelism found in all the examples given is 
+\shape italic 
+\emph on 
+geometric
+\shape default 
+\emph default 
+ 
+\shape italic 
+\emph on 
+parallelism
+\shape default 
+\emph default 
+, where a data set is partitioned into smaller units and the processing
+ is replicated on many processors.
+\layout Standard
+
+A third form of parallelism -- 
+\shape italic 
+\emph on 
+algorithmic
+\shape default 
+\emph default 
+ 
+\shape italic 
+\emph on 
+parallelism
+\shape default 
+\emph default 
+ -- occurs where many tasks can be pipelined, making fuller use of the available
+ resources.
+ Pipelining is common in hardware design and is found in most modern microproces
+sors.
+ 
+\layout Standard
+
+Lastly, a form of parallelism called 
+\shape italic 
+\emph on 
+asynchronous
+\shape default 
+\emph default 
+ or 
+\shape italic 
+relaxed
+\emph on 
+ 
+\emph default 
+parallelism
+\shape default 
+ occurs when two or more tasks communicate on an occasional basis but operate
+ independently, without any explicit synchronisation.
+\layout Subsection
+
+Intrinsic Parallelism for a Hardware Implementation
+\layout Standard
+
+Where possible the design exploits parallel execution of all simple statements.
+ This is done regardless of the phase of GP (creation, fitness evaluation,
+ selection and breeding) since there is no penalty in executing two assignments
+ in parallel.
+ An example of intrinsic parallelism is the initialisation of variables
+ at the beginning of a function.
+\layout Subsection
+
+Geometric Parallelism for a Hardware Implementation
+\layout Standard
+
+The type of geometric parallelism used is master-slave (Section 
+\begin_inset LatexCommand \ref{sec:GP implementation details and parallelism}
+
+\end_inset 
+
+), where the master stores the population and a number of slaves evaluate
+ the fitness of the individuals.
+ Geometric parallelism is a natural fit where the population is a global
+ resource within the FPGA, or closely coupled RAM, and parallel fitness
+ evaluations can be realised by replicating the fitness evaluating hardware.
+ Because the entire system is realised on a single chip, the communication
+ overhead between the master and the slaves (the evaluation functions),
+ which is normally regarded as a bottleneck, is greatly reduced.
+ The time needed for communication between the master and the slaves is
+ effectively the propagation time for a signal from one part of the FPGA
+ to another.
+\layout Standard
+
+Since it is unlikely that there would be sufficient FPGA resources to be
+ able to evaluate an entire population at once, the population is divided
+ into a number of smaller subsets and each subset is evaluated in parallel.
+ To simplify the logic, both the total population size and the number of
+ individuals in a subset is a power of 2.
+ Parallelisation of the evaluation is implemented by replicating the fitness
+ function.
+ This is achieved by using the 
+\family typewriter 
+\series bold 
+inline
+\family default 
+\series default 
+ keyword in Handel-C, which causes as many copies of the hardware to be
+ generated as required.
+\layout Subsection
+
+Algorithmic Parallelism for a Hardware Implementation
+\layout Standard
+
+Pipelines have not been used in this initial feasibility study, though the
+ opportunity for using them to speed up the design is clear, 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbstart 
+\end_inset 
+
+ as shown in some of the previously reported work using hardware to implement
+ GP and GAs, for 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbend 
+\end_inset 
+
+ example, 
+\begin_inset LatexCommand \cite{scott:1994}
+
+\end_inset 
+
+
+\begin_inset LatexCommand \cite{Graham:96}
+
+\end_inset 
+
+
+\begin_inset LatexCommand \cite{Kitaura:1999}
+
+\end_inset 
+
+ and others.
+ 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbstart 
+\end_inset 
+
+ The use of algorithmic parallelism is explored in more detail in 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbend 
+\end_inset 
+
+Chapter 
+\begin_inset LatexCommand \ref{main:Optimised implementation}
+
+\end_inset 
+
+.
+\layout Subsection
+
+Asynchronous Parallelism for a Hardware Implementation
+\layout Standard
+
+There is one task that is ideally suited to an asynchronous implementation
+ - that of the 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+ac{RNG}
+\end_inset 
+
+.
+ The RNG runs continuously in parallel with everything else, generating
+ a stream of random numbers which are used, as needed, by the rest of the
+ design.
+\layout Section
+
+
+\begin_inset LatexCommand \label{sec:LFSR-Random-Number-Generator.}
+
+\end_inset 
+
+Random Number Generator.
+ 
+\layout Standard
+
+An RNG, or more correctly a 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+ac{PRNG}
+\end_inset 
+
+, is used in two of the major steps in GP.
+ Firstly, during initial population creation, to create a diverse population,
+ and secondly, during the breeding phase, to select individuals for breeding
+ and to choose a particular breeding operator from one of crossover, mutation
+ or copy.
+ One 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbstart 
+\end_inset 
+
+ of the most common PRNGs is a Linear Congruential generator, often found
+ as part of a computer language run-time library.
+ These use the multiply and divide operators and are discussed in more detail
+ in 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbend 
+\end_inset 
+
+ Section 
+\begin_inset LatexCommand \ref{sec: RNG performance}
+
+\end_inset 
+
+.
+ When using Handel-C, the use of the standard multiply and divide instructions
+ is inefficient in terms of silicon because of the deep logic generated
+ for the single cycle combinatorial circuits.
+ Although the 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbstart 
+\end_inset 
+
+problem with Handel-C and the multiply/divide logic may in the future be
+ eased by the appearance of FPGAs with built-in multipliers
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbend 
+\end_inset 
+
+, because implementing multiply and divide logic using a Xilinx XCV2000
+ FPGA requires a large amount of logic, the usual linear congruential generators
+ normally found were rejected.
+ Instead, a 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+ac{LFSR}
+\end_inset 
+
+ design was used as suggested by the FPGA manufacturers 
+\begin_inset LatexCommand \cite{altera:2001}
+
+\end_inset 
+
+ and 
+\begin_inset LatexCommand \cite{xilinx:rng:2001}
+
+\end_inset 
+
+.
+ A word size of 32 was chosen, as this could be implemented efficiently
+ on a standard modern CPU, and so the LFSR could also be implemented using
+ ISO-C.
+ Implementing the LFSR in ISO-C was of interest during the development of
+ the GP algorithm (see Section 
+\begin_inset LatexCommand \vref{sub:Consequences-of-Using-handel-c}
+
+\end_inset 
+
+).
+ It is important to choose a good polynomial to ensure that the RNG can
+ generate a maximal sequence of 
+\begin_inset Formula $2^{n}-1$
+\end_inset 
+
+ random numbers, while keeping the number of taps to a minimum for efficiency.
+ Schneier 
+\begin_inset LatexCommand \cite[page 376]{schneier:cryptography}
+
+\end_inset 
+
+ gives a list of such polynomials.
+ For a 32 bit word the polynomial 
+\begin_inset Formula $x^{32}+x^{7}+x^{6}+x^{2}+x^{0}$
+\end_inset 
+
+ was used.
+ The block diagram of the LFSR is shown in Figure 
+\begin_inset LatexCommand \ref{fig:LFSR random number generator}
+
+\end_inset 
+
+.
+ Only 4 taps are shown since 
+\begin_inset Formula $x^{0}$
+\end_inset 
+
+ is always 1.
+\layout Standard
+
+
+\begin_inset Float figure
+placement H
+wide false
+collapsed false
+
+\layout Standard
+\align center 
+
+\begin_inset Graphics FormatVersion 1
+	filename images/lfsr.jpg
+	display color
+	size_type 1
+	width 252pt
+	height 100pt
+	rotateOrigin center
+	lyxsize_type 1
+	lyxwidth 252pt
+	lyxheight 100pt
+\end_inset 
+
+
+\layout ShortCaption
+
+
+\shape italic 
+Linear Feedback Shift Register
+\shape default 
+ (LFSR) random number generator.
+\layout Caption
+
+
+\begin_inset LatexCommand \label{fig:LFSR random number generator}
+
+\end_inset 
+
+ 
+\shape italic 
+Linear Feedback Shift Register
+\shape default 
+ (LFSR) random number generator for the 32 bit polynomial 
+\begin_inset Formula $x^{32}+x^{7}+x^{6}+x^{2}+x^{0}$
+\end_inset 
+
+.
+ The 
+\begin_inset Formula $\oplus $
+\end_inset 
+
+ symbol is the 4 input logical exclusive OR function (XOR).
+ Only 4 taps are shown since 
+\begin_inset Formula $x^{0}$
+\end_inset 
+
+ is always 1.
+\end_inset 
+
+
+\layout Standard
+
+The RNG is designed so that a random number is generated in one cycle.
+ The required number of bits are then read from the 32 bit register, starting
+ at bit 32 to give a random number.
+ For example, if the system has 8 instructions, then 3 bits are needed to
+ encode the instruction.
+ During initial program creation, the random selection of an instruction
+ uses the top 3 bits.
+ Handel-C allows efficient bit operations and the code to select the 3 bits
+ is:
+\layout Standard
+
+
+\begin_inset Minipage
+position 0
+inner_position 0
+height "0pt"
+width "100page%"
+collapsed false
+
+\layout LyX-Code
+
+
+\series bold 
+unsigned int
+\series default 
+ 3 instruction;
+\newline 
+instruction = randReg[31:29];
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+noindent 
+\end_inset 
+
+ where 
+\family typewriter 
+randReg
+\family default 
+ is the shift register variable.
+\layout Standard
+
+Seeding of the RNG is done by reading a 32 bit port during the initialisation
+ phase.
+ This allows the RNG to be seeded from an external source, such as a time
+ of day clock or other source of noise.
+ It also allows the RNG to be preset to a known seed for producing repeatable
+ results.
+\layout Standard
+
+After the design had been completed and some experiments had been run (Section
+ 
+\begin_inset LatexCommand \ref{sec:Experiment-Descriptions-1}
+
+\end_inset 
+
+), it was suggested that this RNG is not ideal, because LFSRs are known
+ to perform poorly in the serial test described by Knuth 
+\begin_inset LatexCommand \cite{Knuth:vol2}
+
+\end_inset 
+
+.
+ This prompted an analysis of the RNG, given in Chapter 
+\begin_inset LatexCommand \ref{main:Behavioural analysis}
+
+\end_inset 
+
+, Section 
+\begin_inset LatexCommand \ref{sec: RNG performance}
+
+\end_inset 
+
+, where it is shown that other RNGs can give better results.
+\layout Section
+
+Initial Program Creation
+\layout Standard
+
+Programs are created initially by filling the array of instructions with
+ random integers.
+ The length of the program 
+\begin_inset Formula $l$
+\end_inset 
+
+ is then randomly chosen so that 
+\begin_inset Formula $0<l\leq L_{\mathrm{max}}$
+\end_inset 
+
+ where 
+\begin_inset Formula $L_{\mathrm{max}}$
+\end_inset 
+
+ is the maximum program length.
+ Because the opcode portion of the instruction can have any value from 0
+ to 
+\begin_inset Formula $2^{N_{\mathrm{opcode}}}-1$
+\end_inset 
+
+, where 
+\begin_inset Formula $N_{\mathrm{opcode}}$
+\end_inset 
+
+ is the number of bits for the opcode, the function set must implement instructi
+ons for all possible opcodes.
+ That is, there must be 
+\begin_inset Formula $2^{N_{\mathrm{opcode}}}$
+\end_inset 
+
+ functions in 
+\begin_inset Formula $\mathcal{F}$
+\end_inset 
+
+.
+ This decision simplifies the design of the program creation algorithm,
+ and allows the mutation operator to be implemented efficiently.
+ The efficiency is achieved because all bit patterns are treated equally
+ and logic is not needed to handle special cases of missing instructions.
+ The same principle applies to the register portion of the instruction.
+ If there are 
+\begin_inset Formula $N_{\mathrm{ea}}$
+\end_inset 
+
+ bits for the register addresses, there must be 
+\begin_inset Formula $2^{N_{\mathrm{ea}}}$
+\end_inset 
+
+ registers or terminals.
+\layout Section
+
+Breeding Policy and Operators
+\layout Standard
+
+To conserve memory, a steady state breeding policy was used.
+ Tournament selection is used with a tournament size of two.
+ Larger tournament sizes makes little sense with very small populations.
+\layout Subsection
+
+Mutation
+\layout Standard
+
+The mutation operator works by replacing one instruction with a new, randomly
+ generated, instruction.
+ The result is that a mutation can change zero, one or more of the instruction
+ details.
+ This mutation operator is fairly crude and potentially destructive and
+ further work could to be done to evaluate the effect of such a heavy handed
+ method.
+\layout Subsection
+
+
+\begin_inset LatexCommand \label{sub:Cross-over-1}
+
+\end_inset 
+
+Crossover
+\layout Standard
+
+This work maintains a fixed maximum program size and copies segments from
+ one program to another.
+ By exploiting the parallel nature of hardware, the effects of performing
+ block memory copies can be reduced to an acceptable level.
+ 
+\layout Standard
+
+The crossover operator ensures programs do not exceed the maximum program
+ length by selecting crossover points in two individuals at random and exchangin
+g the tail portions up to the maximum program length.
+ Crossovers that result in programs exceeding the maximum length are truncated
+ at the maximum length.
+ This crossover operator was chosen to minimise the amount of logic required
+ and the number of clock cycles needed.
+ 
+\layout Standard
+
+For two programs 
+\begin_inset Formula $a$
+\end_inset 
+
+ and 
+\begin_inset Formula $b$
+\end_inset 
+
+, with lengths 
+\begin_inset Formula $l_{a}$
+\end_inset 
+
+ and 
+\begin_inset Formula $l_{b}$
+\end_inset 
+
+, two crossover points 
+\begin_inset Formula $x_{a}$
+\end_inset 
+
+ and 
+\begin_inset Formula $x_{b}$
+\end_inset 
+
+ are chosen at random so that 
+\begin_inset Formula $0\leq x_{a}<l_{a}$
+\end_inset 
+
+ and 
+\begin_inset Formula $0\leq x_{b}<l_{b}$
+\end_inset 
+
+.
+ The program size limit is 
+\begin_inset Formula $L_{\mathrm{max}}$
+\end_inset 
+
+.
+ After crossover, the new lengths are 
+\begin_inset Formula $l_{a'}=\min ((x_{a}+l_{b}-x_{b}),L_{\mathrm{max}})$
+\end_inset 
+
+ and 
+\begin_inset Formula $l_{b'}=\min ((x_{b}+l_{a}-x_{a}),L_{\mathrm{max}})$
+\end_inset 
+
+.
+\layout Standard
+
+This is illustrated in Figure 
+\begin_inset LatexCommand \ref{fig:Truncating crossover operator}
+
+\end_inset 
+
+ for two programs, where 
+\begin_inset Formula $L_{\mathrm{max}}=16$
+\end_inset 
+
+, 
+\begin_inset Formula $l_{a}=9$
+\end_inset 
+
+, 
+\begin_inset Formula $l_{b}=12$
+\end_inset 
+
+, 
+\begin_inset Formula $x_{a}=1$
+\end_inset 
+
+ and 
+\begin_inset Formula $x_{b}=11$
+\end_inset 
+
+.
+ This shows that after crossover, program 
+\begin_inset Formula $b'$
+\end_inset 
+
+ has been truncated to length 
+\begin_inset Formula $L_{\mathrm{max}}$
+\end_inset 
+
+.
+\layout Standard
+
+
+\begin_inset Float figure
+placement H
+wide false
+collapsed false
+
+\layout Standard
+\align center 
+
+\begin_inset Graphics FormatVersion 1
+	filename images/crossover1.eps
+	display color
+	size_type 1
+	width 8cm
+	keepAspectRatio
+	rotateOrigin center
+	lyxsize_type 1
+	lyxwidth 8cm
+
+\end_inset 
+
+
+\layout Caption
+
+
+\begin_inset LatexCommand \label{fig:Truncating crossover operator}
+
+\end_inset 
+
+Truncating crossover operator
+\end_inset 
+
+
+\layout Standard
+
+The behaviour of this crossover operator is examined in detail, and some
+ alternative crossover operators are investigated in Chapter 
+\begin_inset LatexCommand \ref{main:Behavioural analysis}
+
+\end_inset 
+
+ .
+\layout Subsection
+
+Reproduction
+\layout Standard
+
+By exploiting the parallel nature of the hardware, a copy of an individual
+ of length 
+\shape italic 
+
+\begin_inset Formula $l$
+\end_inset 
+
+
+\shape default 
+ requires 
+\begin_inset Formula $l+k$
+\end_inset 
+
+ clock cycles, where 
+\begin_inset Formula $k$
+\end_inset 
+
+ represents the small overhead to set up the copy, currently 3 clock cycles.
+ It would also be possible to use more of the FPGA resources to perform
+ reproduction in constant time by copying all the instructions in one individual
+ in parallel.
+\layout Subsection
+
+Calculating Operator Probabilities
+\layout Standard
+
+The operators in GP are usually selected with fixed probabilities, so an
+ efficient means of obtaining a weighted distribution was required.
+ Using the standard C inequality operators was rejected because of the deep
+ logic that they produce, and the consequent loss of performance.
+ Therefore, an alternative method was devised using bit masks.
+ By using a bit mask and logical operators it is possible to determine if
+ a number lies in a given range.
+ The following example uses an 8 bit unsigned integer to determine if the
+ value 
+\begin_inset Formula $v$
+\end_inset 
+
+ lies between 0 and 31.
+ i.e.
+ the low 5 bits of 
+\begin_inset Formula $v$
+\end_inset 
+
+.
+ This represents 12.5% of the possible values of 
+\begin_inset Formula $v$
+\end_inset 
+
+.
+\layout LyX-Code
+
+
+\series bold 
+bool
+\series default 
+ f(
+\series bold 
+unsigned int
+\series default 
+ v)
+\newline 
+{
+\newline 
+   
+\series bold 
+unsigned int
+\series default 
+ mask1, v1;
+\layout LyX-Code
+
+   mask1 = 0xe0;
+\layout LyX-Code
+
+   v1 = v & mask1;   // v1 is true if v is greater than 31
+\layout LyX-Code
+
+   
+\series bold 
+return
+\series default 
+ !v1;       // returns true if v < 32
+\layout LyX-Code
+
+}
+\layout Standard
+
+The operators were selected using the following probabilities.
+ Mutation 12.5%, Crossover 66%, Reproduction 21.5%.
+ These values were arrived at after experimentation.
+\layout Section
+
+Performance Comparison Methodology
+\layout Standard
+
+As already noted, there are potentially four types of parallelism being
+ used in this work.
+ To make any performance comparisons meaningful, the different types of
+ parallelism in operation must be considered when making any comparisons
+ with other implementations of the same algorithm.
+ For this reason the performance comparison is made up of two parts.
+ Firstly, a comparison of the design with a standard microprocessor is made,
+ but without the geometric parallelism.
+ That is, only a single fitness evaluation is made at any one time.
+ Secondly, a comparison is made for different degrees of geometric parallelism.
+\layout Standard
+
+Comparing the performance of the FPGA system without geometric parallelism
+ to a modern RISC processor is considered reasonable on the grounds that
+ this comparison has been used previously in some of the work reviewed in
+ Chapter 
+\begin_inset LatexCommand \ref{main:FPGAs and HandelC}
+
+\end_inset 
+
+.
+\layout Section
+
+Experimental Setup
+\layout Standard
+
+To test the feasibility of implementing a GP system in hardware using Handel-C,
+ a number of experiments were devised.
+ This section describes the environment used for the experiments.
+\layout Standard
+
+There were four aims of running these experiments:
+\layout Enumerate
+
+To determine whether the system could be implemented using Handel-C and
+ to verify that the design would fit on an FPGA.
+\layout Enumerate
+
+To determine if a limited GP system could solve the problems chosen.
+\layout Enumerate
+
+To obtain some indicative performance comparisons between a traditional
+ C implementation and a hardware implementation.
+\layout Enumerate
+
+To find out whether the design was realisable as hardware and to implement
+ the design in hardware.
+\layout Standard
+
+To meet the above aims, the problems were run using five different environments.
+ Firstly, as a standard ISO-C application running under Linux.
+ This was to prove the initial program operation and to enable the application
+ to be debugged using standard GNU tools.
+ The program was compiled using gcc v2.95.2 and executed on a 200\SpecialChar ~
+MHz AMD K6
+ PC running Linux.
+ 
+\layout Standard
+
+Secondly, the program was compiled using Handel-C and optimisations were
+ made to the code to increase parallelism, reduce logic depth and minimise
+ the gate count.
+ 
+\layout Standard
+
+Thirdly, the Handel-C implementation was run using the Handel-C simulator.
+ This gave the number of clock cycles needed to execute the program.
+ 
+\layout Standard
+
+Fourthly, the C code was compiled using a cross compiler and executed on
+ an instruction simulator for the Motorola PowerPC architecture.
+ This was performed to obtain a count of instruction and memory cycles needed
+ for a modern processor.
+ The choice of the PowerPC was made on the basis of a readily available
+ simulator for the PowerPC.
+ The PowerPC simulation was performed by using gcc 2.95.2 configured as a
+ PowerPC cross compiler.
+ This version of the program was optimised so as to have a minimal start-up
+ overhead and to avoid using any I/O.
+ It is therefore as close to the FPGA program as possible, allowing a meaningful
+ comparison of performance to be made.
+ The simulator itself was psim 
+\begin_inset LatexCommand \cite{Psim:homepage}
+
+\end_inset 
+
+, which is built into the GNU debugger (gdb) from version 5.0 onwards.
+ Psim can also be run as a stand-alone application.
+ Appendix 
+\begin_inset LatexCommand \ref{main:Experimental setup}
+
+\end_inset 
+
+ gives more details of how psim was configured and run.
+\layout Standard
+
+Fifthly, the output from Handel-C was used to generate a hardware layout
+ for the place and route tools, which gave the maximum clock frequency the
+ design could achieve, as well as an indication of the FPGA resources required.
+\layout Standard
+
+The design was then transferred to hardware to verify the correct operation
+ of the program.
+\layout Standard
+
+For the Handel-C simulation and hardware implementation, the code was compiled
+ using Handel-C v3.0 using maximum optimisation.
+ The final FPGA configuration data was produced using Xilinx Design Manager
+ version 3.3i for a Xilinx Virtex XCV2000e-6 chip hosted on a Celoxica RC1000
+ development board.
+ A block diagram of this board is shown in Figure 
+\begin_inset LatexCommand \ref{fig:rc1000board}
+
+\end_inset 
+
+ and a photograph of the board showing the Xilinx FPGA is shown in Figure
+ 
+\begin_inset LatexCommand \ref{fig:RC1000 photo}
+
+\end_inset 
+
+.
+ This board contains a 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+acf{PCI}
+\end_inset 
+
+ bridge that communicates between the RC1000 board and the host computers
+ PCI bus, four banks of 
+\emph on 
+Static Random Access Memory
+\emph default 
+ (SRAM) and a Xilinx FPGA.
+ Logic circuits isolate the FPGA from the SRAM, allowing both the host CPU
+ and the FPGA to access the SRAM.
+ The SRAM can be configured as either 2\SpecialChar ~
+MiB by 8\SpecialChar ~
+bits each, or 512\SpecialChar ~
+KiB by 32\SpecialChar ~
+bits.
+ For this work, the SRAM was configured as 32\SpecialChar ~
+bits wide.
+\layout Standard
+
+The host computer is responsible for downloading the configuration data
+ to the FPGA.
+ The host can then communicate with the FPGA to control the operation, send
+ data to and read data from the FPGA.
+ A program written to run on the host performed the following operations:
+\layout Standard
+
+
+\begin_inset Minipage
+position 0
+inner_position 0
+height "0pt"
+width "100page%"
+collapsed false
+
+\layout LyX-Code
+
+
+\family roman 
+\series bold 
+begin
+\series default 
+ program host-control-1
+\newline 
+    reset RC1000
+\newline 
+    configure FPGA
+\newline 
+    seed the random number generator in SRAM
+\newline 
+    signal FPGA to start
+\newline 
+    wait for FPGA to complete
+\newline 
+    read results from FPGA using status word
+\newline 
+    search for best individual
+\newline 
+    output best individual
+\newline 
+
+\series bold 
+end
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset Float figure
+placement h
+wide false
+collapsed false
+
+\layout Standard
+\align center 
+
+\begin_inset Graphics FormatVersion 1
+	filename images/rc1000-blockdiag.eps
+	display color
+	size_type 1
+	width 6in
+	rotateOrigin center
+	lyxsize_type 1
+	lyxwidth 6in
+
+\end_inset 
+
+
+\layout ShortCaption
+
+Block diagram of the Celoxica RC1000 FPGA board.
+\layout Caption
+
+
+\begin_inset LatexCommand \label{fig:rc1000board}
+
+\end_inset 
+
+Block diagram of the Celoxica RC1000 FPGA board.
+ It contains a 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+acf{PCI}
+\end_inset 
+
+ bridge that communicates between the RC1000 board and the host computers
+ PCI bus, four banks of 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+acf{SRAM}
+\end_inset 
+
+ and a Xilinx FPGA.
+ Logic circuits isolate the FPGA from the SRAM, allowing both the host CPU
+ and the FPGA to access the SRAM.
+ The board also contains two 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+acf{PMC}
+\end_inset 
+
+ connections to host optional I/O modules.
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset Float figure
+placement h
+wide false
+collapsed false
+
+\layout Standard
+\align center 
+
+\begin_inset Graphics FormatVersion 1
+	filename images/rc1000.jpg
+	display color
+	size_type 1
+	width 6in
+	keepAspectRatio
+	rotateOrigin center
+	lyxsize_type 1
+	lyxwidth 15cm
+
+\end_inset 
+
+
+\layout ShortCaption
+
+Photograph of the RC1000 development board.
+\layout Caption
+
+
+\begin_inset LatexCommand \label{fig:RC1000 photo}
+
+\end_inset 
+
+Photograph of the RC1000 development board.
+ The large device near the centre of the board is the Xilinx FPGA.
+ The SRAM and PCI bridge are located on the other side of the board.
+ Photograph reprinted with permission of Celoxica Ltd.
+\end_inset 
+
+
+\layout Standard
+
+The FPGA design wrote its output to an 8 bit output port as a sequence of
+ key/data pairs.
+ This data was read by the host PC and saved to a disk file for later analysis.
+ A disassembler was written to decode the output data for analysis.
+\layout Standard
+
+When measuring the clock counts of both the Handel-C simulation and the
+ PowerPC simulation, the code was modified to run to the maximum number
+ of generations.
+\layout Subsection
+
+Estimating PowerPC Clock Cycles
+\layout Standard
+
+Estimating the number of clock cycles required to execute the PowerPC version
+ of this program is a complex process.
+ Timing is dependent on how well the compiler has arranged the instruction
+ flow to avoid pipeline stalls, accurate branch prediction, how much of
+ the program is in instruction cache and how many external memory reads/writes
+ are required.
+ It also depends how fast the hardware is, especially the memory subsystem.
+ From the Motorola data sheet in the MPC860 Users Manual 
+\begin_inset LatexCommand \cite{PPCusermanual:1998}
+
+\end_inset 
+
+, an external load (read) takes 2 cycles when the data is in cache and 3
+ additional clock cycles when it is not in cache.
+ A write to memory requires 1 cycle.
+ A best case instruction when executed from data cache requires 1 cycle
+ for most common instructions.
+ An estimate of the number of clock cycles required by a program is given
+ by:
+\layout Standard
+
+
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+nopagebreak
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset Formula \begin{equation}
+\mathrm{Clock}_{\mathrm{total}}\simeq (r\times (1-\mathrm{dhit})\times 3)+i\label{EQU:CycleCalculation}\end{equation}
+
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+noindent 
+\end_inset 
+
+ where 
+\begin_inset Formula $r$
+\end_inset 
+
+ is the number of reads from memory, dhit is the percentage of reads satisfied
+ by the data cache.
+ This is estimated to be 60%, based on anecdotal evidence.
+ 
+\begin_inset Formula $i$
+\end_inset 
+
+ is the number of cycles required to execute the program, including pipeline
+ stalls and branch prediction failures.
+ The figure for 
+\begin_inset Formula $i$
+\end_inset 
+
+ also accounts for all writes to memory and all reads from cache.
+\layout Standard
+
+The instruction and read counts are taken from the output of the instruction
+ simulator.
+ Equation 
+\begin_inset LatexCommand \ref{EQU:CycleCalculation}
+
+\end_inset 
+
+ assumes that there are no external memory wait states caused by slow memory
+ or bus contention, and that instruction scheduling is optimal.
+\layout Section
+
+
+\begin_inset LatexCommand \label{sec:Experiment-Descriptions-1}
+
+\end_inset 
+
+Experiment Descriptions and Results
+\layout Standard
+
+Three experiments were devised to prove the general concept of GP in hardware
+ using Handel-C and to start to investigate the behaviour of the GP system
+ when changing the number of parallel fitness evaluations.
+ Two problems were used for the experiments.
+ The limited memory available, without using the 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+acf{BRAM}
+\end_inset 
+
+ built into the Xilinx FPGA, means that the problems need to be sufficiently
+ simple to be solved using a small program size and small population size.
+ During program development, the population size and program size were modified
+ until reasonable values were found that allowed the problems to be solved,
+ and allowed the code to be compiled on the workstation using Handel-C.
+ The last point arose because the Handel-C compiler requires substantial
+ computational resources so that arbitrarily large designs cannot be compiled
+ successfully.
+ The figures arrived at were a population size of 16, together with a program
+ size of 8 or 16 depending on the problem chosen.
+ These figures also allowed up to 4 parallel fitness evaluations to be accommoda
+ted.
+\layout Standard
+
+The two problems chosen were a regression problem and a Boolean logic problem.
+ The regression problem uses integer values, since Handel-C does not support
+ a native floating point data type.
+ The regression problem chosen is 
+\begin_inset Formula $x=a+2b$
+\end_inset 
+
+.
+ The Boolean logic problem is the 2 bit XOR function 
+\begin_inset Formula $x=a\oplus b$
+\end_inset 
+
+.
+\layout Standard
+
+The problems were realised as a single source file with preprocessor directives
+ controlling problem specific sections.
+\layout Standard
+
+In both problems the raw fitness was arranged to be zero for a 100% correct
+ program, thereby reducing the amount of logic required to test for fitness.
+\layout Standard
+
+In both problems, the run was terminated if a 100% correct program was found,
+ or if the maximum number of generations was reached.
+\layout Subsection
+
+Regression Problem 
+\layout Standard
+
+The objective of this problem is to find a symbolic expression that fits
+ 4 data points.
+\layout Subsubsection*
+
+Description
+\layout Standard
+
+In common with all GP work, each problem typically requires the selection
+ of appropriate functions.
+ The functions are implemented as opcodes for a problem specific processor.
+ For the regression problem using standard GP, the functions include Addition,
+ Subtraction, Multiplication and Division.
+ In this implementation eight instructions were chosen, requiring three
+ bits.
+ Each instruction can specify up to two registers, and there are four registers
+ available, requiring 2 bits each.
+ Therefore each instruction requires 7 bits of storage.
+ 
+\layout Standard
+
+The instructions for this problem are:
+\layout Itemize
+
+
+\family typewriter 
+
+\begin_inset Formula $\mathtt{add(R}_{n},\mathtt{R}_{m}\mathtt{)}$
+\end_inset 
+
+
+\family default 
+ adds the contents of R
+\begin_inset Formula $_{m}$
+\end_inset 
+
+ to the contents of R
+\begin_inset Formula $_{n}$
+\end_inset 
+
+ and places the result back into R
+\begin_inset Formula $_{n}$
+\end_inset 
+
+.
+ 
+\layout Itemize
+
+
+\family typewriter 
+
+\begin_inset Formula $\mathtt{sub(R}_{n},\mathtt{R}_{m}\mathtt{)}$
+\end_inset 
+
+
+\family default 
+ subtracts the value in R
+\begin_inset Formula $_{m}$
+\end_inset 
+
+ from the value in R
+\begin_inset Formula $_{n}$
+\end_inset 
+
+ and places the result back into R
+\begin_inset Formula $_{n}$
+\end_inset 
+
+.
+ 
+\layout Itemize
+
+
+\family typewriter 
+
+\begin_inset Formula $\mathtt{shl(R}_{n}\mathtt{)}$
+\end_inset 
+
+
+\family default 
+ shifts the contents of R
+\begin_inset Formula $_{n}$
+\end_inset 
+
+ left by one bit, leaving the result in R
+\begin_inset Formula $_{n}$
+\end_inset 
+
+.
+ 
+\layout Itemize
+
+
+\family typewriter 
+
+\begin_inset Formula $\mathtt{shr(R}_{n}\mathtt{)}$
+\end_inset 
+
+
+\family default 
+ shifts the contents of R
+\begin_inset Formula $_{n}$
+\end_inset 
+
+ right by one bit, leaving the result in R
+\begin_inset Formula $_{n}$
+\end_inset 
+
+.
+\layout Itemize
+
+
+\family typewriter 
+
+\begin_inset Formula $\mathtt{nop}$
+\end_inset 
+
+
+\family default 
+ is a no-operation function.
+ This was included to make the number of instructions a power of 2.
+\layout Itemize
+
+
+\family typewriter 
+
+\begin_inset Formula $\mathtt{halt(R}_{n}\mathtt{)}$
+\end_inset 
+
+
+\family default 
+ causes the evaluation to finish, returning the value in R
+\begin_inset Formula $_{n}$
+\end_inset 
+
+.
+ 
+\layout Itemize
+
+
+\family typewriter 
+
+\begin_inset Formula $\mathtt{ldim(R}_{n},\mathtt{K}_{m}\mathtt{)}$
+\end_inset 
+
+
+\family default 
+ causes the constant K
+\begin_inset Formula $_{m}$
+\end_inset 
+
+ to be placed into R
+\begin_inset Formula $_{n}$
+\end_inset 
+
+.
+ 
+\layout Itemize
+
+
+\family typewriter 
+
+\begin_inset Formula $\mathtt{jmpifz(R}_{n},\mathtt{R}_{m}\mathtt{)}$
+\end_inset 
+
+
+\family default 
+ tests the value in R
+\begin_inset Formula $_{n}$
+\end_inset 
+
+.
+ If the value is zero, then jumps to the location in R
+\begin_inset Formula $_{m}$
+\end_inset 
+
+ modulo program size.
+ 
+\layout Standard
+
+Program termination occurs on the following conditions: 
+\layout Enumerate
+
+a halt instruction is encountered;
+\layout Enumerate
+
+the last instruction in the program is executed;
+\layout Enumerate
+
+a jmpifz instruction has caused a loop to be created, and a predetermined
+ number of loops have been executed.
+ 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbstart 
+\end_inset 
+
+ The counter is set to zero at the start of the program and is incremented
+ for every jmpifz instruction.
+ 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbend 
+\end_inset 
+
+
+\layout Standard
+
+The machine that implements these instructions can execute one instruction
+ every two clock cycles, including instruction fetch, decode, operand address
+ evaluation and operand read/write.
+ To speed this up even further it would be possible to build a pipeline,
+ reducing the cycle count to one per instruction, 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbstart 
+\end_inset 
+
+ if there were no jmpifz instructions.
+ 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbend 
+\end_inset 
+
+
+\layout Standard
+
+Four random constants are made available to each individual.
+ These are created once during the 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbstart 
+\end_inset 
+
+ initial 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbend 
+\end_inset 
+
+ construction of individuals.
+\layout Standard
+
+Most examples of regression in the literature include the multiply and divide
+ functions.
+ Since these two functions generate very deep logic using the default Handel-C
+ operators, these were replaced with single bit shift left and shift right
+ operators, which generate much shallower and therefore faster logic, and
+ have the effect of multiply by two and divide by two instructions respectively.
+ The jump-if-zero opcode was included to allow loops or conditional expressions
+ to appear.
+\layout Standard
+
+The full set of parameters for the regression problem are given in Table
+ 
+\begin_inset LatexCommand \ref{table:regression problem parameters}
+
+\end_inset 
+
+.
+\layout Standard
+
+The input values 
+\begin_inset Formula $a$
+\end_inset 
+
+ and 
+\begin_inset Formula $b$
+\end_inset 
+
+ were placed in registers R
+\begin_inset Formula $_{0}$
+\end_inset 
+
+ and R
+\begin_inset Formula $_{1}$
+\end_inset 
+
+ before the fitness evaluation.
+ The result 
+\begin_inset Formula $x$
+\end_inset 
+
+ was read from register R
+\begin_inset Formula $_{0}$
+\end_inset 
+
+ if the program was terminated at the end, or the value in R
+\begin_inset Formula $_{n}$
+\end_inset 
+
+ if terminated by a 
+\family typewriter 
+
+\begin_inset Formula $\mathtt{halt}$
+\end_inset 
+
+
+\family default 
+ instruction.
+\layout Standard
+
+The fitness data was pre-computed once at the start of the program and made
+ available to all copies of the fitness evaluation.
+\layout Standard
+
+
+\begin_inset Float table
+placement h
+wide false
+collapsed false
+
+\layout Caption
+
+
+\begin_inset LatexCommand \label{table:regression problem parameters}
+
+\end_inset 
+
+Parameters for the regression problem
+\layout Standard
+\align center 
+
+\begin_inset  Tabular
+<lyxtabular version="3" rows="9" columns="2">
+<features>
+<column alignment="left" valignment="top" width="0pt">
+<column alignment="left" valignment="top" width="3.5in">
+<row topline="true">
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Parameter
+\end_inset 
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Value
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Population size
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+16
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Functions
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\family typewriter 
+
+\begin_inset Formula $\mathtt{add(R}_{n},\, \mathtt{R}_{m}\mathtt{)}$
+\end_inset 
+
+, 
+\begin_inset Formula $\mathtt{sub(R}_{n},\, \mathtt{R}_{m}\mathtt{)}$
+\end_inset 
+
+, 
+\begin_inset Formula $\mathtt{shl(R}_{n}\mathtt{)}$
+\end_inset 
+
+,
+\begin_inset Formula $\mathtt{shr(R}_{n}\mathtt{)}$
+\end_inset 
+
+, 
+\begin_inset Formula $\mathtt{nop}$
+\end_inset 
+
+, 
+\begin_inset Formula $\mathtt{halt(R}_{n}\mathtt{)}$
+\end_inset 
+
+, 
+\begin_inset Formula $\mathtt{ldim(R}_{n},\, \mathtt{K}_{m}\mathtt{)}$
+\end_inset 
+
+, 
+\begin_inset Formula $\mathtt{jmpifz(R}_{n},\, \mathtt{R}_{m}\mathtt{)}$
+\end_inset 
+
+
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Terminals
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+4 registers
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Word size
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+8 bits
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Max.
+ program size
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+8
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Generations
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+511
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Fitness cases
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+4 pairs of values of 
+\begin_inset Formula $a$
+\end_inset 
+
+ and 
+\begin_inset Formula $b$
+\end_inset 
+
+
+\end_inset 
+</cell>
+</row>
+<row bottomline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Raw fitness
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+The absolute value of the difference between the returned value and the
+ expected value
+\end_inset 
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset 
+
+
+\end_inset 
+
+
+\layout Subsubsection*
+
+Regression problem results
+\layout Standard
+
+The results from the simulator for this problem are given in Table 
+\begin_inset LatexCommand \vref{table:Results of running the regression problem}
+
+\end_inset 
+
+.
+ The figures for the PowerPC were calculated using the method described
+ in Equation 
+\begin_inset LatexCommand \ref{EQU:CycleCalculation}
+
+\end_inset 
+
+.
+ 
+\layout Standard
+
+
+\begin_inset Float table
+placement h
+wide false
+collapsed false
+
+\layout Caption
+
+
+\begin_inset LatexCommand \label{table:Results of running the regression problem}
+
+\end_inset 
+
+Results of running the regression problem
+\layout Standard
+\align center 
+
+\begin_inset  Tabular
+<lyxtabular version="3" rows="9" columns="4">
+<features>
+<column alignment="left" valignment="top" width="0pt">
+<column alignment="left" valignment="top" width="1.1in">
+<column alignment="left" valignment="top" width="1.1in">
+<column alignment="left" valignment="top" width="1.1in">
+<row topline="true">
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Measurement
+\end_inset 
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+PowerPC Simulation
+\end_inset 
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Handel-C (Single fitness evaluation)
+\end_inset 
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Handel-C (4 parallel fitness evaluations)
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Cycles
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+16\SpecialChar ~
+612\SpecialChar ~
+624
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+351\SpecialChar ~
+178
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+188\SpecialChar ~
+857
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Clock frequency
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+200\SpecialChar ~
+MHz
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+25\SpecialChar ~
+MHz
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+19\SpecialChar ~
+MHz
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Estimated gates
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+n/a
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+142\SpecialChar ~
+443
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+228\SpecialChar ~
+624
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Number of slices
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+n/a
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+4\SpecialChar ~
+250
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+6\SpecialChar ~
+800
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Percentage of slices used
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+n/a
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+22%
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+35%
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\begin_inset Formula $\mathrm{Speedup}_{\mathrm{cycles}}$
+\end_inset 
+
+
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+1
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+47
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+88
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\begin_inset Formula $\mathrm{Speedup}_{\mathrm{time}}$
+\end_inset 
+
+
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+1
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+6
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+8
+\end_inset 
+</cell>
+</row>
+<row bottomline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Elapsed time
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+0.083\SpecialChar ~
+s
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+0.014\SpecialChar ~
+s
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+0.0099\SpecialChar ~
+s
+\end_inset 
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset 
+
+
+\end_inset 
+
+
+\layout Standard
+
+The estimate of NAND gates is generated by Handel-C as an indication in
+ a vendor independent fashion of the size of the required FPGA.
+ The number of slices used is generated by the place and route tools.
+ The percentage of Slices used is based on the Xilinx XCV2000-BG560-6 chip,
+ which has a total of 9\SpecialChar ~
+600 CLBs, arranged as an 80x120 grid.
+ Each CLB contains two slices, giving a total of 19\SpecialChar ~
+200 Slices.
+\layout Standard
+
+The speed-up factors are given for two conditions, the raw cycle counts
+ and the actual time taken to execute the programs.
+ The first is a comparison made in terms of raw clock cycles.
+ This treats the two implementations as though they were operating at the
+ same clock frequency.
+ The second is a comparison between the typical clock rate for the PowerPC
+ and the fastest frequency the FPGA could be clocked as reported by the
+ place and route tools.
+\layout Standard
+
+The speed-up factor is given by:
+\layout Standard
+
+
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+nopagebreak
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset Formula \begin{equation}
+\mathrm{Speedup}_{\mathrm{cycles}}\mathrm{=}\frac{\mathrm{Cycles}_{\mathrm{ppc}}}{\mathrm{Cycles}_{\mathrm{fpga}}}\label{EQU:SpeedupCycles}\end{equation}
+
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+noindent 
+\end_inset 
+
+and the speed-up factor for time is given by:
+\layout Standard
+
+
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+nopagebreak
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset Formula \begin{equation}
+\mathrm{Speedup}_{\mathrm{time}}=\mathrm{Speedup}_{\mathrm{cycles}}\times \frac{\mathrm{Freq}_{\mathrm{fpga}}}{\mathrm{Freq}_{\mathrm{ppc}}}\label{EQU:SpeedupTime}\end{equation}
+
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+noindent
+\end_inset 
+
+ An (annotated) example program from this problem found in generation 16
+ of one run is:
+\layout Standard
+
+
+\begin_inset Minipage
+position 0
+inner_position 0
+height "0pt"
+width "100page%"
+collapsed false
+
+\layout LyX-Code
+
+shl(r1)          // r1 = b*2
+\newline 
+add(r1,r2)       // nop 
+\family roman 
+(all registers = 0 at the start)
+\family default 
+
+\newline 
+add(r0,r1)       // r0 = a + (b*2)
+\newline 
+halt(r0)         // Return the result in r0
+\end_inset 
+
+
+\layout Standard
+
+It was found that none of the solutions used the 
+\family typewriter 
+
+\begin_inset Formula $\mathtt{ldim}$
+\end_inset 
+
+
+\family default 
+ instruction and therefore none of the random variables.
+ 
+\layout Standard
+
+The difference in the maximum attainable clock frequency between the single
+ fitness evaluation case and the 4 parallel fitness evaluation case can
+ be explained by the increased number of logic elements required.
+ This in turn requires more routing resources and more delays.
+\layout Subsection
+
+
+\begin_inset LatexCommand \label{sect:XOR problem}
+
+\end_inset 
+
+XOR Problem
+\layout Standard
+
+The objective of the XOR problem is to find a program that solves the 2-input
+ Boolean exclusive OR function, using the four 2-input Boolean functions
+ 
+\family typewriter 
+
+\begin_inset Formula $\mathtt{AND,}\, \, \mathtt{OR,}\, \, \mathtt{NOR}$
+\end_inset 
+
+
+\family default 
+ and 
+\family typewriter 
+
+\begin_inset Formula $\, \mathtt{NAND}$
+\end_inset 
+
+
+\family default 
+.
+\layout Subsubsection*
+
+Description
+\layout Standard
+
+The XOR function uses the four basic two input logic primitives 
+\family typewriter 
+
+\begin_inset Formula $\mathtt{AND,}\, \, \mathtt{OR,}\, \, \mathtt{NOR,}\, \, \mathtt{NAND}$
+\end_inset 
+
+
+\family default 
+.
+ Each of these functions takes two registers, R
+\begin_inset Formula $_{n}$
+\end_inset 
+
+ and R
+\begin_inset Formula $_{m}$
+\end_inset 
+
+.
+ The result is placed into R
+\begin_inset Formula $_{n}.$
+\end_inset 
+
+ These have been shown to be sufficient to solve the Boolean XOR problem
+ 
+\begin_inset LatexCommand \cite{koza:book}
+
+\end_inset 
+
+.
+ Execution is terminated when the last instruction in the program has been
+ executed.
+\layout Standard
+
+The two inputs 
+\begin_inset Formula $a$
+\end_inset 
+
+ and 
+\begin_inset Formula $b$
+\end_inset 
+
+ were written to registers R
+\begin_inset Formula $_{0}$
+\end_inset 
+
+ and R
+\begin_inset Formula $_{1}$
+\end_inset 
+
+ before the fitness evaluation, and the result 
+\begin_inset Formula $x$
+\end_inset 
+
+ read from register R
+\begin_inset Formula $_{0}$
+\end_inset 
+
+ after the fitness evaluation.
+\layout Standard
+
+
+\begin_inset Float table
+placement h
+wide false
+collapsed false
+
+\layout Caption
+
+
+\begin_inset LatexCommand \label{table:xor problem parameters}
+
+\end_inset 
+
+Parameters for the XOR problem
+\layout Standard
+\align center 
+
+\begin_inset  Tabular
+<lyxtabular version="3" rows="9" columns="2">
+<features>
+<column alignment="left" valignment="top" width="0pt">
+<column alignment="left" valignment="top" width="3.5in">
+<row topline="true">
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Parameter
+\end_inset 
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Value
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Population size
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+16
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Functions
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\family typewriter 
+
+\begin_inset Formula $\mathtt{AND(R}_{n},\, \mathtt{R}_{m}\mathtt{)},\, \mathtt{OR(R}_{n},\, \mathtt{R}_{m}),\, \mathtt{NOR(R}_{n},\, \mathtt{R}_{m}\mathtt{),}\, \mathtt{NAND(R}_{n},\, \mathtt{R}_{m}\mathtt{)}$
+\end_inset 
+
+
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Terminals
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+4 registers
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Word size
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+1 bit
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Max program size
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+16
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Generations
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+511
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Fitness cases
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+4 pairs of values of 
+\begin_inset Formula $a$
+\end_inset 
+
+ and 
+\begin_inset Formula $b$
+\end_inset 
+
+
+\end_inset 
+</cell>
+</row>
+<row bottomline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Raw fitness
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+The number of fitness cases that failed to yield the expected result.
+\end_inset 
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset 
+
+
+\end_inset 
+
+The full set of parameters is given in Table 
+\begin_inset LatexCommand \ref{table:xor problem parameters}
+
+\end_inset 
+
+.
+ With only four functions for this problem, each instruction requires six
+ bits.
+\layout Subsubsection*
+
+XOR problem results
+\layout Standard
+
+The XOR problem was executed using the same environments as the regression
+ problem.
+ The results are presented in Table 
+\begin_inset LatexCommand \ref{table:Results of running the XOR problem}
+
+\end_inset 
+
+.
+\layout Standard
+
+
+\begin_inset Float table
+placement h
+wide false
+collapsed false
+
+\layout Caption
+
+
+\begin_inset LatexCommand \label{table:Results of running the XOR problem}
+
+\end_inset 
+
+Results of running the XOR problem
+\layout Standard
+\align center 
+
+\begin_inset  Tabular
+<lyxtabular version="3" rows="9" columns="4">
+<features>
+<column alignment="left" valignment="top" width="1.1in">
+<column alignment="left" valignment="top" width="1.1in">
+<column alignment="left" valignment="top" width="1.1in">
+<column alignment="left" valignment="top" width="1.1in">
+<row topline="true">
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Measurement
+\end_inset 
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+PowerPC Simulation
+\end_inset 
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Handel-C (Single fitness evaluation)
+\end_inset 
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Handel-C (4 parallel fitness evaluations)
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Cycles
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+27\SpecialChar ~
+785\SpecialChar ~
+750
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+715\SpecialChar ~
+506
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+384\SpecialChar ~
+862
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Clock Frequency
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+200\SpecialChar ~
+MHz
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+22\SpecialChar ~
+MHz
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+18\SpecialChar ~
+MHz
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Estimated Gates
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+n/a
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+89\SpecialChar ~
+205
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+142\SpecialChar ~
+550
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Number of Slices
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+n/a
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+4\SpecialChar ~
+630
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+7\SpecialChar ~
+434
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Percentage of Slices Used
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+n/a
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+24%
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+38%
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\begin_inset Formula $\mathrm{Speedup}_{\mathrm{cycles}}$
+\end_inset 
+
+
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+1
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+38
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+72
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\begin_inset Formula $\mathrm{Speedup}_{\mathrm{time}}$
+\end_inset 
+
+
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+1
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+4
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+6
+\end_inset 
+</cell>
+</row>
+<row bottomline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Elapsed time
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+0.14\SpecialChar ~
+s
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+0.032\SpecialChar ~
+s
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+0.021\SpecialChar ~
+s
+\end_inset 
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset 
+
+
+\end_inset 
+
+
+\layout Standard
+
+An (annotated) example program from this problem found in generation 86
+ of one run is:
+\layout Standard
+
+
+\begin_inset Minipage
+position 0
+inner_position 0
+height "0pt"
+width "100page%"
+collapsed false
+
+\layout LyX-Code
+
+or(r3,r1)        // r3 = 
+\begin_inset Formula $b$
+\end_inset 
+
+
+\newline 
+or(r3,r0)        // r3 = 
+\begin_inset Formula $a+b$
+\end_inset 
+
+
+\newline 
+or(r2,r1)        // nop 
+\family roman 
+(since r2 is never used
+\family default 
+)
+\newline 
+nand(r0,r1)      // r0 = 
+\begin_inset Formula $\overline{ab}$
+\end_inset 
+
+
+\newline 
+and(r0,r3)       // r0 = 
+\begin_inset Formula $(a+b)\overline{ab}$
+\end_inset 
+
+
+\end_inset 
+
+
+\layout Standard
+
+The final result 
+\begin_inset Formula $(a+b)\overline{ab}$
+\end_inset 
+
+ is equivalent to 
+\begin_inset Formula $(a\overline{b})+(\overline{a}b)$
+\end_inset 
+
+ which is the more familiar logic equation for the exclusive OR function.
+\layout Subsection
+
+
+\begin_inset LatexCommand \label{section on parallelisation data}
+
+\end_inset 
+
+The Effect of Parallelising the Fitness Evaluation.
+\layout Standard
+
+To quantify the benefits of using geometric parallelism, the XOR problem
+ was re-implemented, using four different values for the number of parallel
+ fitness evaluations, and run using the Handel-C simulator.
+ The purpose of this experiment was not to successfully evolve programs
+ but rather to explore how much the parallelism affected the performance.
+ 
+\layout Standard
+
+A total population size of 8 was chosen, together with a maximum of 4 nodes
+ per individual.
+ These values appear to be very low but they were chosen to allow the programs
+ to be compiled by Handel-C, since it was found that larger values caused
+ the compilation of the simulation to fail, due to memory exhaustion on
+ the workstation.
+ The number of individuals processed in parallel was modified each time,
+ using the values 1, 2, 4 and 8.
+ Data was collected for the number of cycles to perform the initial population
+ creation, the number of cycles to evaluate the first generation and the
+ number of cycles to perform the breeding operators on the first generation.
+ These are shown in tabular form in Table 
+\begin_inset LatexCommand \ref{table:cycle counts for different parallel evaluations}
+
+\end_inset 
+
+.
+\layout Standard
+
+
+\begin_inset Float table
+placement h
+wide false
+collapsed false
+
+\layout ShortCaption
+
+Cycle counts and gate estimates for various stages of the GP.
+\layout Caption
+
+
+\begin_inset LatexCommand \label{table:cycle counts for different parallel evaluations}
+
+\end_inset 
+
+Cycle counts and gate estimates for various stages of the GP and different
+ numbers of parallel fitness evaluations.
+ Where N = Number of parallel fitness evaluations.
+ I = Initial population creation (cycles).
+ E = Evaluation of the first generation (cycles).
+ B = Breeding of first generation (cycles).
+ T=Total cycles.
+ G=Gate estimate (NAND gates).
+\layout Standard
+\align center 
+
+\begin_inset  Tabular
+<lyxtabular version="3" rows="5" columns="6">
+<features>
+<column alignment="left" valignment="top" width="0pt">
+<column alignment="right" valignment="top" width="0pt">
+<column alignment="right" valignment="top" width="0pt">
+<column alignment="right" valignment="top" width="0pt">
+<column alignment="right" valignment="top" width="0pt">
+<column alignment="right" valignment="top" width="0pt">
+<row topline="true">
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+N
+\end_inset 
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+I\SpecialChar ~
+\SpecialChar ~
+\SpecialChar ~
+
+\end_inset 
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+E\SpecialChar ~
+\SpecialChar ~
+\SpecialChar ~
+
+\end_inset 
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+B\SpecialChar ~
+\SpecialChar ~
+\SpecialChar ~
+
+\end_inset 
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+T\SpecialChar ~
+\SpecialChar ~
+\SpecialChar ~
+
+\end_inset 
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+G\SpecialChar ~
+\SpecialChar ~
+\SpecialChar ~
+
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+1
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+214
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+324
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+123
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+6517
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+35\SpecialChar ~
+666
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+2
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+214
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+180
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+123
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+4669
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+43\SpecialChar ~
+314
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+4
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+214
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+108
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+123
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+3549
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+58\SpecialChar ~
+588
+\end_inset 
+</cell>
+</row>
+<row bottomline="true">
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+8
+\end_inset 
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+214
+\end_inset 
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+60
+\end_inset 
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+123
+\end_inset 
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+2877
+\end_inset 
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+89\SpecialChar ~
+136
+\end_inset 
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset 
+
+
+\end_inset 
+
+
+\layout Standard
+
+Figure 
+\begin_inset LatexCommand \ref{fig:cycles per fitness}
+
+\end_inset 
+
+ shows the effect on the number of cycles for one fitness evaluation, with
+ different numbers of parallel fitness evaluations.
+ It can be seen from this graph that as the number of parallel fitness evaluatio
+ns increases, so the benefit tails off.
+ This is due to the constant overhead associated with setting up the fitness
+ evaluations.
+\begin_inset Float figure
+placement htbp
+wide false
+collapsed false
+
+\layout Standard
+\align center 
+
+\begin_inset Graphics FormatVersion 1
+	filename images/xor-plot-1.eps
+	display color
+	size_type 1
+	height 2in
+	rotateOrigin center
+	lyxsize_type 1
+	lyxwidth 205pt
+	lyxheight 144pt
+\end_inset 
+
+
+\layout ShortCaption
+
+Cycles per evaluation vs.
+ parallel fitness evaluations.
+\layout Caption
+
+
+\begin_inset LatexCommand \label{fig:cycles per fitness}
+
+\end_inset 
+
+Number of cycles to evaluate one fitness function evaluation for the population
+ with different numbers of parallel fitness evaluations.
+\end_inset 
+
+
+\layout Standard
+
+The total number of cycles for the problem is shown in Figure 
+\begin_inset LatexCommand \ref{fig:Total cycles graph}
+
+\end_inset 
+
+.
+ The program was run for 16 generations.
+ Here the effect of the breeding phase can be seen.
+ The benefit gained from doubling the number of parallel fitness evaluations
+ from four to eight only reduces the cycles required by 18%.
+ The contribution of the initial population is about 7.5% of the total cycles,
+ when 8 parallel evaluations were performed.
+ This shows clearly that performing fitness and breeding serially does not
+ allow this implementation to exploit parallelism to its best advantage.
+\begin_inset Float figure
+placement htbp
+wide false
+collapsed false
+
+\layout Standard
+\align center 
+
+\begin_inset Graphics FormatVersion 1
+	filename images/xor-plot-2.eps
+	display color
+	size_type 1
+	height 2in
+	rotateOrigin center
+	lyxsize_type 1
+	lyxwidth 205pt
+	lyxheight 144pt
+\end_inset 
+
+
+\layout ShortCaption
+
+Total cycles vs.
+ parallel fitness evaluations.
+\layout Caption
+
+
+\begin_inset LatexCommand \label{fig:Total cycles graph}
+
+\end_inset 
+
+Total number of cycles for the problem with different numbers of parallel
+ fitness evaluations.
+\end_inset 
+
+
+\layout Section
+
+Discussion
+\layout Subsection
+
+
+\begin_inset LatexCommand \label{sub:Consequences-of-Using-handel-c}
+
+\end_inset 
+
+Consequences of Using a High Level Language
+\layout Standard
+
+The two problems presented here, though trivial when compared to many problems
+ that have been solved using GP, have proved the general concept of using
+ Handel-C to produce GP systems that can be run on FPGAs.
+ The use of a C like language has some valuable properties.
+ Probably the most significant is that the algorithm can be developed and
+ tested using traditional software tools.
+ This is an important consideration for software engineering, in that there
+ is no need for a software engineer to become proficient in hardware design.
+ This opens up a whole set of possibilities for implementing critical functions
+ in hardware.
+\layout Standard
+
+However, the issue of productivity needs to be considered here.
+ Compiling the ISO-C implementation using gcc took around 3 seconds to complete,
+ at which time testing could commence.
+ When using Handel-C to compile a simulation, the initial compilation phase
+ took several minutes, and compilation for a host simulation run using Microsoft
+ Visual C++ V6.0 took around 10 minutes.
+ Finally, targeting the FPGA required about 30 minutes for Handel-C to produce
+ the netlist, and several hours for the place and route tools to create
+ the FPGA configuration data.
+ Clearly, using Handel-C for this particular problem needs careful preparation
+ and the judicious use of traditional software tools during the early developmen
+t phase.
+ It must be stressed that the largest bottleneck is the place and route
+ tools, a problem that any user of FPGA techniques will be familiar with.
+ For reference, all Handel-C and place and route work was performed on a
+ 500\SpecialChar ~
+MHz Pentium-II workstation with 384\SpecialChar ~
+MiB of RAM running Windows NT4.0.
+ The full capabilities of the FPGA cannot be exploited using such a workstation
+ since the demands on memory are large, evidence suggests that at at least
+ 1\SpecialChar ~
+GiB of memory would be required to compile and place/route a design that
+ would fill a Xilinx XCV2000e part (Virtex-E) (see Appendix 
+\begin_inset LatexCommand \ref{main:Experimental setup}
+
+\end_inset 
+
+).
+\layout Standard
+
+
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbstart
+\end_inset 
+
+ When using VHDL to design the hardware it is possible to use the FPGA vendor's
+ analysis and simulation tools to get an accurate picture of how the hardware
+ will behave and get an indication of the expected performance.
+ For example, Scott 
+\begin_inset LatexCommand \cite{scott:1994}
+
+\end_inset 
+
+ shows how by using the simulation tools, the design could improved.
+ However, when using Handel-C it is slightly more difficult to get detailed
+ information on how the design will operate without first going through
+ a place and route cycle.
+ Because of the lack of detailed timing data it is harder to tune a design
+ in Handel-C because of the abstraction introduced by Handel-C.
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbend
+\end_inset 
+
+
+\layout Subsection
+
+The Effect of Increasing Parallelisation of the Fitness Function
+\layout Standard
+
+The results in Section 
+\begin_inset LatexCommand \ref{section on parallelisation data}
+
+\end_inset 
+
+ show that, using the current implementation and parameter values, the benefits
+ of increasing the number of parallel fitness evaluations falls off above
+ 4.
+ This is due to the breeding phase taking a significant portion of the cycles
+ when compared to the fitness evaluation.
+ This is a direct consequence of the linear representation of the individuals
+ and the unsophisticated crossover operator.
+ It is also a consequence of performing the breed and evaluations in series
+ rather than in parallel.
+ The effect is also amplified because of the simplicity of the problems
+ chosen.
+ Clearly, more work needs to be done in the area of representation and crossover
+ if the benefits of parallelisation are to be fully realised using this
+ implementation.
+\layout Subsection
+
+Performance Considerations and Potential Improvements
+\layout Standard
+
+The work reviewed in Chapter 
+\begin_inset LatexCommand \ref{main:FPGAs and HandelC}
+
+\end_inset 
+
+ indicated that a performance improvement over a software implementation
+ of two or three orders of magnitude has been achieved by implementing part
+ or all of a GA in hardware.
+ The work described in this chapter has not achieved that level of improvement.
+ This is probably due to the straightforward translation of a serial algorithm
+ into hardware, without considering algorithmic parallelism from the outset,
+ and the limited number of parallel fitness evaluations that could be accommodat
+ed.
+\layout Standard
+
+To achieve maximum performance, algorithmic parallelism or pipelining should
+ be used to perform the selection, breeding and fitness evaluation phases
+ in parallel.
+ In the steady state model of GP with a large population, the system could
+ evaluate a number of individuals, while the breeding of previously evaluated
+ individuals could be carried out in parallel, effectively forming a pipeline.
+ 
+\layout Standard
+
+An estimate of the worst case performance, if the system were implemented
+ using a pipeline, can be made by assuming that:
+\layout Standard
+
+(a) The fitness evaluation will require the most cycles and will therefore
+ be the slowest stage in the pipeline.
+ This means that we only need to consider how many cycles will be needed
+ for the fitness evaluation.
+ This is shown in Table 
+\begin_inset LatexCommand \ref{table:cycle counts for different parallel evaluations}
+
+\end_inset 
+
+ as being reasonable.
+\layout Standard
+
+(b) Each program is run exactly once per fitness case and that there is
+ no looping or recursion.
+\layout Standard
+
+(c) All stages are fully pipelined, that is to say that creation, selection,
+ fitness evaluation, random number generation and breeding are all performed
+ in parallel 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbstart 
+\end_inset 
+
+ so that a result is produced every 
+\begin_inset Formula $c$
+\end_inset 
+
+ cycles.
+ 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbend 
+\end_inset 
+
+
+\layout Standard
+
+(d) All programs are of maximum length.
+\layout Standard
+
+The number of cycles 
+\begin_inset Formula $C$
+\end_inset 
+
+ required is given by:
+\layout Standard
+
+
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+nopagebreak
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset Formula \begin{equation}
+C=k+\left(\frac{G\times l\times M\times n\times c}{p}\right)\label{EQU:projectedCycles}\end{equation}
+
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+noindent 
+\end_inset 
+
+where 
+\begin_inset Formula $G$
+\end_inset 
+
+ is the number of generations, 
+\begin_inset Formula $l$
+\end_inset 
+
+ is the maximum program length, 
+\begin_inset Formula $M$
+\end_inset 
+
+ is the population size, 
+\begin_inset Formula $n$
+\end_inset 
+
+ is the number of fitness cases, 
+\begin_inset Formula $c$
+\end_inset 
+
+ is the number of clock cycles per instruction or function, 
+\begin_inset Formula $p$
+\end_inset 
+
+ is the number of fitness evaluations performed in parallel, and 
+\begin_inset Formula $k$
+\end_inset 
+
+ is the fixed overhead for startup, general control and generating the final
+ result.
+ 
+\layout Standard
+
+For the XOR problem described in Section 
+\begin_inset LatexCommand \ref{sect:XOR problem}
+
+\end_inset 
+
+, assuming 
+\begin_inset Formula $k=$
+\end_inset 
+
+500, 
+\begin_inset Formula $G=$
+\end_inset 
+
+511, 
+\begin_inset Formula $l=$
+\end_inset 
+
+16, 
+\begin_inset Formula $M=$
+\end_inset 
+
+16, 
+\begin_inset Formula $n=4$
+\end_inset 
+
+, 
+\begin_inset Formula $c=2$
+\end_inset 
+
+, and 
+\begin_inset Formula $p=$
+\end_inset 
+
+4, this gives a total cycle count of 262\SpecialChar ~
+132, a potential improvement of
+ 1.4 times over the results shown in Table 
+\begin_inset LatexCommand \ref{table:Results of running the XOR problem}
+
+\end_inset 
+
+.
+\layout Standard
+
+Clearly, the implementation of a fully pipelined GP system must be considered
+ for future work.
+\layout Standard
+
+A further performance boost is possible by increasing the value of 
+\begin_inset Formula $p$
+\end_inset 
+
+.
+ When the population is moved from memory constructed from 
+\shape italic 
+Look Up Tables 
+\shape default 
+(LUTs) and Flip Flops to on-chip block select RAM and/or external RAM, it
+ should be possible to accommodate more logic to perform the fitness evaluations
+ and therefore increase 
+\begin_inset Formula $p$
+\end_inset 
+
+ from 4 to a significantly larger value.
+ A value of 32 for 
+\begin_inset Formula $p$
+\end_inset 
+
+ would yield a cycle count of 33\SpecialChar ~
+204, which would mean that 
+\begin_inset Formula $\mathrm{Speedup}_{\mathrm{time}}$
+\end_inset 
+
+ for the XOR problem would be 75.
+\layout Subsection
+
+
+\begin_inset LatexCommand \label{sub:problem-sepcific-opcodes}
+
+\end_inset 
+
+The Potential of Problem 
+\begin_inset ERT
+status Open
+
+\layout Standard
+Specific Op--Codes
+\end_inset 
+
+
+\layout Standard
+
+A key difference between this work and that of Nordin and Banzhaf 
+\begin_inset LatexCommand \cite{Nordin:1995:tcp}
+
+\end_inset 
+
+, which used a standard microprocessor, is that we are not constrained to
+ a function set that a microprocessor designer sees fit to implement.
+ That is to say, the functions can be designed to have a higher level of
+ abstraction than machine instructions.
+ While the experiments presented in this chapter were restricted to fairly
+ standard microprocessor like opcodes, other problems need not be so restricted.
+\layout Standard
+
+One example of a problem where the function set is expressed at a high level
+ of abstraction is the Evolution of Emergent Behavior in 
+\begin_inset LatexCommand \cite{koza:book}
+
+\end_inset 
+
+ page 329.
+ Here the function and terminal set require several steps to be performed.
+ If implemented using a Reduced Instruction Set Computer (RISC) or Complex
+ Instruction Set Computer (CISC) architecture, each step would require several
+ instructions to be executed and therefore require more than one clock cycle
+ to execute.
+ With Handel-C the functions could be encoded efficiently and compactly.
+ An example from the Evolution of Emergent Behaviour work is the implementation
+ of the PICK-UP operator, which picks up food (if any) at the current position
+ if the ant is not already carrying food.
+ Using Handel-C the operator can be written so that it requires one clock
+ cycle: 
+\layout Standard
+
+
+\begin_inset Minipage
+position 0
+inner_position 0
+height "0pt"
+width "100page%"
+collapsed false
+
+\layout LyX-Code
+
+
+\series bold 
+unsigned char
+\series default 
+ grid[32][32];
+\newline 
+
+\series bold 
+unsigned int
+\series default 
+  x,y,carrying_food;
+\newline 
+
+\newline 
+
+\series bold 
+if
+\series default 
+(!carrying_food && grid[x][y]) { 
+\newline 
+  
+\series bold 
+par
+\series default 
+ {
+\newline 
+    carrying_food = 1;
+\newline 
+    grid[x][y] = 0; 
+\newline 
+  }
+\newline 
+}
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+noindent 
+\end_inset 
+
+As a comparison, when compiled using gcc, this sequence of statements requires
+ 21 RISC (PowerPC) instructions to be executed when the 
+\family typewriter 
+\series bold 
+if
+\family default 
+\series default 
+ expression evaluates to true.
+ 
+\layout Section
+
+Summary
+\layout Standard
+
+This chapter has presented an initial implementation of a GP system written
+ in Handel-C, which can then be used to configure an FPGA.
+ The GP system includes initial population creation, fitness evaluation,
+ selection and breeding operators, and can output the result.
+ To demonstrate the viability of this approach, two simple problems have
+ been solved.
+ The performance of the FPGA implementation is better than the equivalent
+ software implementation without using parallel fitness evaluations.
+ When parallel fitness evaluations were used, the performance increased
+ as well.
+ However, simply translating a serial algorithm into hardware does not exploit
+ the capabilities of the hardware fully.
+ To achieve even better performance the system should make use of pipelining.
+\layout Standard
+
+To extend the capabilities of this work further, a method of storing the
+ population in external RAM is needed.
+ To accommodate off-chip RAM, which can only be read or written to once
+ per clock cycle, and which has a limited word size, development of an efficient
+ coding scheme will need to be devised and it is likely that a pipelined
+ design would be needed to get the most benefit from using external RAM.
+ The potential for realising even better performance by using a fully pipelined
+ design is clear, as is increasing the number of parallel fitness evaluations.
+ These ideas are explored in the next chapter which uses pipelining to improve
+ throughput and external RAM to store the population.
+\the_end

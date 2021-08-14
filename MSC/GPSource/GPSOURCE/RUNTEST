@@ -1,0 +1,148 @@
+#!/usr/bin/perl
+
+##########################################################################
+# Script to run a set of GP tests using the GPC kernel
+# Specifically here for the Service Creation tests
+# Various parameters are set to different values a a series of runs of the
+# GP system made, recording the results in data files
+##########################################################################
+# Copyright Pete Martin
+##########################################################################
+
+use FileHandle;
+
+# Some major variables for the run
+$testname="gpsc";       # The name of the GP program and it's ini file
+$ininame=".ini";        # Suffix for ini file
+$testrun="None";        # Name used to label a set of tests
+$parms=" -v";           # Some parameters for the test run
+
+$runspertest=50;	# The number of runs of each test to be made
+
+autoflush STDOUT 1;
+
+##########################################################################
+# GP kernel configuration variables
+# These are used when constructing a GP config file
+$PopulationSize                  = 100;
+$NumberOfGenerations             = 100;
+$CreationType                    = 2;
+$CrossoverProbability            = 100.0;
+$CreationProbability             = 0.0;
+$MaximumDepthForCreation         = 10;
+$MaximumDepthForCrossover        = 17;
+$SelectionType                   = 1;
+$TournamentSize                  = 10;
+$DemeticGrouping                 = 1;
+$DemeSize                        = 10;
+$DemeticMigProbability           = 20.0;
+$SwapMutationProbability         = 10.0;
+$ShrinkMutationProbability       = 10.0;
+$SteadyState			 = 0;
+$AddBestToNewPopulation		 = 1;
+$Penalty                         = 20;
+$Reward                          = 100;
+
+# Program configuration
+$InfoFileName                    = "data";
+$Energy				= 600;
+$LengthFactor			= 0.001;
+# END OF CONFIG VARIABLES
+##########################################################################
+
+##########################################################################
+# emitConfig. This generates the configuration parameter file for a
+# particular run
+##########################################################################
+sub emitConfig
+{
+    open INIFILE, (">$testname$ininame") || die "Opening ini file";
+
+    print INIFILE "PopulationSize   = $PopulationSize\n";
+    print INIFILE "NumberOfGenerations  = $NumberOfGenerations\n";
+    print INIFILE "CreationType   = $CreationType\n";
+    print INIFILE "CrossoverProbability  = $CrossoverProbability\n";
+    print INIFILE "CreationProbability  = $CreationProbability\n";
+    print INIFILE "MaximumDepthForCreation  = $MaximumDepthForCreation\n";
+    print INIFILE "MaximumDepthForCrossover = $MaximumDepthForCrossover\n";
+    print INIFILE "SelectionType   = $SelectionType\n";
+    print INIFILE "TournamentSize   = $TournamentSize\n";
+    print INIFILE "DemeticGrouping   = $DemeticGrouping\n";
+    print INIFILE "DemeSize   = $DemeSize\n";
+    print INIFILE "DemeticMigProbability  = $DemeticMigProbability\n";
+    print INIFILE "SwapMutationProbability  = $SwapMutationProbability\n";
+    print INIFILE "ShrinkMutationProbability = $ShrinkMutationProbability\n";
+    print INIFILE "SteadyState = $SteadyState\n";
+    print INIFILE "AddBestToNewPopulation = $AddBestToNewPopulation\n";
+    
+    print INIFILE "InfoFileName   = $InfoFileName\n";
+    print INIFILE "Energy	= $Energy\n";
+    print INIFILE "LengthFactor = $LengthFactor\n";
+    print INIFILE "Penalty      = $Penalty\n";
+    print INIFILE "Reward       = $Reward\n";
+    close INIFILE;
+}
+
+##########################################################################
+# runGP procedure. This starts the GP system running and if the run is
+# OK puts the results into files
+##########################################################################
+sub runGP
+{
+    $prog = $testname;
+    @cmd = ($prog, $parms);
+
+    mkdir $testrun, 0777;
+    for($run=0;$run<$runspertest;$run++)
+    {
+	print ".";
+	$retcode = 0xffff & system (@cmd);
+	
+	if(1)
+	{
+	    # Move the relevant result files around
+	    $newfile=join "",$testrun,"/",$testrun,".dat",".",$run;
+	    rename "data.dat", $newfile;
+	    $newfile=join "",$testrun,"/",$testrun,".stc",".",$run;
+	    rename "data.stc", $newfile;
+	}
+	elsif ($retcode == 0xff00)
+	{
+	    die "GP run failed on run $run for test $testname $!\n";
+	}
+    }
+}
+
+##########################################################################
+# Now the tests can begin
+# Test1. This runs the simple GP with different population sizes
+# to determine the impact of the population size parameter
+##########################################################################
+sub test1
+{
+
+    $NumberOfGenerations=200;
+    $PopulationSize=50;
+
+    for ($i=1;$i<=10; $i++)
+    {
+	emitConfig();
+	$testrun = join "","test1", '_', $i;
+	print "Running Pop $PopulationSize  ";
+	$start=(times)[2];
+	runGP();
+	$end=(times)[2];
+	printf " took %.2f CPU seconds\n", $end - $start;
+	$PopulationSize += 50;
+    }
+}
+
+
+test1();
+
+
+
+
+
+
+

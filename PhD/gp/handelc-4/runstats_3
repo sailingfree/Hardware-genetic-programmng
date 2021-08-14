@@ -1,0 +1,71 @@
+#!/usr/bin/perl -w
+
+$maxrun=2;
+$run=0;
+$gen=0;
+$bins=0;
+$maxfit=89;
+$cmds="plotcmds.plt";
+@hist = 0;
+
+$arg1 = shift(@main::ARGV) || die "Please supply name for experiment";
+
+
+readin();
+plot();
+
+sub readin {
+    while($run < $maxrun ) {
+	printf ("Run number $run\n");
+	$gen=0;
+	@hist=0;
+	$maxval=0;
+	open RUN, "./hwgp -s -l|";
+	while(<RUN>) {
+	    chop;
+	    @len = split / /, $_;
+	    $l=@len;
+	    print "There are $l lengths\n";
+	    foreach $val (@len) {
+		$hist[$val]++;
+		if($val > $maxval) {
+		    $maxval=$val;
+		}
+	    }
+	    $bins=$maxval;
+	    analyse($gen);
+	    $gen++;
+	}
+	close RUN;
+	open SLEEP, "|sleep 1";
+	close SLEEP;
+	$run++;
+    }
+}
+
+sub analyse {
+    my $gen = shift (@_);
+    open HIST, ">histo_$arg1$gen.dat" || die "Unable to open the histogram output";
+    for($i=0;$i<$bins;$i++) {
+	print HIST "$hist[$i]\n";
+    }
+    close HIST;
+}
+
+sub plot {
+    open GNUPLOT, ">$cmds" || die "Unable to create plot commands\n";
+    print GNUPLOT "set nokey\n";
+    print GNUPLOT "set title 'Fitness value against generation\n";
+    print GNUPLOT "set xlabel 'Generation'\n";
+    print GNUPLOT "set ylabel 'Fitness (percent)'\n";
+    print GNUPLOT "set ytics rotate\n";
+    print GNUPLOT "plot '$arg1.dat' with boxes\n";
+#    print GNUPLOT "set output '$arg1.eps'\n";
+#    print GNUPLOT "set term postscript eps\n";
+    print GNUPLOT "replot\n";
+    close GNUPLOT;
+
+    open PLOT, "|gnuplot $cmds";
+    close PLOT;
+
+}

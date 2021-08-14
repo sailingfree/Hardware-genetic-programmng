@@ -1,0 +1,316 @@
+#% Do not delete the line below; configure depends on this
+#  \DeclareLaTeXClass[book,essex.sty]{book (Essex Thesis)}
+# Book textclass definition file. Taken from initial LyX source code
+# Author : Matthias Ettrich <ettrich@informatik.uni-tuebingen.de>
+# Transposed by Pascal André <andre@via.ecp.fr>
+# Heavily modifed and enhanced by serveral developers.
+
+# Input general definitions
+Input stdclass.inc
+
+# Global parameters.
+sides		1
+PageStyle	Headings
+	
+# a few changes to the bibliography
+Style Bibliography
+  TopSep		4
+  LabelString		Bibliography
+  # label font definition
+  LabelFont 
+    Series		Bold
+    Size		Huge
+  EndFont
+End
+
+Preamble
+\usepackage[lot]{essex}
+\usepackage{cite}
+\newcommand{\setlistspace}{\settoheight{\baselineskip}{M}}
+%\usepackage[round]{natbib}
+\newcommand{\lst}[2]{% 
+\noindent\rule[-1ex]{\textwidth}{0.3mm}\vspace{-1ex}%
+\lstinputlisting[caption={#2},label={#1},stringspaces=false,frame={tb},%
+lineskip=-1pt,extendedchars=true,%
+basicstyle=\footnotesize\tt,labelstep=1,labelstyle=\tiny,indent=2em,%
+language=C,breaklines]{#1}\vspace{1ex} }
+\newcommand{\simplelst}[2]{% 
+{\textwidth}{0.3mm}\vspace{-1ex}%
+\lstinputlisting[label={#1},stringspaces=false,%
+lineskip=-1pt,extendedchars=true,%
+basicstyle=\footnotesize\tt,indent=2em,%
+language=C,breaklines]{#1}\vspace{1ex} }
+EndPreamble
+
+#Short caption by Dekel Tsur
+Style ShortCaption
+  CopyStyle             Caption
+  LatexName             setshortcaption
+  LabelString           "Short Caption:"
+  LabelType             Static
+  Preamble
+\let\oldcaption=\caption
+\renewcommand{\caption}[1]{
+\ifx \shortcaption \undefined
+   \oldcaption{#1}
+\else
+   \oldcaption[\shortcaption]{#1}
+\fi
+}
+\newcommand{\setshortcaption}[1]{
+\newcommand{\shortcaption}{#1}
+}
+  EndPreamble
+End
+
+
+Style 01_Title
+  CopyStyle Title
+  InTitle 0  
+  latexname thesistitle
+end
+
+Style 02_Author
+  Font
+     Size largest
+  endfont
+  labelfont
+     size normal
+  endfont
+  Align center
+  LabelType Top_Environment
+  LatexType Command
+  LatexName thesisauthor
+end
+
+Style 03_Dept
+  CopyStyle Section
+  Align Center
+  LatexType Command
+LabelSep x
+  LabelType Static
+  Font
+      Size normal
+  endfont
+  LabelString "Department of"
+  LatexName thesisdept
+end
+
+Style 04_Advisor
+  CopyStyle Section
+  Align Center
+  LatexType Command
+ LabelSep x
+  LabelType Static
+  Font
+      Size normal
+  endfont
+   LatexName thesisadvisor
+   LabelString "Advisor: "
+End
+
+
+Style 05_Month
+  CopyStyle Section
+  Align Center
+  LatexType Command
+LabelSep x
+  LabelType Static
+  Font
+      Size normal
+  endfont
+   LatexName thesismonth
+end
+
+
+
+Style 05_Year
+  CopyStyle Section
+  Align Center
+  LatexType Command
+ LabelSep x
+  LabelType Static
+  Font
+      Size normal
+  endfont
+   LatexName thesisyear
+end
+
+Style 06_OtherMembers
+  CopyStyle Abstract
+  Font
+     Size normal
+  endfont
+  labelfont
+     size normal
+     series bold
+  endfont
+  Align left
+  LabelType Centered_Top_Environment
+  LatexType Item_Environment
+  LatexName thesiscommittee
+  LabelString "Dissertation Committee"
+end
+
+
+Style 07_*Copyright
+  LatexType         Command
+  LatexName        thesiscopyright
+  KeepEmpty         1
+  LabelType         Centered_top_environment
+  LabelString       "(c) Copyright Notice"
+  Font
+    Size            tiny
+  EndFont
+  LabelFont
+    Family          Typewriter
+    Color           Blue
+    Size             Large
+  EndFont
+End
+
+
+
+Style 08_*Dedication
+  CopyStyle Abstract
+  AlignPossible     block,left,right,center
+  LatexType         Environment
+  LatexName        thesisdedication
+  LabelType         Centered_top_environment
+  LabelString       "Dedication"
+End
+
+Style 09_*Acknowledgments
+  AlignPossible     block,left,right,center
+  CopyStyle         Abstract
+  LatexType         Environment
+  LatexName        thesisack
+  LabelType         Centered_top_environment
+  LabelString       "Acknowledgments"
+End
+
+
+Style 10_Abstract
+  CopyStyle Abstract
+  textfont
+      size small
+  endfont
+  LatexType         Environment
+  LatexName        abstract
+  LabelType         Centered_top_environment
+  LabelString       "Abstract"
+End
+
+
+Style 11_*Preface
+  copystyle Abstract
+  LatexType         Environment
+  LatexName        thesispreface
+  LabelType         Centered_top_environment
+  LabelString       "Preface"
+End
+
+Style 12_*TOC
+  LatexType         Command
+  LatexName        thesistoc
+  KeepEmpty         1
+  LabelType         Centered_top_environment
+  LabelString       "Table of Contents"
+  Font
+    Size            tiny
+  EndFont
+  LabelFont
+    Family          Typewriter
+    Color           Blue
+     Size            Largest
+  EndFont
+End
+
+Style 12a_Table_of_contents
+  LatexType         Command
+  LatexName        thesistoconly
+  KeepEmpty         1
+  LabelType         Centered_top_environment
+  LabelString       "Table of Contents"
+  Font
+    Size            tiny
+  EndFont
+  LabelFont
+    Family          Typewriter
+    Color           Blue
+     Size            Largest
+  EndFont
+End
+
+Style 12b_List_of_Tables
+  LatexType         Command
+  LatexName        thesislot
+  KeepEmpty         1
+  LabelType         Centered_top_environment
+  LabelString       "List of Tables"
+  Font
+    Size            tiny
+  EndFont
+  LabelFont
+    Family          Typewriter
+    Color           Blue
+     Size            Largest
+  EndFont
+End
+
+Style 12c_List_of_Figs
+  LatexType         Command
+  LatexName        thesislof
+  KeepEmpty         1
+  LabelType         Centered_top_environment
+  LabelString       "List of Figures"
+  Font
+    Size            tiny
+  EndFont
+  LabelFont
+    Family          Typewriter
+    Color           Blue
+     Size            Largest
+  EndFont
+End
+
+Style 12d_Acronyms
+  AlignPossible     block,left,right,center
+  CopyStyle         Abstract
+  LatexType         Environment
+  LatexName         thesisacronyms
+  LabelType         Centered_top_environment
+  LabelString       "Acronyms"
+End
+
+
+Style 13_End_Front_Matter
+  LatexType         Command
+  LatexName        thesismainmatter
+  KeepEmpty         1
+  LabelType         Centered_top_environment
+  LabelString       "--------Main Matter----------"
+  Font
+    Size            tiny
+  EndFont
+  LabelFont
+    Family          Typewriter
+    Color           Blue
+     Size            tiny
+  EndFont
+End
+
+Style ChapterIntro
+  LatexType	    Paragraph
+  LatexName         dummy
+  ParIndent	    MM
+  ParSkip           0.4
+  Align             Block
+  LabelType         No_Label
+  Font 
+    Series          Medium
+    Shape           Italic
+    Size            Normal
+  EndFont
+End
+

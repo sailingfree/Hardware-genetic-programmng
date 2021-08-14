@@ -1,0 +1,81 @@
+#@hp
+type chip
+setting Debug debug true
+setting Debug warnings true
+setting Debug rewrite false
+setting Debug high true
+setting Debug cse false
+setting Debug pcse false
+setting Debug rcse false
+setting Debug cr false
+setting Debug rcr false
+setting Debug browse true
+setting Debug estimate true
+setting Debug noTimeCon false
+setting Debug ignoreInclDirs false
+setting Debug ignoreLibDirs false
+setting Debug noFastCarry false
+setting Debug target sim
+setting Debug target.compile sim
+setting Debug family XilinxVirtexE
+setting Debug family.lib none
+setting Debug part xcv2000e-bg560-6
+setting Debug define:SIMULATE true
+setting Debug define:DEBUG true
+setting Debug define:HANDELC true
+setting Debug define:SINGLE true
+setting Debug define:LIMITED true
+setting Debug define:BOOLPARITY true
+setting Debug include:. true
+setting Debug "include:..\\..\\..\\..\\..\\Program Files\\Celoxica\\DK1\\Include" true
+setting Debug "lib:..\\..\\..\\..\\..\\Program Files\\Celoxica\\DK1\\Lib\\stdlib.lib" true
+setting Debug define:HANDELCV3 false
+setting Debug define:NDEBUG false
+setting Debug define:ANT false
+setting Debug "include:..\\..\\..\\..\\..\\Program Files\\Celoxica\\RC1000\\fpga\\DK1" false
+setting Debug "lib:C:\\Program Files\\Celoxica\\DK1\\Lib\\stdlib.lib" false
+setting Debug "lib:C:\\Program Files\\Celoxica\\RC1000\\fpga\\DK1\\pp1000.lib" false
+setting EDIF debug true
+setting EDIF warnings true
+setting EDIF rewrite false
+setting EDIF high true
+setting EDIF cse false
+setting EDIF pcse false
+setting EDIF rcse false
+setting EDIF cr false
+setting EDIF rcr false
+setting EDIF browse true
+setting EDIF estimate true
+setting EDIF noTimeCon false
+setting EDIF ignoreInclDirs false
+setting EDIF ignoreLibDirs false
+setting EDIF noFastCarry false
+setting EDIF target edif
+setting EDIF target.compile edif
+setting EDIF family Xilinx4000XV
+setting EDIF family.lib none
+setting EDIF part xc40150bg560-9
+setting EDIF define:NDEBUG true
+setting EDIF define:HANDELC true
+setting EDIF define:SINGLE true
+setting EDIF define:LIMITED true
+setting EDIF define:ANT true
+setting EDIF define:XC4000 true
+setting EDIF include:. true
+setting EDIF "include:..\\..\\..\\..\\..\\Program Files\\Celoxica\\RC1000\\fpga\\V2_1\\XC4000" true
+setting EDIF "lib:C:\\Program Files\\Celoxica\\DK1\\Lib\\stdlib.lib" true
+setting EDIF define:HANDELCV3 false
+setting EDIF define:SIMULATE false
+setting EDIF define:DEBUG false
+setting EDIF define:BOOLPARITY false
+setting EDIF define:MAXPAR false
+setting EDIF "include:..\\..\\..\\..\\..\\Program Files\\Celoxica\\DK1\\Include" false
+setting EDIF "include:..\\..\\..\\..\\..\\Program Files\\Celoxica\\RC1000\\fpga\\DK1" false
+setting EDIF "include:..\\..\\..\\..\\..\\Program Files\\Celoxica\\RC1000\\fpga\\V2_1\\Virtex" false
+setting EDIF "lib:..\\..\\..\\..\\..\\Program Files\\Celoxica\\DK1\\Lib\\stdlib.lib" false
+setting EDIF "lib:C:\\Program Files\\Celoxica\\RC1000\\fpga\\DK1\\pp1000.lib" false
+setting EDIF "lib:..\\..\\..\\..\\..\\Program Files\\Celoxica\\RC1000\\fpga\\DK1\\pp1000.lib" false
+document ..\\hwgp.c {
+}
+document ..\\hwgph.h {
+}

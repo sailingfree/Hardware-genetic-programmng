@@ -1,0 +1,215 @@
+% Sample LaTeX file for creating a paper in the Morgan Kaufmannn two
+% column, 8 1/2 by 11 inch proceedings format.
+
+\documentstyle[GECCO_proceedings]{article}
+
+\title{Instructions for Authors}
+
+\author{ {\bf Harry Q.~Bovik } \\
+Computer Science Dept. \\
+Cranberry University\\
+Pittsburgh, PA 15213 \\
+\And {\bf Coauthor}  \\
+Affiliation          \\
+Address \\
+\And {\bf Coauthor}   \\
+Affiliation \\
+Address    \\ (if needed)\\ }
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+The Abstract paragraph should be indented 0.25 inch (1.5 picas) on
+both left and right-hand margins.  Use  10-point type, with a vertical
+spacing of 11~points.  The word {\bf Abstract} must be centered, bold,
+and in point size 12. Two line spaces precede the Abstract. The
+Abstract must be limited to one paragraph. Its purpose is to summarize
+what is actually contained in the paper (not to provide motivational,
+argumentative, or bibliographic information that belongs later in the
+body of the paper).
+\end{abstract}
+
+\section{GENERAL FORMATTING INSTRUCTIONS}
+Papers are in two columns with the overall line width of
+6.75~inches (41~picas).   Each column is 3.25~inches wide
+(19.5~picas).  The space between the columns is .25~inches wide
+(1.5~picas).  The top margin is 1~inch (6 picas) and the bottom margin is
+0.75 inches (4.5 picas). The left margin is 1~inch (6~picas) and the right
+margin is 0.75 inches (4.5~picas). NOTE: for A4 paper, use top and
+left margins; modify bottom and right margin as needed.  Use
+10-point type with a vertical spacing of 11~points.   Times Roman
+is the preferred typeface throughout.
+
+Paper title is 16~point, caps/lc, bold, centered between 2~horizontal
+rules.  Top rule is 4~points thick and bottom rule is 1~point thick.
+Allow 1/4-inch space above and below title to rules. It is advisable
+to include the words ``genetic programming'', ``genetic algorithm'',
+``classifier system'', or ``evolutionary programming'' in the title of
+your paper. While this adds little or nothing for attendees of this
+conference, it provides helpful information to a reader when your
+paper is subsequently cited in a bibliography. Avoid obscure acronyms
+in your title.
+
+Authors' names are centered, initial caps.  The lead author's name is
+to be listed first (left-most), and the coauthors' names (if
+different address) are set to follow.  If only one  coauthor, center
+both the author and coauthor, side-by-side. Footnotes for authors are
+not possible. All contact information should be put in the header.
+Funding agencies should be acknowledged in the Acknowledgments section
+at the end of the paper.
+
+One-half line space between paragraphs, with no indent.
+
+\section{FIRST-LEVEL HEADINGS}
+
+First-level headings are all caps, flush left, bold and in point size
+12. One line space before the first-level heading and 1/2~line space
+after the first-level heading.
+
+\subsection{SECOND-LEVEL HEADING}
+
+Second-level headings must be flush left, all caps, bold and in point
+size 10. One line space  before the second-level heading and 1/2~line
+space after the second-level heading.
+
+\subsubsection{Third-Level Heading}
+
+Third-level headings must be flush left, initial caps, bold, and in
+point size 10.  One line space before the third-level heading and
+1/2~line space after the third-level heading.
+
+\vskip .5pc
+
+Fourth-Level Heading
+
+Fourth-level headings must be flush left, initial caps and Roman type.
+One line space before the fourth-level heading and 1/2~line space
+after the fourth-level heading.
+
+\subsection{CITATIONS, FIGURES, REFERENCES}
+
+\subsubsection{Citations in Text}
+
+Citations within the text should include the author's last name
+and year, e.g., (Cheesman, 1985). Reference style should follow
+the style that you are accustomed to use, as long as the citation
+style is consistent.
+
+\subsubsection{Footnotes}
+
+Indicate footnotes with a number\footnote{Sample of the first
+footnote} in the text. Use 8-point type for footnotes.  Place the
+footnotes at the bottom of the page  on which they appear.   Precede
+the footnote with a 1/2-point horizontal rule  1~inch (6~picas)
+long.\footnote{Sample of the second footnote}
+Footnotes in the title and author fields are not possible.
+
+\subsubsection{Figures}
+
+All artwork must be centered, neat, clean, and legible.  All lines
+should be very dark for purposes of reproduction and artwork should
+not be hand-drawn. Figures must be in the printing area. Do not flow
+text around figures.
+Avoid screens and pattern fills as these may not reproduce well.
+All art must be in place on your pages---because the
+papers are to be submitted electronically, artwork cannot be added by
+ProBook or the printer.
+
+Figure number and caption always appear below the figure.  Leave 2
+line spaces between the figure and the caption. The figure caption is
+initial caps and each figure is numbered consecutively.
+
+Make sure that the figure caption does not get separated from the
+figure. Leave extra white space at the bottom of the page rather than
+splitting the figure and figure caption.
+
+\begin{figure}[h]
+\vspace{1in}
+\caption{Sample Figure Caption}
+\end{figure}
+
+\subsubsection{Tables}
+
+All tables must be centered, neat, clean, and legible. Do not use
+hand-drawn tables. Table number and title always appear above the
+table.   See Table~\ref{sample-table}.
+
+One line space before the table title, one line space after the table
+title, and one line space after the table. The table title must be
+initial caps and each table numbered consecutively.
+
+\begin{table}[h]
+\caption{Sample Table Title}
+\label{sample-table}
+\begin{center}
+\begin{tabular}{ll}
+\multicolumn{1}{c}{\bf PART}  &\multicolumn{1}{c}{\bf DESCRIPTION} \\
+\hline \\
+Dendrite         &Input terminal \\
+Axon             &Output terminal \\
+Soma             &Cell body (contains cell nucleus) \\
+\end{tabular}
+\end{center}
+\end{table}
+
+\subsubsection{Style Issues}
+
+Mathematical symbols should be in italics.
+
+A distinctive fixed-space ``typewriter style'' font such as {\tt
+COURIER} should be used for computer code examples, names used in
+computer code (such as the subroutine {\tt ADF0} or the {\tt PROGN}
+function) and LISP S-expressions.
+
+Use italics sparingly. Use quotation marks even more sparingly. Avoid
+bold-faced type and underlining.
+
+Abbreviations and acronyms known only to specialists should be avoided.
+If in doubt, spell out the phrase and then put its acronym in parenthesis
+when it appears for the first time and thereafter use its acronym.
+
+\subsubsection{Electronic Delivery}
+
+Follow instructions provided by Professional Book Center for delivering
+your final paper in electronic form. Remember to print out, complete,
+and fax back the appropriate accompanying forms. Details are provided in
+the ProBook instructions.
+
+\section{CONCLUSIONS}
+
+The ``Conclusions'' section of your paper states the paper's actual results.
+It is not to be confused with a speculative ``Future Work'' section (included
+in many papers).
+
+\subsubsection*{Acknowledgments}
+
+Use unnumbered third-level headings for the acknowledgments.  All
+acknowledgments go at the end of the paper.
+
+\subsubsection*{References}
+
+References follow the acknowledgments.  Use unnumbered third-level
+heading for the references.  Any choice of citation style is acceptable
+as long as you are consistent.
+
+Be sure to include page numbers, volume numbers, dates, first names
+(or initials) in your citations. Carefully check your citations for
+accuracy. Do not use abbreviations for conference names or journal names
+(because some readers from outside your immediate specialized area may not
+be familiar with such abbreviations).
+
+J.~Alspector, B.~Gupta, and R.~B.~Allen  (1989). Performance of a
+stochastic learning microchip.  In D. S. Touretzky (ed.), {\it Advances
+in Neural Information Processing Systems 1}, 748-760.  San Mateo, CA:
+Morgan Kaufmann.
+
+F.~Rosenblatt (1962). {\it Principles of Neurodynamics.} Washington,
+DC: Spartan Books.
+
+G.~Tesauro (1989). Neurogammon wins computer Olympiad.  {\it Neural
+Computation} {\bf 1}(3):321-323.
+
+\end{document}
+

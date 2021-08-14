@@ -1,0 +1,176 @@
+       NOTE: Most of the tests in DIEHARD return a p-value, which               
+       should be uniform on [0,1) if the input file contains truly              
+       independent random bits.   Those p-values are obtained by                
+       p=F(X), where F is the assumed distribution of the sample                
+       random variable X---often normal. But that assumed F is just             
+       an asymptotic approximation, for which the fit will be worst             
+       in the tails. Thus you should not be surprised with                      
+       occasional p-values near 0 or 1, such as .0012 or .9983.                 
+       When a bit stream really FAILS BIG, you will get p's of 0 or             
+       1 to six or more places.  By all means, do not, as a                     
+       Statistician might, think that a p < .025 or p> .975 means               
+       that the RNG has "failed the test at the .05 level".  Such               
+       p's happen among the hundreds that DIEHARD produces, even                
+       with good RNG's.  So keep in mind that " p happens".                     
+     :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::        
+     ::            This is the BIRTHDAY SPACINGS TEST                 ::        
+     :: Choose m birthdays in a year of n days.  List the spacings    ::        
+     :: between the birthdays.  If j is the number of values that     ::        
+     :: occur more than once in that list, then j is asymptotically   ::        
+     :: Poisson distributed with mean m^3/(4n).  Experience shows n   ::        
+     :: must be quite large, say n>=2^18, for comparing the results   ::        
+     :: to the Poisson distribution with that mean.  This test uses   ::        
+     :: n=2^24 and m=2^9,  so that the underlying distribution for j  ::        
+     :: is taken to be Poisson with lambda=2^27/(2^26)=2.  A sample   ::        
+     :: of 500 j's is taken, and a chi-square goodness of fit test    ::        
+     :: provides a p value.  The first test uses bits 1-24 (counting  ::        
+     :: from the left) from integers in the specified file.           ::        
+     ::   Then the file is closed and reopened. Next, bits 2-25 are   ::        
+     :: used to provide birthdays, then 3-26 and so on to bits 9-32.  ::        
+     :: Each set of bits provides a p-value, and the nine p-values    ::        
+     :: provide a sample for a KSTEST.                                ::        
+     :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::        
+ BIRTHDAY SPACINGS TEST, M= 512 N=2**24 LAMBDA=  2.0000
+           Results for xxx            
+                   For a sample of size 500:     mean   
+           xxx             using bits  1 to 24   3.418
+  duplicate       number       number 
+  spacings       observed     expected
+        0          36.       67.668
+        1          90.      135.335
+        2          91.      135.335
+        3          88.       90.224
+        4          63.       45.112
+        5          44.       18.045
+  6 to INF         88.        8.282
+ Chisquare with  6 d.o.f. =   856.36 p-value= 1.000000
+  :::::::::::::::::::::::::::::::::::::::::
+                   For a sample of size 500:     mean   
+           xxx             using bits  2 to 25   2.956
+  duplicate       number       number 
+  spacings       observed     expected
+        0          40.       67.668
+        1          99.      135.335
+        2         121.      135.335
+        3          80.       90.224
+        4          65.       45.112
+        5          28.       18.045
+  6 to INF         67.        8.282
+ Chisquare with  6 d.o.f. =   454.32 p-value= 1.000000
+  :::::::::::::::::::::::::::::::::::::::::
+                   For a sample of size 500:     mean   
+           xxx             using bits  3 to 26   2.722
+  duplicate       number       number 
+  spacings       observed     expected
+        0          52.       67.668
+        1          95.      135.335
+        2          98.      135.335
+        3         116.       90.224
+        4          60.       45.112
+        5          38.       18.045
+  6 to INF         41.        8.282
+ Chisquare with  6 d.o.f. =   189.55 p-value= 1.000000
+  :::::::::::::::::::::::::::::::::::::::::
+                   For a sample of size 500:     mean   
+           xxx             using bits  4 to 27   2.568
+  duplicate       number       number 
+  spacings       observed     expected
+        0          55.       67.668
+        1          89.      135.335
+        2         139.      135.335
+        3          84.       90.224
+        4          61.       45.112
+        5          40.       18.045
+  6 to INF         32.        8.282
+ Chisquare with  6 d.o.f. =   119.00 p-value= 1.000000
+  :::::::::::::::::::::::::::::::::::::::::
+                   For a sample of size 500:     mean   
+           xxx             using bits  5 to 28   2.540
+  duplicate       number       number 
+  spacings       observed     expected
+        0          48.       67.668
+        1         111.      135.335
+        2         114.      135.335
+        3         100.       90.224
+        4          66.       45.112
+        5          28.       18.045
+  6 to INF         33.        8.282
+ Chisquare with  6 d.o.f. =   103.45 p-value= 1.000000
+  :::::::::::::::::::::::::::::::::::::::::
+                   For a sample of size 500:     mean   
+           xxx             using bits  6 to 29   2.510
+  duplicate       number       number 
+  spacings       observed     expected
+        0          59.       67.668
+        1         101.      135.335
+        2         116.      135.335
+        3          91.       90.224
+        4          71.       45.112
+        5          34.       18.045
+  6 to INF         28.        8.282
+ Chisquare with  6 d.o.f. =    88.50 p-value= 1.000000
+  :::::::::::::::::::::::::::::::::::::::::
+                   For a sample of size 500:     mean   
+           xxx             using bits  7 to 30   2.628
+  duplicate       number       number 
+  spacings       observed     expected
+        0          52.       67.668
+        1         118.      135.335
+        2          94.      135.335
+        3          88.       90.224
+        4          67.       45.112
+        5          41.       18.045
+  6 to INF         40.        8.282
+ Chisquare with  6 d.o.f. =   179.83 p-value= 1.000000
+  :::::::::::::::::::::::::::::::::::::::::
+                   For a sample of size 500:     mean   
+           xxx             using bits  8 to 31   3.000
+  duplicate       number       number 
+  spacings       observed     expected
+        0          43.       67.668
+        1          87.      135.335
+        2          98.      135.335
+        3          82.       90.224
+        4          87.       45.112
+        5          38.       18.045
+  6 to INF         65.        8.282
+ Chisquare with  6 d.o.f. =   486.70 p-value= 1.000000
+  :::::::::::::::::::::::::::::::::::::::::
+                   For a sample of size 500:     mean   
+           xxx             using bits  9 to 32   3.428
+  duplicate       number       number 
+  spacings       observed     expected
+        0          31.       67.668
+        1          79.      135.335
+        2         101.      135.335
+        3          90.       90.224
+        4          66.       45.112
+        5          46.       18.045
+  6 to INF         87.        8.282
+ Chisquare with  6 d.o.f. =   853.22 p-value= 1.000000
+  :::::::::::::::::::::::::::::::::::::::::
+   The 9 p-values were
+       1.000000  1.000000  1.000000  1.000000  1.000000
+       1.000000  1.000000  1.000000  1.000000
+  A KSTEST for the 9 p-values yields 1.000000
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+
+     :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::        
+     ::            THE OVERLAPPING 5-PERMUTATION TEST                 ::        
+     :: This is the OPERM5 test.  It looks at a sequence of one mill- ::        
+     :: ion 32-bit random integers.  Each set of five consecutive     ::        
+     :: integers can be in one of 120 states, for the 5! possible or- ::        
+     :: derings of five numbers.  Thus the 5th, 6th, 7th,...numbers   ::        
+     :: each provide a state. As many thousands of state transitions  ::        
+     :: are observed,  cumulative counts are made of the number of    ::        
+     :: occurences of each state.  Then the quadratic form in the     ::        
+     :: weak inverse of the 120x120 covariance matrix yields a test   ::        
+     :: equivalent to the likelihood ratio test that the 120 cell     ::        
+     :: counts came from the specified (asymptotically) normal dis-   ::        
+     :: tribution with the specified 120x120 covariance matrix (with  ::        
+     :: rank 99).  This version uses 1,000,000 integers, twice.       ::        
+     :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::        
+           OPERM5 test for file xxx            
+     For a sample of 1,000,000 consecutive 5-tuples,
+ chisquare for 99 degrees of freedom=*******; p-value=1.000000

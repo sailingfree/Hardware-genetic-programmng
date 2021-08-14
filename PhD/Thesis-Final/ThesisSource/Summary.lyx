@@ -1,0 +1,638 @@
+#LyX 1.1 created this file. For more info see http://www.lyx.org/
+\lyxformat 218
+\textclass article
+\language british
+\inputencoding auto
+\fontscheme default
+\graphics default
+\paperfontsize default
+\spacing single 
+\papersize a4paper
+\paperpackage a4
+\use_geometry 0
+\use_amsmath 0
+\paperorientation portrait
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation skip
+\defskip medskip
+\quotes_language english
+\quotes_times 2
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+
+\layout Title
+
+
+\size huge 
+Thesis Outline
+\layout Date
+
+\layout Section*
+
+Background
+\layout Standard
+
+This paper summarises the thesis contents and defines the general layout.
+\layout Standard
+
+Each chapter will have an introducory paragraph that sets out the putpose
+ of the chapter.
+ Each chapter will also have a paragraph at the end that summarises what
+ has been said.
+\layout Subsection*
+
+Title Page 
+\layout Standard
+
+As per Essex University regulations
+\layout Subsection*
+
+Abstract
+\layout Standard
+
+300 words max
+\layout Subsection*
+
+Acknowledgments
+\layout Subsection*
+
+Tables of contents, tables & figures
+\layout Subsection*
+
+List of Acronyms and terms.
+\layout Section*
+
+
+\size huge 
+Chapter 1 Introduction
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\series bold 
+\shape italic 
+Purpose: Introduces GP and the approach to the research taken.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\series bold 
+\shape italic 
+Main\SpecialChar ~
+point: The potential for improving throughput of GP for some problems
+ using a hardware implementation.
+\layout Section
+
+Introduction.
+\layout Standard
+
+Genetic Programming as means of evolving programs - a very brief overview.
+\layout Standard
+
+Time required to run GP can be long - culprit due to software implementations.
+\layout Standard
+
+Potential of speeding up GP using a hardware implementation.
+\layout Standard
+
+FPGAs as a platform.
+\layout Standard
+
+Handel-C as an implementation language for software engineers.
+\layout Standard
+
+Behavioural analysis using population dynamics - inspired by schema theory
+ results.
+\layout Standard
+
+Economics of using FPGAs and Handel-C
+\layout Section
+
+Contributions of this work
+\layout Subsection
+
+Principle
+\layout Standard
+
+Hardware implementation shown to be capable of useful improvement in throughput.
+\layout Standard
+
+Taxonomy of GP parameters.
+\layout Standard
+
+Behavioural analysis using population length distributions.
+\layout Standard
+
+Further evidence in the role of random number generation.
+\layout Subsection
+
+Secondary
+\layout Standard
+
+Economics of using Handel-C
+\layout Standard
+
+FPGAs as implementation platform.
+\layout Standard
+
+Handel-C as an implementation language.
+\layout Section
+
+Organisation
+\layout Standard
+
+Chapter by chapter summaries.
+\layout Section*
+
+
+\size huge 
+Chapter 2 Genetic Programming
+\layout LaTeX
+
+
+\backslash 
+setcounter{section}{0}
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\series bold 
+\shape italic 
+Purpose: Detailed description of GP with the emphasis on the parameters
+ needed.
+ The arrangement of the multitude of parameters into a taxonomy of parameters.
+ 
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\series bold 
+\shape italic 
+Main\SpecialChar ~
+point: A taxonomy of parameters gives us an overview of the state of
+ GP to date.
+ eg.
+ Population sizes, program sizes, which in turn allows us to ask questions
+ about GP based on experimental evidence.
+\layout Section
+
+Background
+\layout Standard
+
+GP as a means of evolving programs.
+\layout Standard
+
+Flowchart.
+\layout Standard
+
+General parameters that must be chosen and the lack of guidance - leading
+ to a taxonomy of parameters and examples of previous usage.
+\layout Section
+
+Parameters needed for GP
+\layout Standard
+
+Enumerated set of parameters with cited examples.
+\layout Section
+
+A Taxonomy of GP parameters
+\layout Standard
+
+Highlight implementation issues such as population sizes, program sizes
+ and where available wall-clock or related effort measures.
+\layout Standard
+
+Based on previously submitted taxonomy paper with extensions and an update
+ to the data set.
+\layout Standard
+
+Colour depiction of the taxonomy.
+\layout Standard
+
+The raw data is summarised in appendix A.
+\layout Section*
+
+
+\size huge 
+Chapter 3 Technologies for implementing GP in hardware
+\layout LaTeX
+
+
+\backslash 
+setcounter{section}{0}
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\series bold 
+\shape italic 
+Purpose: Introduces FPGA technology and high level to FPGA languages and
+ reviews existing work using FPGAs.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\series bold 
+\shape italic 
+Main\SpecialChar ~
+point: FPGAs and Handel-C as a platform for software engineers to build
+ hardware GP systems.
+\layout Section
+
+Previous Work using FPGAs in evolutionary and related work
+\layout Standard
+
+Assumes very little knowledge of FPGAs, which is covered in the next section.
+\layout Section
+
+FPGAs
+\layout Standard
+
+General overview of current technology in particular Xilinx Virtex-e and
+ Virtex-II FPGAs, but also includes other vendors.
+\layout Standard
+
+CLBs, slices, routing, configuration.
+\layout Section
+
+Stages required for translating a design into FPGA
+\layout Standard
+
+Design input using HDL
+\layout Standard
+
+Synthesis - translate,map,place&route,bitmap generation.
+\layout Section
+
+High Level Language to Hardware Compilation
+\layout Standard
+
+Advantages of using C-like syntax for software engineers:
+\layout Itemize
+
+Algorithmic rather than physical design description.
+\layout Itemize
+
+Familiar language.
+\layout Itemize
+
+C/C++ used for existing system modelling.
+\layout Itemize
+
+Portability of the code between ISO-C and handel-C.
+\layout Standard
+
+Limitations of C syntax ie; it is a sequential langauge and extensions are
+ needed to allow parallelism to be employed.
+\layout Standard
+
+Overview of available packages including Handel-C.
+\layout Section
+
+Handel-C 
+\layout Standard
+
+Rationale for using Handel-C
+\layout Standard
+
+Features of Handel-C
+\layout Standard
+
+Usage of Handel-C including design entry, simulation, targeting a device,
+ iterations for improving performance.
+\layout Section
+
+Hardware platform used for evaluations
+\layout Standard
+
+Hardware description.
+\layout Standard
+
+Block diagram
+\layout Standard
+
+Photos?
+\layout Section*
+
+
+\size huge 
+Chapter 4 Implementing GP in Hardware
+\layout LaTeX
+
+
+\backslash 
+setcounter{section}{0}
+\layout Standard
+
+Based on GPEM paper.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\series bold 
+\shape italic 
+Purpose: Introduce a proof of concept GP system in hardware.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\series bold 
+\shape italic 
+Main\SpecialChar ~
+point: An initial proof of concept design that demonstrated the viability
+ of the approach.
+ Four areas need further investigation.
+\layout Section
+
+Purpose of this approach
+\layout Itemize
+
+evaluate Handel-C as implementation language
+\layout Itemize
+
+platform to investigate the issues
+\layout Itemize
+
+avoid population size issues
+\layout Section
+
+Parallelism in GP
+\layout Standard
+
+General paralellism.
+\layout Standard
+
+Parallelism in GP.
+ (uses GPEM work)
+\layout Section
+
+Internal representation
+\layout Standard
+
+Operators
+\layout Section
+
+Results
+\layout Standard
+
+Results show that throughput could be improved by using pipelines.
+\layout Standard
+
+We need larger populations (refer back to taxonomy)
+\layout Standard
+
+More challenging problems
+\layout Standard
+
+The RNG has known weaknesses and should be analysed.
+\layout Section*
+
+
+\size huge 
+Chapter 5 An Optimised implementation
+\layout Standard
+
+Based on CSM353/EuropGP2002 paper.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\series bold 
+\shape italic 
+Purpose: Follows from chapter 4 and addresses the pipelines, population
+ and harder problems.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\series bold 
+\shape italic 
+Main\SpecialChar ~
+point: Analysis of the crossover operator and other behavioural aspects
+ need investigation.
+\layout Standard
+
+Implement large populations using external RAM.
+\layout Standard
+
+Implement pipelines throughout the design.
+\layout Standard
+
+Optimise design details.
+\layout Standard
+
+Use FPGA building blocks.
+\layout Standard
+
+The effect of the truncating crossover has not been quantified.
+\layout Section*
+
+
+\size huge 
+Chapter 6 Behavioural Analysis
+\layout Standard
+
+Based on CSM357 (gecco?)
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\series bold 
+\shape italic 
+Purpose: Follows from conclusion in chapter 5.
+ Analyse the behaviour of the crossover operator using population length
+ distributions.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\series bold 
+\shape italic 
+Main\SpecialChar ~
+point: Population length distribution analysis inspired by schema theory
+ results led to an alternative effective crossover operator.
+\layout Standard
+
+Inspired by results from schema theory results.
+\layout Standard
+
+Alternative crossover operators
+\layout Standard
+
+Results.
+\layout Section*
+
+
+\size huge 
+Chapter 7 Random Number Generation and Analysis
+\layout Standard
+
+Based on CSM358 (gecco?)
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\series bold 
+\shape italic 
+Purpose: Addresses remaining issue from chapter 4.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\series bold 
+\shape italic 
+Main\SpecialChar ~
+point: Alternative RNG would be more effective.
+\layout Standard
+
+Review previous RNGs
+\layout Standard
+
+Comparison of existing and other R
+\layout Standard
+
+NGS
+\layout Standard
+
+Results show an alternative RNG could improve hardware GP.
+\layout Section*
+
+
+\size huge 
+Chapter 8 Discussion
+\layout Standard
+
+
+\latex latex 
+
+\backslash 
+setcounter{section}{1}
+\layout Standard
+
+
+\series bold 
+\shape italic 
+Purpose: Tie the results together and lay the foundation for the conclusions.
+\layout Section
+
+Using Handel-C
+\layout Standard
+
+Economics of using FPGA and Handel-C vs.
+ traditional software.
+ (new work)
+\layout Standard
+
+Effective use of Handel-C is not transparent - iterative approach to realising
+ software system in hardware.
+ (new work describing the process developed for using handel-C)
+\layout Section
+
+Areas for further research
+\layout Standard
+
+Limited set of problems explored - opportunity to extend this work.
+\layout Standard
+
+Next generation FPGAs and languages.
+\layout Itemize
+
+higher speeds
+\layout Itemize
+
+larger gate counts
+\layout Itemize
+
+partitioning of design between software and hardware
+\layout Standard
+
+Other applications of FPGA GP, eg real-time, embedded, robots, signal processing
+ etc.
+\layout Section*
+
+
+\size huge 
+Chapter 9 Conclusions
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\series bold 
+\shape italic 
+Main\SpecialChar ~
+conclusion: Hardware implementation can speed up GP for some problems.
+\layout Standard
+
+Speed up achieved for the ant problem.
+\layout Standard
+
+Economics
+\layout Standard
+
+Behavioural analysis using program length distribution - a practical result
+ of the schema theory.
+\layout Standard
+
+Modified crossover reduces bloat.
+\layout Standard
+
+Random number generators
+\layout Standard
+
+Taxonomy of parameters gives more guidance for dimensioning GP and choosing
+ operational parameters.
+\layout Section*
+
+
+\size huge 
+Bibliography
+\layout Section*
+
+
+\size huge 
+Appendix A Taxonomy Data
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\series bold 
+\shape italic 
+Purpose: Provides more details than were included in chapter 2.
+\layout Standard
+
+Summary tabular form of some of the data collected for selected attributes.
+\layout Section*
+
+
+\size huge 
+Appendix B Tools and platforms
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\series bold 
+\shape italic 
+Purpose: Gives the reader further implementation details to allow replication
+ of the work.
+\layout Standard
+
+Tool versions.
+\layout Standard
+
+Platform details.
+\layout Section*
+
+
+\size huge 
+Appendix C.
+ Diehard RNG test results.
+\layout Standard
+
+
+\series bold 
+\shape italic 
+Purpose: The full set of test results from diehard for the various RNGs
+ is here.
+\the_end

@@ -1,0 +1,32 @@
+#@hp
+type chip
+setting EDIF debug true
+setting EDIF warnings true
+setting EDIF rewrite true
+setting EDIF high true
+setting EDIF cse true
+setting EDIF pcse true
+setting EDIF rcse true
+setting EDIF cr true
+setting EDIF rcr false
+setting EDIF browse false
+setting EDIF estimate false
+setting EDIF noTimeCon false
+setting EDIF ignoreInclDirs false
+setting EDIF ignoreLibDirs false
+setting EDIF noFastCarry false
+setting EDIF target edif
+setting EDIF target.compile edif
+setting EDIF family XilinxVirtexE
+setting EDIF family.lib none
+setting EDIF part xcv2000e-bg560-8
+setting EDIF define:NDEBUG true
+setting EDIF "lib:..\\..\\..\\..\\..\\Program Files\\Celoxica\\RC1000\\fpga\\DK1\\pp1000.lib" true
+setting EDIF define:HANDELCV3 false
+setting EDIF define:SIMULATE false
+setting EDIF define:DEBUG false
+setting EDIF "include:D:\\Program Files\\CELOXICA\\RC1000\\fpga\\V2_1\\Virtex" false
+setting EDIF "lib:C:\\Program Files\\Celoxica\\RC1000\\fpga\\DK1\\pp1000.lib" false
+setting EDIF "lib:..\\..\\..\\..\\..\\..\\Program Files\\Celoxica\\RC1000\\fpga\\DK1\\pp1000.lib" false
+document eqg.c {
+}

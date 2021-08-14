@@ -1,0 +1,8 @@
+#@hw
+project c:\\USER\\PETES\\PhD\\handelcRandom\\lfsrrng\\lfsrrng.hp
+project ..\\lfsrrng32\\lfsrrng32.hp
+project ..\\carng\\carng.hp
+project ..\\carng32\\carng32.hp
+project ..\\sequential\\sequential.hp
+project ..\\nullrng\\nullrng.hp
+project ..\\eqg\\eqg.hp

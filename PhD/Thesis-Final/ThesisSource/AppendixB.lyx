@@ -1,0 +1,126 @@
+#LyX 1.1 created this file. For more info see http://www.lyx.org/
+\lyxformat 218
+\textclass essex
+\begin_preamble
+%
+% Change this to input the prologue file for your own thesis
+%
+\input{shortheader.tex}
+\end_preamble
+\language english
+\inputencoding auto
+\fontscheme default
+\graphics default
+\float_placement htb
+\paperfontsize default
+\spacing single 
+\papersize Default
+\paperpackage a4
+\use_geometry 0
+\use_amsmath 0
+\paperorientation portrait
+\secnumdepth 2
+\tocdepth 2
+\paragraph_separation indent
+\defskip medskip
+\quotes_language english
+\quotes_times 2
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+
+\layout Standard
+
+This appendix describes the experimental setup, including software packages
+ used in the experiments, the platforms used for the experiments and other
+ associateed software.
+ The purpose of including this information is to allow others to replicate
+ some or all of the work reported in this thesis.
+\layout Standard
+
+URLs are given for the various packages and vendors.
+\layout Section
+
+Experimental platform
+\layout Subsection
+
+Hardware
+\layout Standard
+
+The bulk of this work was performed using a PC, consisting of a 1.4\SpecialChar ~
+GHz Athlon
+ processor and 1\SpecialChar ~
+GiB DDR RAM.
+\layout Subsection
+
+RC1000 FPGA evaluation board
+\layout Standard
+
+This board, supplied by Celoxica Ltd conatins
+\begin_float footnote 
+\layout Standard
+
+http://www.celoxica.com/products/technical_papers/datasheets/DATRHD002_0.pdf
+\end_float 
+\layout Subsection
+
+Software
+\layout Standard
+
+The software environment used to run the Celoxica DK1 and Xilinx Alliance
+ software was Windows\SpecialChar ~
+98.
+\layout Standard
+
+The software environment for running the psim PPC simulation was Linux,
+ Mandrake 8.0.
+\layout Section
+
+Software Tools
+\layout Subsection
+
+Celoxica DK1
+\layout Subsection
+
+Xilinx Alliance
+\layout Subsection
+
+Diehard
+\layout Subsection
+
+psim
+\layout Section
+
+Other tools
+\layout Standard
+
+This thesis was prepared and printed using 
+\latex latex 
+
+\backslash 
+LyX
+\begin_float footnote 
+\layout Standard
+
+http://www.lyx.org/
+\end_float 
+ a 
+\latex latex 
+
+\backslash 
+LaTeX
+\latex default 
+ front end document preparation system on Mandrake 8.0
+\begin_float footnote 
+\layout Standard
+
+http://www.mandrake.com/
+\end_float 
+ Linux
+\begin_float footnote 
+\layout Standard
+
+http://www.linux.org/
+\end_float 
+.
+\the_end

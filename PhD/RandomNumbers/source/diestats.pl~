@@ -1,0 +1,16 @@
+#!/usr/bin/perl -w
+#
+# Script to analyse the output of diequick and produce per-test stats 
+# and a total stats.
+##
+## Uses the method by Johnson 
+
+#Article [Johnson:1996]
+#Author:  Johnson B. C.
+#Title:   Radix-b extensions to some common empirical tests for pseudorandom number generators.
+#Journal: ACM Transactions on Modelling and COmputer Simulation
+#Date:    1996
+#Volume:  6
+#Number:  4
+#Pages:   261-273
+

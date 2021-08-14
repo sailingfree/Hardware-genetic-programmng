@@ -1,0 +1,102 @@
+#LyX 1.1 created this file. For more info see http://www.lyx.org/
+\lyxformat 218
+\textclass letter
+\language english
+\inputencoding auto
+\fontscheme default
+\graphics default
+\paperfontsize 12
+\spacing single 
+\papersize Default
+\paperpackage a4
+\use_geometry 0
+\use_amsmath 0
+\paperorientation portrait
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\defskip medskip
+\quotes_language english
+\quotes_times 2
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\series bold 
+Submission for GECCO-2002
+\layout List
+\labelwidthstring 00.00.0000
+
+\SpecialChar ~
+
+\layout List
+\labelwidthstring 00.00.0000
+
+\SpecialChar ~
+
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\series bold 
+Category:
+\series default 
+ Genetic Programming.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\series bold 
+Title:
+\series default 
+ Analysis of the Behavior of a Hardware Implementation of Genetic Programming
+ using FPGAs and Handel-C.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\series bold 
+Authors:
+\series default 
+ Peter Martin and Riccardo Poli
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\series bold 
+Address:
+\series default 
+ Department of Computer Science, 
+\newline 
+Essex University, 
+\newline 
+Wivenhoe Park, 
+\newline 
+Colchester, 
+\newline 
+CO4 3SQ 
+\newline 
+UK
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\series bold 
+Email:
+\series default 
+ petemartin@ntlworld.com
+\newline 
+rpoli@essex.ac.uk
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\series bold 
+Phone:
+\series default 
+ (Peter Martin) +44 1929 421266
+\the_end

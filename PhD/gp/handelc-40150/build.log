@@ -1,0 +1,2 @@
+compiler "-c" "-g" "-W" "-O+rewrite" "-O+high" "-O+cse" "-O+pcse" "-O+rcse" "-O+cr" "-O-rcr" "-edif" "-DNDEBUG" "-Ic:\Program Files\Celoxica\RC1000\fpga\DK1" "-I" "C:\Program Files\Celoxica\DK1\Include" "-o" "C:\handelc\EDIF\t.obj" "-xc" "C:\Program Files\Celoxica\DK1\Bin\xcv40150xvtest\t.c"
+linker "-g" "-W" "-O+rewrite" "-O+high" "-O+cse" "-O+pcse" "-O+rcse" "-O+cr" "-O-rcr" "-edif" "-f" "Xilinx4000XV" "-p" "40150xv-bg560" "..\Program Files\Celoxica\RC1000\fpga\DK1\pp1000.lib" "-L" "C:\Program Files\Celoxica\DK1\Lib" "-o" "C:\handelc\EDIF\xc40150xvtest.edf" "EDIF\t.obj"

@@ -1,0 +1,1 @@
+These are some research papers written while I was doing my PhD at Birmingham University.

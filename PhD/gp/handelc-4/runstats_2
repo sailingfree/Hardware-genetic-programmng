@@ -1,0 +1,60 @@
+#!/usr/bin/perl -w
+
+$maxrun=4;
+$run=0;
+$gen=0;
+$maxfit=89;
+@totals = 0;
+$cmds="plotcmds.plt";
+
+$arg1 = shift(@main::ARGV) || die "Please supply name for experiment";
+
+
+readin();
+analyse();
+plot();
+
+sub readin {
+    while($run < $maxrun ) {
+	printf ("Run number $run\n");
+	$gen=0;
+	open RUN, "./hwgp -s|";
+	while(<RUN>) {
+	    $fit = $_;
+	    $totals[$gen] += $fit;
+	    $gen++;
+	}
+	close RUN;
+	open SLEEP, "|sleep 1";
+	close SLEEP;
+	$run++;
+    }
+}
+
+sub analyse {
+    print "Calculating the average fitness\n";
+    open FITVAL, ">$arg1.dat" || die "Unable to opena output file";
+    for ($i=0;$i<$gen;$i++) {
+	$fitval = (($maxfit - ($totals[$i]/$run))/$maxfit)*100;
+	print FITVAL "$fitval\n";
+    }
+    close FITVAL;
+}
+
+sub plot {
+    open GNUPLOT, ">$cmds" || die "Unable to create plot commands\n";
+    print GNUPLOT "set nokey\n";
+    print GNUPLOT "set title 'Fitness value against generation\n";
+    print GNUPLOT "set xlabel 'Generation'\n";
+    print GNUPLOT "set ylabel 'Fitness (percent)'\n";
+    print GNUPLOT "set ytics rotate\n";
+    print GNUPLOT "plot '$arg1.dat' with lines\n";
+#    print GNUPLOT "set output '$arg1.eps'\n";
+#    print GNUPLOT "set term postscript eps\n";
+    print GNUPLOT "replot\n";
+    close GNUPLOT;
+
+    open PLOT, "|gnuplot $cmds";
+    close PLOT;
+
+}

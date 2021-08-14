@@ -1,0 +1,6543 @@
+#LyX 1.2 created this file. For more info see http://www.lyx.org/
+\lyxformat 220
+\textclass essex
+\begin_preamble
+\input{shortheader.tex}
+\usepackage{url}
+\end_preamble
+\language english
+\inputencoding auto
+\fontscheme pslatex
+\graphics default
+\float_placement !htb
+\paperfontsize default
+\spacing single 
+\papersize a4paper
+\paperpackage a4
+\use_geometry 0
+\use_amsmath 0
+\use_natbib 0
+\use_numerical_citations 0
+\paperorientation portrait
+\secnumdepth 2
+\tocdepth 2
+\paragraph_separation indent
+\defskip medskip
+\quotes_language english
+\quotes_times 2
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+
+\layout ChapterIntro
+
+
+\shape up 
+This chapter surveys the literature in the field of 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+acf{GP}
+\end_inset 
+
+.
+ It begins with a brief historical overview of the precursors to GP and
+ then reviews the general principles of standard GP.
+ The review shows that before GP can find solutions to a problem the user
+ of GP must choose many parameter settings.
+ The individual parameters, or attributes, are reviewed, categorised and
+ presented as a framework for categorising GP.
+ The chapter concludes by suggesting that the GP algorithm is part of a
+ more general process of problem solving, called Meta-GP.
+ A common theme from the review and the idea of Meta-GP is the problem of
+ long running times for GP when implemented in software.
+ The possibility of speeding up GP by implementing GP in hardware is therefore
+ of great interest.
+\layout Section
+
+
+\begin_inset LatexCommand \label{sec:GP phylogeny}
+
+\end_inset 
+
+Genetic Programming - A Historical Perspective
+\layout Standard
+
+Genetic Programming is a stochastic search technique used to find computer
+ programs to solve a given problem.
+ GP is sometimes described as an extension of 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbstart 
+\end_inset 
+
+
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+acf{GAs}
+\end_inset 
+
+ 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbend 
+\end_inset 
+
+which were first proposed by Holland
+\begin_inset LatexCommand \cite{Holland:1975}
+
+\end_inset 
+
+.
+ In GP the individuals that make up a population are not fixed length
+\begin_inset Foot
+collapsed false
+
+\layout Standard
+
+This is a generalisation used in the GP literature.
+ It is recognised that GAs can and do use variable length representations,
+ for example messy GAs by Goldberg 
+\shape italic 
+et al.
+
+\shape default 
+ 
+\begin_inset LatexCommand \cite{goldberg90messy}
+
+\end_inset 
+
+ and the work by Smith 
+\begin_inset LatexCommand \cite{Smith:1980}
+
+\end_inset 
+
+.
+\end_inset 
+
+, limited alphabet, strings but structures that represent programs.
+ To put GP into its proper context though it is instructive to look further
+ back.
+ Angeline 
+\begin_inset LatexCommand \cite{Angeline:1998}
+
+\end_inset 
+
+ gives a comprehensive historical perspective of GP -- what he calls Executable
+ Structures -- and Banzhaf 
+\shape italic 
+et al.
+
+\shape default 
+ 
+\begin_inset LatexCommand \cite{banzhaf:1997:book}
+
+\end_inset 
+
+ also traces the history of GP.
+ The following is a brief history of GP presenting the phylogeny of GP as
+ a timeline.
+\layout Standard
+
+In 1958 and 1959 Friedberg 
+\begin_inset LatexCommand \cite{Friedberg:1958}
+
+\end_inset 
+
+
+\begin_inset LatexCommand \cite{Friedberg:1959}
+
+\end_inset 
+
+ introduced the idea of a computer that could write programs without being
+ told precisely how.
+ Samuel, in his work on machine learning
+\begin_inset LatexCommand \cite{Samuel:1963}
+
+\end_inset 
+
+, recognised the potential of automatic programming and suggested that 
+\begin_inset Quotes eld
+\end_inset 
+
+Programming computers to learn from experience should eventually eliminate
+ the need for much of this detailed programming effort
+\begin_inset Quotes erd
+\end_inset 
+
+.
+ 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbstart 
+\end_inset 
+
+ In 1965 Rechenberg 
+\begin_inset LatexCommand \cite{Rechenberg:ES:1965}
+
+\end_inset 
+
+ suggested that evolution could be used to help find solutions to problems.
+ 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbend 
+\end_inset 
+
+ In 1966 Fogel, Owens and Walsh 
+\begin_inset LatexCommand \cite{fogel:1966}
+
+\end_inset 
+
+ described 
+\emph on 
+Evolutionary Programming
+\emph default 
+, that solved problems using a finite state machine.
+ 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbstart 
+\end_inset 
+
+ At around the same time Rechenberg 
+\begin_inset LatexCommand \cite{Rechenberg:ES:1973}
+
+\end_inset 
+
+ was developing 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+ac{ES}
+\end_inset 
+
+
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbend 
+\end_inset 
+
+.
+ In 1975 Holland 
+\begin_inset LatexCommand \cite{Holland:1975}
+
+\end_inset 
+
+ (revised in 
+\begin_inset LatexCommand \cite{Holland:1992}
+
+\end_inset 
+
+) introduced GAs which had two important characteristics: the use of fixed
+ length binary strings, and the adoption of crossover as the predominant
+ breeding operator.
+ 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbdelete 
+\end_inset 
+
+ Smith 
+\begin_inset LatexCommand \cite{Smith:1980}
+
+\end_inset 
+
+ developed the fixed length chromosome GA to use variable length chromosomes.
+ Forsyth 
+\begin_inset LatexCommand \cite{forsyth:1981}
+
+\end_inset 
+
+ evolved programs, represented as tree structured Boolean rules, using a
+ GA-like algorithm.
+ Cramer in 1985 
+\begin_inset LatexCommand \cite{icga85:cramer}
+
+\end_inset 
+
+ used both linear and tree representations of the genome to evolve programs
+ in a simple language.
+ Hicklin 
+\begin_inset LatexCommand \cite{Hicklin:1986}
+
+\end_inset 
+
+ and Fujiki and Dickinson 
+\begin_inset LatexCommand \cite{Fujiki:1987}
+
+\end_inset 
+
+ used GAs to evolve LISP programs and Schmidhuber 
+\begin_inset LatexCommand \cite{Schmidhuber:1987}
+
+\end_inset 
+
+ developed a form of GP using PROLOG.
+ Koza in 1989 
+\begin_inset LatexCommand \cite{Koza89}
+
+\end_inset 
+
+ used LISP and a tree based representation to solve several problems including
+ sequence induction, linear equations, Boolean problems and others.
+ This work formed the basis for what was termed Genetic Programming in 1990
+ 
+\lang british
+
+\begin_inset LatexCommand \cite{koza-90}
+
+\end_inset 
+
+
+\lang english
+, and which is described in detail in 
+\begin_inset LatexCommand \cite{koza:book}
+
+\end_inset 
+
+.
+\layout Standard
+
+Figure 
+\begin_inset LatexCommand \ref{fig:GP ancestry}
+
+\end_inset 
+
+ presents the phylogeny of GP as a timeline beginning with the first reported
+ experimental work until the publication of Koza's book 
+\begin_inset LatexCommand \cite{koza:book}
+
+\end_inset 
+
+ in 1992 which described what has become known as the standard form of GP.
+ The development of GP since 1992 forms part of the review in the next section.
+ 
+\layout Standard
+
+
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbstart
+\end_inset 
+
+
+\begin_inset Float figure
+placement htbp
+wide false
+collapsed false
+
+\layout Standard
+\align center 
+
+\begin_inset Graphics FormatVersion 1
+	filename images/gpphylogeny.eps
+	display color
+	size_type 1
+	width 14cm
+	height 25cm
+	keepAspectRatio
+	rotateOrigin center
+	lyxsize_type 1
+	lyxwidth 18cm
+	lyxheight 25cm	keepLyXAspectRatio
+
+\end_inset 
+
+
+\layout Caption
+
+
+\begin_inset LatexCommand \label{fig:GP ancestry}
+
+\end_inset 
+
+The phylogeny of GP as a timeline.
+\end_inset 
+
+
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbend
+\end_inset 
+
+
+\layout Section
+
+
+\begin_inset LatexCommand \label{sec:General GP principles}
+
+\end_inset 
+
+Principles of Genetic Programming
+\layout Standard
+
+This section reviews the canonical or standard form of GP as described in
+ 
+\begin_inset LatexCommand \cite{koza:book}
+
+\end_inset 
+
+.
+ This review provides a basis on which to build a more detailed parameter
+ review later in this chapter.
+ The basic components of GP 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+--
+\end_inset 
+
+ the tree representation and the components of the tree 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+--
+\end_inset 
+
+ are described first followed by the steps used by GP to solve a problem.
+\layout Subsection
+
+Program Representation
+\layout Standard
+
+A distinguishing feature of standard GP is that the executable structures,
+ or programs, are represented as trees.
+ An example program tree is shown in Figure 
+\begin_inset LatexCommand \ref{fig:GP tree}
+
+\end_inset 
+
+.
+ This tree represents the expression 
+\begin_inset Formula $y=(a*(b/2))+c$
+\end_inset 
+
+, where 
+\begin_inset Formula $a,b$
+\end_inset 
+
+ and 
+\begin_inset Formula $c$
+\end_inset 
+
+ are variables.
+ The nodes labelled 
+\begin_inset Formula $a,b,c$
+\end_inset 
+
+ and 2 are called the leaf nodes, and the nodes labelled +,* and / are called
+ non-leaf nodes.
+\layout Standard
+
+
+\begin_inset Float figure
+placement htbp
+wide false
+collapsed false
+
+\layout Standard
+\align center 
+
+\begin_inset Graphics FormatVersion 1
+	filename images/gpTree.eps
+	display color
+	size_type 1
+	height 4cm
+	rotateOrigin center
+	lyxsize_type 1
+	lyxwidth 152pt
+	lyxheight 113pt
+\end_inset 
+
+
+\layout Caption
+
+
+\begin_inset LatexCommand \label{fig:GP tree}
+
+\end_inset 
+
+Example tree for an evolving program in standard GP.
+\end_inset 
+
+
+\layout Subsection
+
+Function and Terminal Sets
+\layout Standard
+
+In standard tree based GP, each program consists of one or more nodes.
+ The nodes are chosen from one of two sets -- the function set 
+\begin_inset Formula $\mathcal{F}$
+\end_inset 
+
+ and the terminal set 
+\begin_inset Formula $\mathcal{T}$
+\end_inset 
+
+.
+ The non-leaf nodes are taken from the function set 
+\begin_inset Formula $\mathcal{F=}$
+\end_inset 
+
+{
+\begin_inset Formula $f_{1},f_{2},...,f_{n_{f}}$
+\end_inset 
+
+} and have arity (that is can take a number of arguments) of one or greater.
+ The leaf nodes are taken from the terminal set 
+\begin_inset Formula $\mathcal{T}$
+\end_inset 
+
+ = {
+\begin_inset Formula $t_{1},t_{2},...,t_{n_{t}}$
+\end_inset 
+
+} and have arity of zero.
+\layout Standard
+
+If the members of 
+\begin_inset Formula $\mathcal{T}$
+\end_inset 
+
+ are considered as functions with arity zero then the total set of nodes
+ is: 
+\begin_inset Formula $\mathcal{C=F}\cup \mathcal{T}$
+\end_inset 
+
+.
+ The search space is the set of all possible compositions of the members
+ of 
+\begin_inset Formula $\mathcal{C}$
+\end_inset 
+
+.
+ This set must exhibit the two properties of 
+\emph on 
+closure
+\emph default 
+ and 
+\emph on 
+sufficiency
+\emph default 
+.
+\layout Standard
+
+Closure requires that each member of 
+\begin_inset Formula $\mathcal{C}$
+\end_inset 
+
+ can accept as its arguments any other member in 
+\begin_inset Formula $\mathcal{C}$
+\end_inset 
+
+.
+ This property is required to guarantee that programs will operate without
+ run time errors, because the members of 
+\begin_inset Formula $\mathcal{C}$
+\end_inset 
+
+ can be used in any arbitrary combination.
+ Closure can be achieved in several ways.
+ Koza 
+\begin_inset LatexCommand \cite{koza:book}
+
+\end_inset 
+
+ restricts the types of arguments and function return types to compatible
+ types.
+ For example, all floating point types as in the symbolic regression examples
+ or logical types in the Boolean examples.
+ For simple problems with single data types this is sufficient.
+\layout Standard
+
+Where the problem requires more than one type, a typing mechanism can be
+ employed.
+ Strongly typed approaches such as those described by Montana 
+\begin_inset LatexCommand \cite{montana:stgpEC}
+
+\end_inset 
+
+ and Haynes 
+\shape italic 
+et al.
+
+\shape default 
+ 
+\begin_inset LatexCommand \cite{haynes:1996:aigp2}
+
+\end_inset 
+
+ impose constraints on the creation of individuals to satisfy the type rules.
+ Clack and Yu 
+\begin_inset LatexCommand \cite{yu:1997:pegp}
+
+\end_inset 
+
+ extended this work to show that expression based parse trees yield more
+ correct programs, and introduced the idea of polymorphism into the data
+ types.
+\layout Standard
+
+The sufficiency property requires that the set of functions in 
+\begin_inset Formula $\mathcal{C}$
+\end_inset 
+
+ is sufficient to express a program capable of solving the problem under
+ consideration.
+ This is a problem specific property and must be determined before GP will
+ successfully solve a problem.
+ This together with determining a suitable fitness test requires the most
+ effort by a user of GP.
+\layout Subsection
+
+The Genetic Programming Algorithm
+\layout Standard
+
+GP uses four steps to solve a problem:
+\layout Enumerate
+
+Initial population creation.
+ An initial population of programs is created by randomly selecting nodes
+ from the function set and terminal set.
+\layout Enumerate
+
+Fitness evaluation.
+ Each program is evaluated to measure how fit it is.
+\layout Enumerate
+
+Breeding.
+ The current population is then used to form 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbstart 
+\end_inset 
+
+a new population 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbend 
+\end_inset 
+
+ by selecting the better programs and using the following operators to propagate
+ and modify the programs:
+\begin_deeper 
+\layout Enumerate
+
+reproduction
+\layout Enumerate
+
+crossover
+\layout Enumerate
+
+mutation.
+ 
+\end_deeper 
+\layout Enumerate
+
+The new population is then re-evaluated.
+\layout Standard
+
+
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbstart 
+\end_inset 
+
+Steps 3 and 4 are 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbend 
+\end_inset 
+
+ repeated until either a pre-determined number of generations have been
+ processed or an individual meets a pre-determined level of fitness.
+ The GP algorithm is illustrated as a flow chart in Figure 
+\begin_inset LatexCommand \ref{fig:Genetic programming flowchart}
+
+\end_inset 
+
+.
+ This cycle differs from the typical GA cycle where mutation is applied
+ after crossover or reproduction.
+\begin_inset Float figure
+placement htbp
+wide false
+collapsed false
+
+\layout Standard
+\align center 
+
+\begin_inset Graphics FormatVersion 1
+	filename images/gpflowchart.eps
+	display color
+	size_type 1
+	height 20cm
+	keepAspectRatio
+	rotateOrigin center
+	lyxsize_type 1
+	lyxheight 20cm	keepLyXAspectRatio
+
+\end_inset 
+
+
+\layout Caption
+
+
+\begin_inset LatexCommand \label{fig:Genetic programming flowchart}
+
+\end_inset 
+
+Flow chart of standard Genetic Programming algorithm.
+\end_inset 
+
+
+\layout Subsubsection*
+
+Initial population creation
+\layout Standard
+
+To create the initial population, randomly selected nodes from the function
+ set 
+\begin_inset Formula $\mathcal{F}$
+\end_inset 
+
+ are used to build trees according to the arity of the function.
+ Leaf nodes from 
+\begin_inset Formula $\mathcal{T}$
+\end_inset 
+
+ are inserted according to certain criteria.
+ Two main methods are described by Koza as the 
+\emph on 
+full
+\emph default 
+ and the 
+\emph on 
+grow
+\emph default 
+ methods.
+\layout Standard
+
+The full method selects nodes from 
+\begin_inset Formula $\mathcal{F}$
+\end_inset 
+
+ until the tree reaches a pre-determined depth then it selects from 
+\begin_inset Formula $\mathcal{T}$
+\end_inset 
+
+.
+ This results in trees with uniform depth.
+ 
+\layout Standard
+
+The grow method differs in that a node is selected from 
+\begin_inset Formula $\mathcal{C}$
+\end_inset 
+
+ if the depth is less than a pre-determined maximum, else a node is selected
+ from 
+\begin_inset Formula $\mathcal{T}$
+\end_inset 
+
+.
+\layout Standard
+
+A third method combining the full and grow is called 
+\emph on 
+ramped half and half
+\emph default 
+.
+ Ramped half and half operates by creating an equal number of trees with
+ a depth between 2 and a pre-determined maximum.
+ That is if the maximum depth is 10, then 1/9 will have depth 2, 1/9 depth
+ 3 and so on up to depth 10.
+ Then for each depth, 50% of the trees are created using the full method
+ and 50% using the grow method.
+ This is claimed by Koza to offer a wider variety of shapes and size in
+ the initial population.
+ The difference in performance between the three methods is documented in
+ 
+\begin_inset LatexCommand \cite{koza:book}
+
+\end_inset 
+
+, with ramped half-and-half yielding higher probabilities of success.
+ Therefore this is the method used by most GP work.
+ Other initialisation strategies have been proposed, including two probabilistic
+ tree creation methods (PCT1 & PCT2) by Luke 
+\begin_inset LatexCommand \cite{Luke:2000}
+
+\end_inset 
+
+, which allow the user to bias the tree creation so that nodes have a guaranteed
+ probability of appearing.
+ 
+\layout Subsubsection*
+
+Fitness evaluation
+\layout Standard
+
+The programs that have been created during the initial population phase,
+ and later after the breeding phase, are ultimately expected to provide
+ a solution to the problem being solved.
+ The programs therefore need to be evaluated or tested against the problem
+ specification.
+ How well they perform is termed the fitness of the program.
+ 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbdelete 
+\end_inset 
+
+ Standard GP used LISP which allowed the direct interpretation of the trees
+ as programs.
+ This was possible because LISP makes no distinction between programs and
+ data.
+ Other methods of evaluating the fitness are reviewed in Section 
+\begin_inset LatexCommand \ref{sub:Attributes-Specific-to-gp}
+
+\end_inset 
+
+.
+ 
+\layout Standard
+
+Evaluating the fitness is highly problem dependent and is usually the most
+ computationally expensive stage in the GP algorithm.
+ 
+\layout Subsubsection*
+
+Breeding the next generation
+\layout Standard
+
+When all the programs in the population have been evaluated and their absolute
+ fitness is known, a number of programs are selected to be used to breed
+ the next generation.
+ There are two principal methods of selecting individuals from a generation:
+ 
+\emph on 
+fitness proportionate
+\emph default 
+ and 
+\emph on 
+tournament
+\emph default 
+.
+ When using the fitness proportionate method an individual is selected with
+ a probability proportionate to its fitness.
+ From 
+\begin_inset LatexCommand \cite{koza:book}
+
+\end_inset 
+
+, if 
+\begin_inset Formula $f(s_{i}(t))$
+\end_inset 
+
+ is the non-zero fitness of individual 
+\begin_inset Formula $s_{i}$
+\end_inset 
+
+ at time 
+\begin_inset Formula $t$
+\end_inset 
+
+, then the probability that individual 
+\begin_inset Formula $s_{i}$
+\end_inset 
+
+ will be selected from a population of size 
+\begin_inset Formula $M$
+\end_inset 
+
+ for breeding is:
+\layout Standard
+
+
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+nopagebreak
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset Formula \begin{equation}
+\frac{f(s_{i}(t))}{\sum _{j=1}^{M}f(s_{j}(t))}\label{eq:fitness_{p}roportionate}\end{equation}
+
+\end_inset 
+
+
+\layout Standard
+
+A refinement on this is rank selection 
+\begin_inset LatexCommand \cite{Baker:1987}
+
+\end_inset 
+
+ which reduces the influence of single highly fit individuals.
+\layout Standard
+
+In tournament selection, 
+\begin_inset Formula $n$
+\end_inset 
+
+ individuals are chosen at random from the population and the individual
+ with the highest fitness is propagated to the next generation.
+ The value of 
+\begin_inset Formula $n$
+\end_inset 
+
+ can be any number greater than one.
+ The winning individual can be left in the donor population, resulting in
+ so called over selection, where it stands a chance of being reselected
+ by subsequent tournaments.
+ Blickle and Thiele 
+\begin_inset LatexCommand \cite{blickle:1995:css}
+
+\end_inset 
+
+ provide a comprehensive comparison between different selection schemes
+ for 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbstart 
+\end_inset 
+
+GAs
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbend
+\end_inset 
+
+.
+ An interesting feature of their work is that it used GP to derive approximation
+ formulas.
+\layout Standard
+
+One of three operators are used to construct 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbstart 
+\end_inset 
+
+ each individual of 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbend
+\end_inset 
+
+ the next generation: reproduction, crossover and mutation.
+\layout Standard
+
+
+\series bold 
+Reproduction
+\series default 
+ is the straightforward copying of an individual to the next generation,
+ otherwise known as Darwinian or asexual reproduction.
+ This is also referred to as cloning in some GA work.
+\layout Standard
+
+
+\series bold 
+Crossover
+\series default 
+, or sexual recombination, is illustrated in Figure 
+\begin_inset LatexCommand \ref{fig:GP Crossover}
+
+\end_inset 
+
+ and consists of taking two individuals 
+\begin_inset Formula $A$
+\end_inset 
+
+ and 
+\begin_inset Formula $B$
+\end_inset 
+
+ and randomly selecting a crossover point in each.
+ The two individuals are then split at these points creating four subtrees
+ 
+\begin_inset Formula $A_{1},A_{2},B_{1},B_{2}$
+\end_inset 
+
+ and two new individuals 
+\begin_inset Formula $C$
+\end_inset 
+
+ and 
+\begin_inset Formula $D$
+\end_inset 
+
+ are created by combining 
+\begin_inset Formula $A_{1}$
+\end_inset 
+
+with 
+\begin_inset Formula $B_{2}$
+\end_inset 
+
+ and 
+\begin_inset Formula $B_{1}$
+\end_inset 
+
+ with 
+\begin_inset Formula $A_{2}$
+\end_inset 
+
+.
+ The choice of crossover point is not always uniform.
+ For example, in 
+\begin_inset LatexCommand \cite[page 114]{koza:book}
+
+\end_inset 
+
+ the choice of crossover points is biased so that 90% of crossovers choose
+ internal points 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbstart 
+\end_inset 
+
+ (non terminals) and the remaining 10% choose external points (terminals)
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbend
+\end_inset 
+
+.
+ This is claimed to promote the swapping of larger structures, whereas a
+ uniform crossover point selection would merely swap terminals, effectively
+ causing crossover to degenerate to point mutation.
+\layout Standard
+
+
+\begin_inset Float figure
+placement htbp
+wide false
+collapsed false
+
+\layout Standard
+\align center 
+
+\begin_inset Graphics FormatVersion 1
+	filename images/gpXver.eps
+	display color
+	size_type 1
+	height 8cm
+	rotateOrigin center
+	lyxsize_type 1
+	lyxwidth 252pt
+	lyxheight 226pt
+\end_inset 
+
+
+\layout Caption
+
+
+\begin_inset LatexCommand \label{fig:GP Crossover}
+
+\end_inset 
+
+Crossover operating on two trees.
+\end_inset 
+
+
+\layout Standard
+
+
+\series bold 
+Mutation
+\series default 
+ consists of randomly selecting a mutation point in a tree and substituting
+ a new randomly generated sub tree at that point.
+\layout Standard
+
+Standard GP processes all the individuals in a population during the breeding
+ phase, creating a new population each time the breeding phase is executed.
+ This strategy is called generational, and a straightforward implementation
+ requires sufficient storage to maintain two complete populations.
+ In some situations providing the storage for the second generation is not
+ possible, so an alternative called the steady-state strategy 
+\begin_inset LatexCommand \cite{Syswerda:1989}
+
+\end_inset 
+
+ can be used.
+ In steady-state GP a single population is maintained and a small number
+ of individuals are replaced during each breeding phase.
+\layout Section
+
+
+\begin_inset LatexCommand \label{NUM:Attributes of GP}
+
+\end_inset 
+
+Attributes of Genetic Programming
+\layout Standard
+
+From the review of standard GP in the previous section it is evident that
+ the user of GP must specify what primitives are going to be used to build
+ the programs, what types of data the system is going to utilise, as well
+ as run-time parameters such as population size and the number of generations
+ to run the system for.
+ The user also needs to select one or more operators to create new generations.
+ Finally, a fitness measure is required to drive the selection process,
+ together with appropriate stopping criteria for the runs.
+ Further decisions need to be made in the light of experience to optimise
+ the search process, or simply to get the search process to yield up a viable
+ individual.
+ In addition to standard tree based GP there have been many variations on
+ the GP theme, each variation modifying one or more of the standard attributes,
+ and a decision needs to be made whether any of the modifications would
+ be appropriate.
+\layout Standard
+
+In this section the attributes of GP are organised into four categories.
+ The motivation for this arrangement is that by placing the attributes into
+ groups, a clearer picture of the different types of attributes and their
+ relationships will emerge.
+ Presenting the attributes in this way also allows a more detailed description
+ of a problem to be given in a compact form and this will allow a detailed
+ comparison to be made between problems.
+\layout Subsection
+
+Existing Taxonomies
+\layout Standard
+
+Several categorisations of particular aspects of GP have been made in the
+ past.
+ These fall into one of two broad categories: the topics of research into
+ GP, and the problem types that have been tackled by GP.
+ 
+\layout Subsubsection*
+
+Research topics
+\layout Standard
+
+In the research topics category, Langdon 
+\begin_inset LatexCommand \cite{langdon:book}
+
+\end_inset 
+
+ proposed a simple taxonomy based on a classification of the research topics
+ that were of interest at the time, identifying the seven categories shown
+ in Table 
+\begin_inset LatexCommand \ref{table:Langdons taxonomy}
+
+\end_inset 
+
+.
+\layout Standard
+
+
+\begin_inset Float table
+placement htbp
+wide false
+collapsed false
+
+\layout ShortCaption
+
+Langdon's taxonomy of GP.
+\layout Caption
+
+
+\begin_inset LatexCommand \label{table:Langdons taxonomy}
+
+\end_inset 
+
+Langdon's taxonomy of GP that identifies the research topics in the published
+ literature.
+\layout Standard
+\align center 
+
+\begin_inset  Tabular
+<lyxtabular version="3" rows="7" columns="1">
+<features>
+<column alignment="left" valignment="top" width="0pt">
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Applications 
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Representation
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Fitness functions
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Architecture
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Search operators
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Exotic GA techniques
+\end_inset 
+</cell>
+</row>
+<row bottomline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Implementations
+\end_inset 
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset 
+
+
+\end_inset 
+
+
+\layout Subsubsection*
+
+Problem domains
+\layout Standard
+
+Koza 
+\begin_inset LatexCommand \cite{koza:gp2}
+
+\end_inset 
+
+ gives a summary of GP applications.
+ The grouping of applications suggests a taxonomy of problem types.
+ He suggests the 10 categories listed in Table 
+\begin_inset LatexCommand \ref{table:koza applications}
+
+\end_inset 
+
+.
+\layout Standard
+
+
+\begin_inset Float table
+placement htbp
+wide false
+collapsed false
+
+\layout ShortCaption
+
+GP applications suggested by Koza.
+\layout Caption
+
+
+\begin_inset LatexCommand \label{table:koza applications}
+
+\end_inset 
+
+GP applications suggested by Koza 
+\begin_inset LatexCommand \cite{koza:gp2}
+
+\end_inset 
+
+.
+\layout Standard
+\align center 
+
+\begin_inset  Tabular
+<lyxtabular version="3" rows="10" columns="1">
+<features>
+<column alignment="left" valignment="top" width="0pt">
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Art
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Databases
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Algorithms
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Natural language
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Modules
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Programming methods
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Robotic control
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Neural networks
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Induction and regression
+\end_inset 
+</cell>
+</row>
+<row bottomline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Financial
+\end_inset 
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset 
+
+
+\end_inset 
+
+
+\layout Standard
+
+Banzhaf 
+\shape italic 
+et al.
+
+\shape default 
+ 
+\begin_inset LatexCommand \cite[(p341)]{banzhaf:1997:book}
+
+\end_inset 
+
+ extends the list in 
+\begin_inset LatexCommand \cite{koza:gp2}
+
+\end_inset 
+
+ by further subdividing some categories and adding some new categories.
+ They list 20 different applications areas, listed in Table 
+\begin_inset LatexCommand \ref{table:banzhaf applications}
+
+\end_inset 
+
+.
+\layout Standard
+
+
+\begin_inset Float table
+placement htbp
+wide false
+collapsed false
+
+\layout ShortCaption
+
+Application areas for GP from Banzhaf 
+\shape italic 
+et al.
+\layout Caption
+
+
+\begin_inset LatexCommand \label{table:banzhaf applications}
+
+\end_inset 
+
+Application areas for GP from Banzhaf 
+\shape italic 
+et al.
+
+\shape default 
+ 
+\begin_inset LatexCommand \cite[(p341)]{banzhaf:1997:book}
+
+\end_inset 
+
+.
+\layout Standard
+\align center 
+
+\begin_inset  Tabular
+<lyxtabular version="3" rows="20" columns="1">
+<features>
+<column alignment="left" valignment="top" width="0pt">
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Algorithms
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Art
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Biotechnology
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Computer graphics
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Computing
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Control (general)
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Control (process)
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Control (robots and agents)
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Control (spacecraft)
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Data mining
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Electrical engineering
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Financial
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Hybrid systems
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Image processing
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Interactive evolution
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Modelling
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Natural languages
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Optimisation
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Pattern recognition
+\end_inset 
+</cell>
+</row>
+<row bottomline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Signal processing
+\end_inset 
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset 
+
+
+\end_inset 
+
+
+\layout Standard
+
+Langdon 
+\begin_inset LatexCommand \cite{langdon:book}
+
+\end_inset 
+
+ lists 7 categories of GP applications, listed in Table 
+\begin_inset LatexCommand \ref{table:Langdon GP applications}
+
+\end_inset 
+
+.
+\layout Standard
+
+
+\begin_inset Float table
+placement htbp
+wide false
+collapsed false
+
+\layout ShortCaption
+
+GP applications suggested by Langdon.
+\layout Caption
+
+
+\begin_inset LatexCommand \label{table:Langdon GP applications}
+
+\end_inset 
+
+GP applications suggested by Langdon 
+\begin_inset LatexCommand \cite{langdon:book}
+
+\end_inset 
+
+.
+\layout Standard
+\align center 
+
+\begin_inset  Tabular
+<lyxtabular version="3" rows="7" columns="1">
+<features>
+<column alignment="left" valignment="top" width="0pt">
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Prediction and classification
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Image and signal processing
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Design
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Trading
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Robots
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Artificial life
+\end_inset 
+</cell>
+</row>
+<row bottomline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Artistic
+\end_inset 
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset 
+
+
+\end_inset 
+
+
+\layout Section
+
+A Taxonomy of Genetic Programming Attributes
+\layout Standard
+
+Previous taxonomies of GP have considered a single attribute -- the research
+ topic, problem domain or problem type.
+ However, as already highlighted in Section 
+\begin_inset LatexCommand \ref{sec:General GP principles}
+
+\end_inset 
+
+, using GP requires the user to consider many different parameters, and
+ there does not appear to be a taxonomy describing the attributes and parameters
+ of GP.
+ This section therefore sets out to categorise the attributes of GP, placing
+ the attributes into 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbstart 
+\end_inset 
+
+taxa
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbend
+\end_inset 
+
+.
+\layout Subsection
+
+
+\begin_inset LatexCommand \label{sub:Characteristics-of-a-good-taxonomy}
+
+\end_inset 
+
+Characteristics of a Good Taxonomy 
+\layout Standard
+
+When constructing a taxonomy, it is useful to consider what characteristics
+ make a good taxonomy so that the taxonomy can be evaluated.
+ Amoroso 
+\begin_inset LatexCommand \cite{Amaroso:1994:bib}
+
+\end_inset 
+
+ suggests that a good taxonomy has seven important characteristics with
+ regard to its classification categories ; 
+\layout Enumerate
+
+Mutually exclusive - classifying in one category excludes all others because
+ categories do not overlap,
+\layout Enumerate
+
+Exhaustive - taken together, the categories include all possibilities,
+\layout Enumerate
+
+Unambiguous - clear and precise so that classification is not uncertain,
+ regardless of who is classifying,
+\layout Enumerate
+
+Repeatable - repeated applications result in the same classification, regardless
+ of who is classifying,
+\layout Enumerate
+
+Accepted - logical and intuitive so that they could become generally approved,
+\layout Enumerate
+
+Useful - can be used to gain insight into the field of inquiry,
+\layout Enumerate
+
+Expandable - can be extended to contain new categories.
+ 
+\layout Subsection
+
+Principal Taxa
+\layout Standard
+
+A top level framework was initially devised containing four categories.
+ Because GP has a strong relationship to traditional software engineering,
+ in that at its most basic level it is designed to automate the programming
+ activities of humans, the four categories reflect the software development
+ lifecycle often encountered in software engineering;
+\layout Enumerate
+
+
+\series bold 
+External
+\series default 
+.
+ This category lists the externally observed behavioral attributes of the
+ problem without considering the implementation of the GP system or any
+ solutions found.
+ It is likely that these attributes could be used to describe any problem
+ regardless of how the problem was going to be solved.
+ In traditional software engineering these attributes represent the requirements
+ or the specification of the system.
+\layout Enumerate
+
+
+\series bold 
+GP specific
+\series default 
+.
+ These attributes are the values of the parameters used to create the GP
+ system, such as function sets, terminal sets, whether memory is required
+ and what representations are used.
+ These attributes represent the design of the system, given the requirements
+ and constraints.
+\layout Enumerate
+
+
+\series bold 
+Results.
+
+\series default 
+ These attributes are derived from the results of running GP.
+ Amongst other things these provide a picture of the effort required to
+ find solutions.
+ They also give some indication of the problem specific biases and optimisations
+ that were applied to GP to find a solution.
+ These attributes represent the quality of the 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbstart 
+\end_inset 
+
+ generated solution 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbend 
+\end_inset 
+
+.
+\layout Enumerate
+
+
+\series bold 
+Implementation
+\series default 
+.
+ This category lists the implementation or platform attributes.
+ These describe the physical implementation of the GP system including the
+ computer platform, implementation language and whether the fitness function
+ is internal or external to the GP system.
+ In software engineering these attributes represent the constraints imposed
+ on a design.
+\layout Standard
+
+An important consequence of this division is that it separates the problem
+ specific attributes from the GP specific attributes which allows cross-problem
+ analysis to be made independently from the analysis of GP specific factors.
+ It may be noted here that during the review of problems for which GP has
+ been used, it became clear that many reports combine the solution of a
+ new problem with the invention of new GP operators, representations and
+ other GP specific features, making analytical comparisons difficult.
+\layout Standard
+
+Some of the attributes are the standard parameters that are required for
+ any GP system.
+ These are sometimes described in a tableau after the examples found in
+ Koza's books.
+ For convenience, each attribute is given an abbreviated key.
+\layout Standard
+
+The taxonomy was constructed by carrying out a review of the GP literature,
+ and by collecting data from published reports of using GP for problem solving.
+ The data collected was stored in a relational database which allows the
+ data to be analysed using standard database tools.
+ An example of some analysis is given later in this chapter that demonstrates
+ the utility of this method.
+ The problems were chosen with care to represent a range of GP applications,
+ therefore the problems listed do not 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbstart 
+\end_inset 
+
+ include 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbend
+\end_inset 
+
+ every instance of the many test problems such as the Boolean multiplexers,
+ symbolic regression or the artificial ant problem.
+ Appendix 
+\begin_inset LatexCommand \ref{main:Taxonomy data}
+
+\end_inset 
+
+ gives a list of the problems considered and a selection of the attribute
+ data.
+ 
+\layout Subsection
+
+Externally Observable Attributes 
+\layout Standard
+
+These attributes apply to the problem without considering GP as a means
+ of finding a solution.
+ Indeed, they should be of use when considering any method of finding a
+ solution since these generally relate to the specification of the problem.
+ 
+\layout Subsubsection*
+
+Problem category (Pcat) 
+\layout Standard
+
+This gives a general categorisation of the problem.
+ This is probably the most subjective attribute with many problems not falling
+ cleanly into a single narrow category.
+ We have already seen three possible categorisations of the problem description
+ (
+\begin_inset LatexCommand \cite{banzhaf:1997:book}
+
+\end_inset 
+
+
+\begin_inset LatexCommand \cite{koza:book}
+
+\end_inset 
+
+
+\begin_inset LatexCommand \cite{langdon:book}
+
+\end_inset 
+
+).
+ A categorisation that is too finely divided is likely to make it hard to
+ categorise new problems, because of the subjective and ambiguous nature
+ of this attribute.
+ A finely divided categorisation is also in danger of degenerating into
+ a simple enumeration.
+ Furthermore, in an invited talk at EuroGP'2002, Igno Wegener reminded the
+ GP community that there is a distinction between problem types and instances
+ of problems.
+ Therefore, the number of problem categories has been condensed to 7, including
+ a category that allows hybrid problems to be considered without having
+ to invent new categorisations.
+ 
+\layout Standard
+
+
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+noindent 
+\end_inset 
+
+Pcat 
+\begin_inset Formula $\in $
+\end_inset 
+
+{Art, Algorithms, Control, Design, Regression, Classification, Hybrid}.
+\layout Subsubsection*
+
+Formal specification of the problem (Fml)
+\layout Standard
+
+This attribute describes how the problem is stated.
+ For example, the regression problems can be expressed as a mathematical
+ formula such as the quartic polynomial 
+\begin_inset Formula $y=x^{4}+x^{3}+x^{2}+x$
+\end_inset 
+
+ 
+\begin_inset LatexCommand \cite[p 164]{koza:book}
+
+\end_inset 
+
+.
+ Other problem statement techniques such as Message Sequence Charts (MSCs)
+ 
+\begin_inset LatexCommand \cite{martin:2000:Gpscin}
+
+\end_inset 
+
+ or Boolean Logic statements have been used.
+ In some problem domains no readily accessible methods of expressing a problem
+ exist, for example when evolving art 
+\begin_inset LatexCommand \cite{sims91a}
+
+\end_inset 
+
+ or music 
+\begin_inset LatexCommand \cite{johanson:1998:GP-Music}
+
+\end_inset 
+
+.
+ In these cases the fitness of individuals is judged on a subjective basis.
+ It is interesting to note that despite the use of formal specification
+ languages such as the Z notation 
+\begin_inset LatexCommand \cite{Spivey:1992}
+
+\end_inset 
+
+
+\begin_inset LatexCommand \cite{z:2002}
+
+\end_inset 
+
+, VDM 
+\begin_inset LatexCommand \cite{vdm:1996}
+
+\end_inset 
+
+
+\begin_inset LatexCommand \cite{vdm:2002}
+
+\end_inset 
+
+ or LOTOS 
+\begin_inset LatexCommand \cite{Lotos:1989}
+
+\end_inset 
+
+
+\begin_inset LatexCommand \cite{Turner:2002}
+
+\end_inset 
+
+ in industry, the use of formal specification methods has not featured in
+ the literature of GP.
+ Many problem statements in the literature are simply English language descripti
+ons of the problem.
+ The precise meaning of these statements is often left for the reader to
+ interpret.
+\layout Standard
+
+This attribute is important because traditional software engineering has
+ consistently made the case for a clear statement of the requirements of
+ a system.
+ In 
+\begin_inset LatexCommand \cite{martin:2000:Gpscin}
+
+\end_inset 
+
+ it is argued that the fitness function represents the requirements of the
+ problem, and it would be expected that expressing the problem in a formal
+ manner would help in determining the fitness function(s) required.
+ 
+\layout Standard
+
+
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+noindent 
+\end_inset 
+
+Fml 
+\begin_inset Formula $\in $
+\end_inset 
+
+{Equation, English, Logic, Subjective, Message Sequence Chart (MSC), Exemplars}
+ 
+\layout Subsubsection*
+
+Number of fitness cases (Nfit)
+\layout Standard
+
+Records how many test cases were chosen.
+ This attribute would be expected to help in identifying problems that require
+ a large processing overhead in evaluating the fitness function.
+\layout Subsubsection*
+
+Class of Computability or language of GP (Lang)
+\layout Standard
+
+Several authors have already shown that for GP to be truly general, the
+ language that GP uses to create programs with must have certain features.
+ In this context, the term language refers to the function set 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+$
+\backslash 
+mathcal{F}$
+\end_inset 
+
+, terminal set 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+$
+\backslash 
+mathcal{T}$
+\end_inset 
+
+ and the constructs that bind the functions together, such as sequencing,
+ iteration and conditional execution.
+ In general these features are characterised as making GP Turing complete.
+ The first explicit mention of this feature in GP was made by Teller 
+\begin_inset LatexCommand \cite{wcci94:teller}
+
+\end_inset 
+
+.
+ Yu has investigated a functional programming approach to GP that exhibits
+ many of the characteristics of traditional computer programming languages
+ 
+\begin_inset LatexCommand \cite{TinaYu:thesis}
+
+\end_inset 
+
+, and Pringle 
+\begin_inset LatexCommand \cite{pringle:1995:esp}
+
+\end_inset 
+
+ proposed a structured programming approach to using GP.
+ However, many problems can be solved using non-Turing complete languages
+ as demonstrated by the examples from the work in 
+\begin_inset LatexCommand \cite{Koza89}
+
+\end_inset 
+
+
+\begin_inset LatexCommand \cite{koza:book}
+
+\end_inset 
+
+
+\begin_inset LatexCommand \cite{koza:gp2}
+
+\end_inset 
+
+.
+ 
+\layout Standard
+
+Before we can use GP to try to solve a problem it is important to have some
+ idea which language is appropriate.
+ Failure to identify the language may result in using a more powerful language
+ than is strictly needed, leading to poor performance in finding a program
+ because of the overhead of executing unwanted program structures such as
+ loops or recursion.
+ The converse case of using a language not powerful enough could lead to
+ the situation of never finding a general solution to a problem.
+\layout Standard
+
+The selection of an optimal language is also likely to affect the performance
+ of the GP kernel.
+ For example, if a Turing complete language is used, then explicit steps
+ need to be taken to ensure that general recursion is controlled, infinite
+ loops do not compromise the efficiency of the fitness evaluations and in
+ the case of large problems that memory consumption is not excessive.
+ These extra steps involve added complexity and run-time overhead and would
+ therefore increase the effort, both human and machine, required to solve
+ a problem using GP.
+\layout Standard
+
+From the literature of computer science (eg.
+ 
+\begin_inset LatexCommand \cite{feynman:1996}
+
+\end_inset 
+
+
+\begin_inset LatexCommand \cite{savage:1998}
+
+\end_inset 
+
+
+\begin_inset LatexCommand \cite{gruska:1997}
+
+\end_inset 
+
+ and others), four broad classifications of computer languages can be discerned:
+\layout Enumerate
+
+Memoryless computing devices (ML).
+ These include examples such as Boolean functions and expressions, 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbstart 
+\end_inset 
+
+ combinatorial digital logic circuits 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbend
+\end_inset 
+
+ and propositional logic.
+ In the context of GP, common cases such as the continuous functions encountered
+ in the symbolic expression problems can be added.
+\layout Enumerate
+
+Finite memory computing devices (FM).
+ This includes finite state machines and regular expressions.
+\layout Enumerate
+
+Unbounded memory devices (U).
+ These include recursive functions, random access machines, and the class
+ of machines known as Turing machines.
+ These can be considered general programs.
+ 
+\layout Enumerate
+
+Other (O).
+ Grouped in this category are non-deterministic programs and probabilistic
+ programs.
+ Recent work on Quantum computing 
+\begin_inset LatexCommand \cite{spector:1999:FBQAAGP}
+
+\end_inset 
+
+ can be categorised in this family.
+\layout Standard
+
+From this it is proposed that the bipolar view 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbstart 
+\end_inset 
+
+ (turing or non-turing) 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbend 
+\end_inset 
+
+ of GP languages is expanded to consider 4 language types: The set of languages
+ recognised is Lang
+\begin_inset Formula $\in $
+\end_inset 
+
+{ML, FM, U, O}
+\layout Subsection
+
+
+\begin_inset LatexCommand \label{sub:Attributes-Specific-to-gp}
+
+\end_inset 
+
+Attributes Specific to Genetic Programming 
+\layout Subsubsection*
+
+Function set (
+\begin_inset Formula $\mathcal{F}$
+\end_inset 
+
+) 
+\layout Standard
+
+The function set is decomposed into two attributes: First, the number of
+ functions (NF) in 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+$
+\backslash 
+mathcal{F}$
+\end_inset 
+
+.
+ Second, the degree of abstraction of the function set is evaluated.
+ The following guidelines are used for this category:
+\layout Itemize
+
+Low abstraction represents a function set that is close to that of primitive
+ computing machines, for example the arithmetic functions add, subtract,
+ multiply and divide can all be executed by most processors directly, though
+ with varying degrees of efficiency for some complex data types.
+ This also includes all logical functions, most test functions (if-then-else
+ constructs) and examples of machine code as for example in 
+\begin_inset LatexCommand \cite{kinnear:nordin}
+
+\end_inset 
+
+.
+ 
+\layout Itemize
+
+Medium abstraction functions are those that would require several statements
+ in a high level language.
+\layout Itemize
+
+High level abstraction is found where the functions perform major portions
+ of processing, or have some major side effect.
+ It is probable that this level would also represent specialised, problem
+ specific functions.
+\layout Standard
+
+
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+noindent 
+\end_inset 
+
+Abs
+\begin_inset Formula $\in $
+\end_inset 
+
+{low, medium, high} 
+\layout Subsubsection*
+
+Terminal set (
+\begin_inset Formula $\mathcal{T}$
+\end_inset 
+
+)
+\layout Standard
+
+This simply records the number of terminals selected for the problem.
+\layout Subsubsection*
+
+Automatic feature discovery and reuse (ADF).
+ 
+\layout Standard
+
+Used to indicate whether some form of automatically defined function was
+ used.
+ This is not restricted to the original automatically defined functions,
+ as described in 
+\begin_inset LatexCommand \cite{koza:book}
+
+\end_inset 
+
+, but includes other methods of capturing frequently used features such
+ as automatically defined macros 
+\begin_inset LatexCommand \cite{spector:1995:ADM}
+
+\end_inset 
+
+ and architecture altering operations 
+\begin_inset LatexCommand \cite{koza:1996:ADFaacs}
+
+\end_inset 
+
+.
+\layout Subsubsection*
+
+Memory (Mem) 
+\layout Standard
+
+Some problems require the use of memory, for example to store internal results
+ or state variables.
+ Memory can take on many forms, but commonly found examples are indexed
+ memory as described by Teller 
+\begin_inset LatexCommand \cite{fairs94:teller}
+
+\end_inset 
+
+ as well as more sophisticated data structures such as queues, stacks and
+ lists 
+\begin_inset LatexCommand \cite{langdon:book}
+
+\end_inset 
+
+.
+\layout Standard
+
+
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+noindent 
+\end_inset 
+
+Mem
+\begin_inset Formula $\in $
+\end_inset 
+
+{none, indexed, structured} 
+\layout Subsubsection*
+
+
+\begin_inset LatexCommand \label{sec:representations}
+
+\end_inset 
+
+Evolutionary representation (Rep) 
+\layout Standard
+
+Standard GP uses a tree representation because it was argued that traditional
+ programs can be represented naturally using such a structure.
+ Indeed, compiler technology often uses such structures for the internal
+ representation of the program.
+ In addition, the LISP language S-expressions can easily be represented
+ as trees.
+ Most examples of GP have used this same basic structure.
+ However several researchers have used alternative representations.
+ Perkis 
+\begin_inset LatexCommand \cite{ieee94:perkis}
+
+\end_inset 
+
+ showed that a stack representation could be used to evolve programs.
+ Handley 
+\begin_inset LatexCommand \cite{Handley:1994:DAGpcp}
+
+\end_inset 
+
+ and Poli 
+\begin_inset LatexCommand \cite{Poli:1999:nio}
+
+\end_inset 
+
+ used a directed graph.
+ A linear representation has been used by other researchers, notably Nordin
+ 
+\begin_inset LatexCommand \cite{kinnear:nordin}
+
+\end_inset 
+
+ in his work on evolving machine code programs for 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbstart 
+\end_inset 
+
+a 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbend
+\end_inset 
+
+ 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+ac{RISC}
+\end_inset 
+
+.
+ This work was later extended to 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbstart 
+\end_inset 
+
+a 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbend
+\end_inset 
+
+ 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+ac{CISC}
+\end_inset 
+
+ 
+\begin_inset LatexCommand \cite{nordin:1999:aigp3}
+
+\end_inset 
+
+.
+ Miller and 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbstart 
+\end_inset 
+
+ Thomson 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbend 
+\end_inset 
+
+ used a method called Cartesian Genetic Programming 
+\begin_inset LatexCommand \cite{miller:2000:CGP}
+
+\end_inset 
+
+ in which the program is represented as an indexed graph, encoded as a set
+ of linear string of integers.
+ 
+\layout Standard
+
+Recently hybrid representations have been investigated.
+ Kantschik and Banzhaf used a linear tree representation
+\begin_inset LatexCommand \cite{kantschik:2001:EuroGP}
+
+\end_inset 
+
+, and a linear graph representation 
+\begin_inset LatexCommand \cite{kantschik:2002}
+
+\end_inset 
+
+.
+\layout Standard
+
+
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+noindent 
+\end_inset 
+
+Rep
+\begin_inset Formula $\in $
+\end_inset 
+
+{tree, stack, graph, linear, hybrid}
+\layout Subsubsection*
+
+Polymorphism and data typing (Typ) 
+\layout Standard
+
+Simple test problems often use only a single data type.
+ However, real world applications are seldom so regular and need to make
+ use of more than one data type.
+ The treatment of multiple data types, or polymorphism, can be handled by
+ one of several methods.
+ Koza used constrained syntactic structures 
+\begin_inset LatexCommand \cite{koza:book}
+
+\end_inset 
+
+ that employed problem specific syntactic rules to ensure correct programs
+ were generated.
+ Montana 
+\begin_inset LatexCommand \cite{montana:stgpEC}
+
+\end_inset 
+
+ extended this and described a method of imposing a strong type mechanism
+ on GP.
+ Clack and Yu 
+\begin_inset LatexCommand \cite{yu:1997:pegp}
+
+\end_inset 
+
+ extended this work.
+ A weak method that did not constrain the generation or evolution of the
+ trees is described in 
+\begin_inset LatexCommand \cite{martin:2000:Gpscin}
+
+\end_inset 
+
+ which uses polymorphic data types.
+ 
+\layout Standard
+
+It has been argued that explicit typing can be considered as a form of language
+ bias 
+\begin_inset LatexCommand \cite{whigham:1995:GBGP}
+
+\end_inset 
+
+ and this has led to alternative approaches that separate the structures
+ used for evolution and the structures used for the programs.
+ The alternatives are reviewed in the next sub section.
+\layout Standard
+
+
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+noindent 
+\end_inset 
+
+Typ
+\begin_inset Formula $\in $
+\end_inset 
+
+{none, weak, strong} 
+\layout Subsubsection*
+
+Representation mapping (Map)
+\layout Standard
+
+A distinguishing feature of standard GP is that the same trees are used
+ to represent the genotype as well as the program.
+ That is to say, in standard GP the tree structure is used directly by the
+ fitness evaluation to effectively execute the evolved program, as well
+ as being manipulated and modified by the breeding operators.
+ Several indirect mappings have also been used in which the genotype is
+ processed to produce a different phenotype.
+ Banzhaf in 
+\begin_inset LatexCommand \cite{banzhaf:mrl}
+
+\end_inset 
+
+ used a standard fixed length linear GAs to construct programs by using
+ editing and repair to produce variable length trees.
+ Holmes and Barclay 
+\begin_inset LatexCommand \cite{holmes:1996:fllc}
+
+\end_inset 
+
+ describe the Odin Genetic Programming system which separates the genetic
+ structure from the tree structure of the program.
+ Whigham 
+\begin_inset LatexCommand \cite{whigham:1995:GBGP}
+
+\end_inset 
+
+ first introduced the idea of using grammars for specifying the structure
+ of the language for the evolved programs.
+ More recently, O'Neill 
+\begin_inset LatexCommand \cite{oneill:1999:APGE}
+
+\end_inset 
+
+ and O'Neill and Ryan 
+\begin_inset LatexCommand \cite{oneill:1999:UHGE}
+
+\end_inset 
+
+ have developed a technique called Grammatical Evolution in which a variable
+ length binary genome is translated to a program using a 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+acl{BNF}
+\end_inset 
+
+ grammar.
+ Similar work called Gene Expression Programming is reported by Ferreira
+ 
+\begin_inset LatexCommand \cite{Ferreira:2001}
+
+\end_inset 
+
+.
+\layout Standard
+
+One of the major advantages claimed for separating the structures used for
+ evolution and the structures used to represent programs is that the evolutionar
+y mechanism does not need to be concerned with maintaining closure during
+ crossover, thereby making the crossover operator simpler.
+ 
+\layout Standard
+
+
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+noindent 
+\end_inset 
+
+Map 
+\begin_inset Formula $\in $
+\end_inset 
+
+{Direct, Indirect}
+\layout Subsubsection*
+
+Operators (Op)
+\layout Standard
+
+Crossover, mutation and reproduction are used with many modifications and
+ enumerating them would be both impractical and not tell us very much about
+ the selection of operators.
+ Instead the ratios of the basic operators (mutation (M), reproduction (R)
+ and crossover (C)) are given.
+ In addition, an indication is made if a modified form of an operator is
+ used.
+ For example, the modification proposed by Langdon 
+\begin_inset LatexCommand \cite{langdon:1999:fairxo}
+
+\end_inset 
+
+ called homologous crossover 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbstart 
+\end_inset 
+
+ is classified as a 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbend
+\end_inset 
+
+ modified operator.
+\layout Standard
+
+There is still much debate over the usefulness of crossover and/or mutation
+ 
+\begin_inset LatexCommand \cite{gpmail:2002}
+
+\end_inset 
+
+.
+ Koza in 
+\begin_inset LatexCommand \cite{koza:book}
+
+\end_inset 
+
+ claims that mutation does not play a large part in finding fit individuals
+ and consequently does not use it in most of his experiments.
+ In contrast, studies by Banzhaf 
+\shape italic 
+et al.
+
+\shape default 
+ 
+\begin_inset LatexCommand \cite{banzhaf:1996:mutatation}
+
+\end_inset 
+
+, Luke and Spector 
+\begin_inset LatexCommand \cite{luke:1997:ccmGP, luke:1998:rcxmGP}
+
+\end_inset 
+
+ show that mutation can be useful in some cases, however they have not discovere
+d any robust heuristics that allow the selection of optimal settings.
+ Finally, Angeline 
+\begin_inset LatexCommand \cite{angeline:1997:tcbbe}
+
+\end_inset 
+
+ puts forward some evidence that crossover may be a form of macromutation
+ and not play any real role in propagating so called building blocks.
+\layout Subsubsection*
+
+Creation methods (Crt) 
+\layout Standard
+
+When trees are used for the program representation, this describes the tree
+ creation method.
+ For other representations, including linear representations, the populations
+ are usually initialised using a uniform method.
+\layout Standard
+
+Crt
+\begin_inset Formula $\in $
+\end_inset 
+
+ {Grow, Full, Ramped, Probabilistic, Uniform} 
+\layout Subsubsection*
+
+Seeding (Seed)
+\layout Standard
+
+Denotes whether the population was seeded or inoculated with known good
+ approximate solutions.
+ 
+\begin_inset LatexCommand \cite{ferrer:1995:bef}
+
+\end_inset 
+
+
+\begin_inset LatexCommand \cite{grant:phd}
+
+\end_inset 
+
+
+\begin_inset LatexCommand \cite{langdon:2000:seed}
+
+\end_inset 
+
+ and others have shown that seeding a population can both improve the search
+ and lead to generalisations of known good solutions.
+\layout Subsubsection*
+
+Population size (M)
+\layout Standard
+
+Records the size of the population.
+ 
+\layout Subsubsection*
+
+Number of generations (G)
+\layout Standard
+
+Records the number of generations the system was run for.
+\layout Subsubsection*
+
+Selection method (Sel)
+\layout Standard
+
+Sel 
+\begin_inset Formula $\in $
+\end_inset 
+
+ {Proportionate, Tournament, Other}
+\layout Subsubsection*
+
+Generational method (Gen)
+\layout Standard
+
+Gen 
+\begin_inset Formula $\in $
+\end_inset 
+
+ {Generational, Steady-state}
+\layout Subsection
+
+Attributes Derived From Experimental Results 
+\layout Standard
+
+These are the values of attributes found in the experimental results.
+ 
+\layout Subsubsection*
+
+Program size (Size) 
+\layout Standard
+
+Typical size (in nodes) of a representative solution.
+\layout Subsubsection*
+
+Successful outcome (Suc) 
+\layout Standard
+
+Since the principle aim of using GP is to find solutions to problems, it
+ is not surprising that it is rare to find reports of experiments that have
+ failed to find a solution, though from experience many experimenters know
+ that the number of unsuccessful runs during the development of a GP system
+ is usually high.
+ The number of unsuccessful runs is normally reduced by modifying run time
+ parameters, genetic operators, function sets, or other attributes.
+ Only when the number of runs that produce an acceptable result is reasonable
+ do any results get published.
+ One notable exception is found in Langdon 
+\begin_inset LatexCommand \cite[(pp 149-154)]{langdon:book}
+
+\end_inset 
+
+ where an attempt to evolve a general purpose program to recognise a Dyck
+ language without using pre-defined stack primitives failed.
+ The dearth of results for unsuccessful runs rather hampers us in the search
+ for a set of acceptable parameters since we only have a part of the data
+ needed.
+ This attribute is therefore an indication of whether a given set of parameters
+ produced a successful run.
+\layout Subsubsection*
+
+Effort required to find a solution (E)
+\layout Standard
+
+Ultimately, any search method is going to be evaluated on the quality of
+ the result and how much effort needs to be expended to discover an acceptable
+ result.
+ Clearly no matter how elegant the search method, if it requires more effort
+ than an alternative method, it will not be favoured.
+ Because of the wider acceptance of the 'no free lunch theorem' 
+\begin_inset LatexCommand \cite{wolpert97no}
+
+\end_inset 
+
+ that says no one search method will perform better for all problems than
+ any other search method, we need a robust, quantifiable measure of the
+ effectiveness of GP.
+ GP is a stochastic search method, and so it is likely that any meaningful
+ measure of effort will need to consider the probability of finding an acceptabl
+e solution as well as elapsed time.
+ Accordingly, several methods of measuring the effort needed by GP to find
+ a solution have been used: a prediction of the number of runs required,
+ the actual number of runs required and the wall clock time.
+\layout Standard
+
+One method of reporting effort is to predict or measure the number of chromosome
+s that must be evaluated to find a solution.
+ Koza gives a method of predicting the number of runs required to find a
+ solution with a given probability based on measuring the performance of
+ runs that were successful 
+\begin_inset LatexCommand \cite[page 194]{koza:book}
+
+\end_inset 
+
+:
+\layout Standard
+
+
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+nopagebreak
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset Formula \begin{equation}
+R(z)=\left[\frac{\log (1-z)}{\log (1-P(M,i))}\right]\label{EQN:effort_{1}}\end{equation}
+
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+noindent 
+\end_inset 
+
+where 
+\begin_inset Formula $R(z)$
+\end_inset 
+
+ is the number of runs required to find a solution with probability 
+\begin_inset Formula $z$
+\end_inset 
+
+.
+ In most of the published work 
+\begin_inset Formula $z$
+\end_inset 
+
+ is assumed to be 0.99.
+ 
+\begin_inset Formula $P(M,i)$
+\end_inset 
+
+ is the cumulative probability of having found a solution using a population
+ size of 
+\begin_inset Formula $M$
+\end_inset 
+
+ by generation 
+\begin_inset Formula $i$
+\end_inset 
+
+.
+ This equation is invalid if all runs are successful since 
+\begin_inset Formula $P(M,i)=1$
+\end_inset 
+
+.
+\layout Standard
+
+The number of chromosomes (individual programs) 
+\begin_inset Formula $I$
+\end_inset 
+
+ that need to be processed to give a probability 
+\begin_inset Formula $z$
+\end_inset 
+
+ of finding a solution by generation 
+\begin_inset Formula $i$
+\end_inset 
+
+ is:
+\layout Standard
+
+
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+nopagebreak
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset Formula \begin{equation}
+I(M,i,z)=M\cdot R(z)\cdot (i+1)\label{EQU:effort_{2}}\end{equation}
+
+\end_inset 
+
+
+\layout Standard
+
+This method is useful for comparing results between experiments that use
+ different numbers of generations or different population sizes.
+ It has been pointed out that this method has some weaknesses 
+\begin_inset LatexCommand \cite{christensen:2002}
+
+\end_inset 
+
+ when used with a limited number of runs, and that to obtain robust results,
+ the number of runs used to calculate the probabilities should be increased
+ from the usual 50 by a factor of at least 10.
+\layout Standard
+
+Miller and 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbstart
+\end_inset 
+
+ Thomson 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbend
+\end_inset 
+
+ in 
+\begin_inset LatexCommand \cite{miller:2000:CGP}
+
+\end_inset 
+
+ argue that the commonly used measure of effort (Equation 
+\begin_inset LatexCommand \ref{EQN:effort_{1}}
+
+\end_inset 
+
+) is really a prediction of a future experiment, rather than a measure of
+ an experiment that has already been performed, and they propose a new method
+ called 
+\emph on 
+hit effort
+\emph default 
+.
+ 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbstart 
+\end_inset 
+
+A hit is recorded for a run of a GP system when the GP system finds a correct
+ solution to the problem.
+ 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbend
+\end_inset 
+
+ Using this method, an experiment is repeated for a number of runs.
+ Over these runs, if 
+\begin_inset Formula $n$
+\end_inset 
+
+ evaluations are performed, and there are 
+\begin_inset Formula $h$
+\end_inset 
+
+ hits, then the hit effort 
+\begin_inset Formula $e$
+\end_inset 
+
+ is given by:
+\layout Standard
+
+
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+nopagebreak
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset Formula \begin{equation}
+e=\frac{n}{h}\label{EQN:hit_{e}ffort}\end{equation}
+
+\end_inset 
+
+
+\layout Standard
+
+They show that this measure gave more stable results than Equation 
+\begin_inset LatexCommand \ref{EQN:effort_{1}}
+
+\end_inset 
+
+.
+ Clearly this equation is invalid if no hits are recorded.
+ This method is only useful for comparing results between experiments that
+ use the same number of generations and population size.
+\layout Standard
+
+Wall clock time is a measure of the elapsed time needed for a GP run, measured
+ in seconds, minutes, hours or some other time interval.
+ Most reports of elapsed time emphasise the fact that hard problems take
+ a long time.
+ Examples include Langdon's queue problem 
+\begin_inset LatexCommand \cite[p269]{langdon:book}
+
+\end_inset 
+
+ taking all day to run on a SUN workstation (speed not specified).
+ Koza and Bennett 
+\begin_inset LatexCommand \cite{koza:1999:aigp3}
+
+\end_inset 
+
+ using a 56 node Beowulf-style 
+\begin_inset LatexCommand \cite{sterling95beowulf}
+
+\end_inset 
+
+ cluster of 533\SpecialChar ~
+MHz DEC Alpha machines reported that it took 28.4 hours to
+ complete a run with a population size of 1,120,000.
+ In this case the fitness evaluation took the form of running circuit simulation
+s using a modified version of Spice 
+\begin_inset LatexCommand \cite{spice:2002}
+
+\end_inset 
+
+.
+ 
+\layout Standard
+
+This attribute is recorded as either the predicted number of chromosomes
+ (Predict), actual number of chromosomes (Actual) or None.
+ The numerical value is also recorded.
+\layout Subsection
+
+
+\begin_inset LatexCommand \label{sec:GP implementation details and parallelism}
+
+\end_inset 
+
+Implementation Details
+\layout Subsubsection*
+
+Class of GP platform (Plat)
+\layout Standard
+
+Almost all GP systems are realised as software running on general purpose
+ computers.
+ A list of some of the available packages is given in Table 
+\begin_inset LatexCommand \ref{table:GP Implementations}
+
+\end_inset 
+
+, and a comprehensive review at the 
+\emph on 
+Evonet
+\emph default 
+ site 
+\begin_inset LatexCommand \cite{evonet:2002:gppackages}
+
+\end_inset 
+
+.
+\begin_inset Float table
+placement H
+wide false
+collapsed false
+
+\layout ShortCaption
+
+Popular software implementations of GP systems
+\layout Caption
+
+
+\begin_inset LatexCommand \label{table:GP Implementations}
+
+\end_inset 
+
+Popular software implementations of GP systems
+\layout Standard
+
+
+\begin_inset  Tabular
+<lyxtabular version="3" rows="17" columns="4">
+<features>
+<column alignment="left" valignment="top" width="2.7cm">
+<column alignment="left" valignment="top" width="2.3cm">
+<column alignment="left" valignment="top" width="4.5cm">
+<column alignment="left" valignment="top" width="3.5cm">
+<row topline="true" bottomline="true">
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Name
+\end_inset 
+</cell>
+<cell alignment="left" valignment="top" topline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Language
+\end_inset 
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Comments
+\end_inset 
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Reference
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+LISP Kernel
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+LISP
+\end_inset 
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+The original code from Koza's first book.
+\end_inset 
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\begin_inset LatexCommand \cite{koza:book}
+
+\end_inset 
+
+
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+lilgp
+\end_inset 
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+C
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+A C implementation of the work described in 
+\begin_inset LatexCommand \cite{koza:book}
+
+\end_inset 
+
+ with additions.
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\begin_inset LatexCommand \cite{zonger:1996:lilgp-a}
+
+\end_inset 
+
+
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Gpc++
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+C++
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+A strongly Object Oriented based implementation.
+ 
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\begin_inset LatexCommand \cite{Weinbrenner:2002}
+
+\end_inset 
+
+
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+GP-COM
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+raggedright
+\end_inset 
+
+ C++, Tcl, Tk
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Component based system with GUI.
+ 
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\begin_inset LatexCommand \cite{Harris:1996:gpcom}
+
+\end_inset 
+
+
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Gpquick
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+C++
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Simple GP system written in C++ by Andy Singleton.
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\begin_inset LatexCommand \cite{singleton:byte}
+
+\end_inset 
+
+
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+GPDATA
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+C++
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Extensively modified version of GPquick to support data structures plus
+ much more.
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\begin_inset LatexCommand \cite{gpdata:2002}
+
+\end_inset 
+
+
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Gpsys
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Java
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+A Java 2 based Genetic Programming system
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\begin_inset LatexCommand \cite{gpsys:2000}
+
+\end_inset 
+
+
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Gpjpp
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Java
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+A Java implementation of the Gpc++ kernel 
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+SGPC
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+C
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Simple Genetic Programming in C.
+ Based on Koza's LISP code.
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\begin_inset LatexCommand \cite{tacket:1993}
+
+\end_inset 
+
+
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Vienna
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+C++
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\begin_inset LatexCommand \cite{vienna:2002}
+
+\end_inset 
+
+
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Gpeist
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Smalltalk
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\begin_inset LatexCommand \cite{gpeist:1994}
+
+\end_inset 
+
+
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+pushgp
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Java
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+A GP system that evolves programs in the Push programming language.
+ 
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\begin_inset LatexCommand \cite{pushgp:2002}
+
+\end_inset 
+
+
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+GPSRegress
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Mathematica
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Package to perform symbolic regression
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\begin_inset LatexCommand \cite{kinnear:nguyen}
+
+\end_inset 
+
+
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+GPS
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+C/C++
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Genetic Programming Studio.
+ An implementation of lilgp with a Microsoft Windows GUI interface.
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\begin_inset LatexCommand \cite{campo:novales:2002}
+
+\end_inset 
+
+
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+GPX/Abstractica
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Applies GP to the generation of abstract images.
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\begin_inset LatexCommand \cite{sims91a}
+
+\end_inset 
+
+
+\end_inset 
+</cell>
+</row>
+<row bottomline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+YAGPLIC
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+C
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Yet another genetic programming library in C
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\begin_inset LatexCommand \cite{blickle:1995:YAGPLIC}
+
+\end_inset 
+
+
+\end_inset 
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset 
+
+
+\end_inset 
+
+
+\layout Standard
+
+One alternative to using a standard general purpose CPU is to build a custom
+ CPU that contains instructions that have been optimised for the task.
+ Koizumi 
+\shape italic 
+et al.
+
+\shape default 
+ 
+\begin_inset LatexCommand \cite{koizumi:2001}
+
+\end_inset 
+
+ describe a 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+ac{RISC}
+\end_inset 
+
+ processor designed for 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbstart 
+\end_inset 
+
+GAs
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbend
+\end_inset 
+
+.
+ This processor has been designed using 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+ac{ASIC}
+\end_inset 
+
+ technology and implements special instructions that perform some common
+ operations found in 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbstart 
+\end_inset 
+
+GAs
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbend
+\end_inset 
+
+, including a single cycle random number generator, instructions for operating
+ on partial words, and some instructions that operate on more than one operand
+ at a time.
+ The latter are called 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+ac{SIMD}
+\end_inset 
+
+ operations.
+ They predict a clock speed of 100\SpecialChar ~
+MHz using a 0.35\SpecialChar ~
+
+\begin_inset Formula $\mu $
+\end_inset 
+
+m CMOS process.
+ 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbstart 
+\end_inset 
+
+ The predicted speed falls short of modern general purpose processors that
+ run at over 2\SpecialChar ~
+GHz and so it is questionable if this approach would deliver
+ a useful speedup.
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbend
+\end_inset 
+
+
+\layout Standard
+
+Another approach is the realisation of the evolutionary computation process
+ itself in hardware.
+ A 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+ac{VLSI}
+\end_inset 
+
+ system has been proposed by Yoshida 
+\shape italic 
+et al.
+
+\shape default 
+ 
+\begin_inset LatexCommand \cite{yoshida:2001}
+
+\end_inset 
+
+ which implements a parallel GA machine using two VLSI devices.
+ Examples of previously reported GP systems that use custom hardware in
+ the form of 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+ac{FPGA}
+\end_inset 
+
+s are: Heywood 
+\begin_inset LatexCommand \cite{heywood:2000:rbGPFPGA}
+
+\end_inset 
+
+ where the FPGA is used to accelerate the fitness evaluation of GP and Sidhu
+ 
+\shape italic 
+et al.
+
+\shape default 
+ 
+\begin_inset LatexCommand \cite{sidhu:1999}
+
+\end_inset 
+
+.
+ This is an area that is reviewed in more detail in Chapter 
+\begin_inset LatexCommand \ref{main:FPGAs and HandelC}
+
+\end_inset 
+
+ and studied in depth in Chapters 
+\begin_inset LatexCommand \ref{main:implementation}
+
+\end_inset 
+
+ and 
+\begin_inset LatexCommand \ref{main:Optimised implementation}
+
+\end_inset 
+
+ of this thesis.
+\layout Standard
+
+
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+noindent 
+\end_inset 
+
+Plat
+\begin_inset Formula $\in $
+\end_inset 
+
+{Soft, Hard, Hybrid}.
+\layout Subsubsection*
+
+Fitness case implementation (Fimpl)
+\layout Standard
+
+There is a range of different fitness case implementations reported.
+ These implementations include intrinsic (built-in to the Genetic Programming
+ system), extrinsic (external circuit simulators 
+\begin_inset LatexCommand \cite{koza:1996:adtsaec}
+
+\end_inset 
+
+, specialised processing devices 
+\begin_inset LatexCommand \cite{koza:1998:ecprrFPGAgp}
+
+\end_inset 
+
+ and physical entities such as robots 
+\begin_inset LatexCommand \cite{langdon:2001}
+
+\end_inset 
+
+) or hybrid systems.
+ 
+\layout Standard
+
+
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+noindent 
+\end_inset 
+
+Fimpl
+\begin_inset Formula $\in $
+\end_inset 
+
+{Intrinsic, Extrinsic, Hybrid}.
+\layout Subsubsection*
+
+Parallelisation of GP (Par)
+\layout Standard
+
+GP may be run on single machines, but it is well known that GP and other
+ evolutionary computing techniques are highly parallelisable and exploiting
+ this parallelism can result in substantial performance improvements.
+ Cantu-Paz 
+\begin_inset LatexCommand \cite{GA:CP98-Cantu-Paz}
+
+\end_inset 
+
+ surveyed parallel GA algorithms in depth and proposed four classifications
+ of parallel 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbstart 
+\end_inset 
+
+GAs
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbend
+\end_inset 
+
+.
+ A uniform taxonomy of parallel Genetic Algorithms has been proposed by
+ Nowostawski and Poli 
+\begin_inset LatexCommand \cite{Nowostawski:1999}
+
+\end_inset 
+
+, which extended the number of classes of parallel GAs to eight (Table 
+\begin_inset LatexCommand \ref{table:nowostawski ga taxonomy}
+
+\end_inset 
+
+):
+\begin_inset Float table
+placement htbp
+wide false
+collapsed false
+
+\layout ShortCaption
+
+A uniform taxonomy of parallel genetic algorithms
+\layout Caption
+
+
+\begin_inset LatexCommand \label{table:nowostawski ga taxonomy}
+
+\end_inset 
+
+A uniform taxonomy of parallel genetic algorithms from Nowostawski 
+\begin_inset LatexCommand \cite{Nowostawski:1999}
+
+\end_inset 
+
+.
+\layout Standard
+\align center 
+
+\begin_inset  Tabular
+<lyxtabular version="3" rows="8" columns="1">
+<features>
+<column alignment="left" valignment="top" width="8cm">
+<row topline="true">
+<cell alignment="left" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+master-slave 
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+static subpopulations with migration
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+static overlapping subpopulations without migration
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+massively parallel genetic algorithms
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+dynamic demes
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+parallel steady-state 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbstart 
+\end_inset 
+
+GAs
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbend
+\end_inset 
+
+
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+parallel messy 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbstart 
+\end_inset 
+
+GAs
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbend
+\end_inset 
+
+
+\end_inset 
+</cell>
+</row>
+<row bottomline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+hybrid methods
+\end_inset 
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset 
+
+
+\end_inset 
+
+
+\layout Standard
+
+Various examples of parallel GP exist, for example the work by Andre and
+ Koza 
+\begin_inset LatexCommand \cite{andre:1996:aigp2}
+
+\end_inset 
+
+ used a network of Transputers, while Chong and Langdon 
+\begin_inset LatexCommand \cite{chong:1999:jDGPi}
+
+\end_inset 
+
+ explored how the computing resources that are potentially available on
+ the internet could be exploited.
+ Other examples of parallel GP include the work done by Koza 
+\shape italic 
+et al.
+
+\shape default 
+ 
+\begin_inset LatexCommand \cite{koza:2000:ecfvGP}
+
+\end_inset 
+
+ which used a thousand standard Pentium PCs, and the use of a massively
+ parallel 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+ac{SIMD}
+\end_inset 
+
+ machine by Juille and Pollack 
+\begin_inset LatexCommand \cite{pollack:1996:aigp2}
+
+\end_inset 
+
+.
+ Fernandez and Tomassini have explored the use of parallel GP for several
+ applications 
+\begin_inset LatexCommand \cite{fernandez:1999:SAEP}
+
+\end_inset 
+
+
+\begin_inset LatexCommand \cite{fernandez:2000:GA}
+
+\end_inset 
+
+
+\begin_inset LatexCommand \cite{fernandez:2000:esmpGP}
+
+\end_inset 
+
+.
+ This attribute uses the eight categorisations from 
+\begin_inset LatexCommand \cite{Nowostawski:1999}
+
+\end_inset 
+
+.
+\layout Standard
+
+
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+noindent
+\end_inset 
+
+ Par 
+\begin_inset Formula $\in $
+\end_inset 
+
+ {MasterSlave, StaticMigrate, Static, Massive, Dynamic, SteadyState, Messy,
+ Hybrid,None}.
+\layout Section
+
+
+\begin_inset LatexCommand \label{sec:Taxonomy-Summary-Table}
+
+\end_inset 
+
+A Summary of the Taxonomy
+\layout Standard
+
+All the attributes discussed in the previous section are summarised in Table
+ 
+\begin_inset LatexCommand \vref{table:Summary of attributes}
+
+\end_inset 
+
+ which shows the attribute names, the abbreviations used, and the type and
+ range of the data.
+ This table representation of the attributes of GP also lends itself to
+ describing a GP problem in more detail than the standard tableau first
+ introduced by Koza in 
+\begin_inset LatexCommand \cite{koza:book}
+
+\end_inset 
+
+, and has been used to describe the problems used in the rest of this thesis.
+ The problems are described in Appendix 
+\begin_inset LatexCommand \ref{main:Problem details}
+
+\end_inset 
+
+.
+\begin_inset Float table
+placement H
+wide false
+collapsed false
+
+\layout Caption
+
+
+\begin_inset LatexCommand \label{table:Summary of attributes}
+
+\end_inset 
+
+Summary of the attributes of GP and their characteristics.
+\layout Standard
+
+
+\begin_inset  Tabular
+<lyxtabular version="3" rows="36" columns="3">
+<features>
+<column alignment="left" valignment="top" width="5cm">
+<column alignment="left" valignment="top" width="0pt">
+<column alignment="left" valignment="top" width="5cm">
+<row topline="true" bottomline="true">
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Category 
+\end_inset 
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Abbreviation
+\end_inset 
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Types and range of values
+\end_inset 
+</cell>
+</row>
+<row topline="true" bottomline="true">
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\series bold 
+\SpecialChar ~
+\SpecialChar ~
+\SpecialChar ~
+\SpecialChar ~
+EXTERNAL
+\end_inset 
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+\end_inset 
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Problem category 
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Pcat 
+\end_inset 
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+From the set Pcat 
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Formal specification
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Fml
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+From the set Fml
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Number of fitness cases
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+NFIT
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Integer 
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Language
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Lang
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+From the set Lang
+\end_inset 
+</cell>
+</row>
+<row topline="true" bottomline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\series bold 
+\SpecialChar ~
+\SpecialChar ~
+\SpecialChar ~
+\SpecialChar ~
+GP SPECIFIC
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Function set size
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+F
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Integer
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Function set abstraction
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Abs
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+From the set Abs
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Terminal set size (T)  
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+T
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Integer
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Automatic feature discovery
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+ADF
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+True/False
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Memory 
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Mem
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+From the set Mem
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Program representation
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Rep
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+From the set Rep
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Polymorphism and data typing
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Typ
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+From the set Typ
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Representation mapping
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Map
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+From the set Map
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Crossover operator
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+X%
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Real
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Xmod
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+True/False
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Mutation operator
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+M%
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Real
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Mmod
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+True/False
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Reproduction operator
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+R%
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Real
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Rmod
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+True/False
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Creation method
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Crt
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+From the set Crt
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Seeding
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Seed
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+True/False
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Population size
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+M
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Integer
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Generations
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+G
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Integer
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Selection method
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Sel
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+From the set Sel
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Generational method
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Gen
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+From the set Gen
+\end_inset 
+</cell>
+</row>
+<row topline="true" bottomline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\series bold 
+\SpecialChar ~
+\SpecialChar ~
+\SpecialChar ~
+\SpecialChar ~
+RESULTS 
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Program size 
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Size
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Integer
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Successful
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Sucs
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+True/False 
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Effort
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Effrt
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Real
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Wall clock time
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Time
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Real
+\end_inset 
+</cell>
+</row>
+<row topline="true" bottomline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\series bold 
+\SpecialChar ~
+\SpecialChar ~
+\SpecialChar ~
+\SpecialChar ~
+IMPLEMENTATION
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Class of GP platform
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Plat
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+From the set Plat
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Fitness function implementation
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Fimpl
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+From the set Fimpl
+\end_inset 
+</cell>
+</row>
+<row bottomline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Model of parallelisation
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Par
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+From the set Par
+\end_inset 
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset 
+
+
+\end_inset 
+
+
+\layout Standard
+
+The attributes have been used to construct a tree based taxonomy, where
+ the 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbstart 
+\end_inset 
+
+ four 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbend
+\end_inset 
+
+ main categories of attributes form 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbstart 
+\end_inset 
+
+ four principal 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbend
+\end_inset 
+
+ sub-divisions.
+ The major attributes are then placed within each 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbstart 
+\end_inset 
+
+ subdivision
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbend
+\end_inset 
+
+.
+ Where appropriate, the attributes have then been 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbstart 
+\end_inset 
+
+ subdivided 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbend
+\end_inset 
+
+ further into 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbstart 
+\end_inset 
+
+ subcategories
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbend
+\end_inset 
+
+.
+ The taxonomy is shown in Figure 
+\begin_inset LatexCommand \vref{fig:Taxonomy of GP}
+
+\end_inset 
+
+.
+ 
+\begin_inset Float figure
+placement htbp
+wide false
+collapsed false
+
+\layout Standard
+\align center 
+
+\begin_inset Graphics FormatVersion 1
+	filename images/taxonomy-chart.eps
+	display color
+	size_type 1
+	width 15.2cm
+	keepAspectRatio
+	rotateAngle 90
+	rotateOrigin center
+	lyxsize_type 1
+	lyxheight 8in
+\end_inset 
+
+
+\layout Caption
+
+
+\begin_inset LatexCommand \label{fig:Taxonomy of GP}
+
+\end_inset 
+
+A tree based taxonomy of the attributes of Genetic Programming
+\end_inset 
+
+
+\layout Section
+
+Results and Discussion
+\layout Subsection
+
+An Analysis of the Raw Data
+\layout Standard
+
+This section gives five examples of how the data used to build the taxonomy
+ can be used to obtain quantifiable data on how GP has been used.
+ The raw data has been used to obtain: the distribution of application areas,
+ a measure of the sizes of typical programs using GP, the number of generations
+ used, the split between hardware and software implementations, and the
+ range of population sizes.
+ These were chosen to see how useful these measures were as attributes of
+ a taxonomy.
+ 
+\layout Standard
+
+
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+input{sizes.tex}
+\end_inset 
+
+
+\layout Standard
+
+The distribution of top level problem categories is shown in Figure 
+\begin_inset LatexCommand \ref{fig:distribution}
+
+\end_inset 
+
+.
+ 
+\begin_inset Float figure
+placement htbp
+wide false
+collapsed false
+
+\layout Standard
+\align center 
+
+\begin_inset Graphics FormatVersion 1
+	filename images/Categories.eps
+	display color
+	size_type 1
+	width 9cm
+	keepAspectRatio
+	rotateOrigin center
+	lyxsize_type 0
+	lyxwidth 6cm
+
+\end_inset 
+
+
+\layout Caption
+
+
+\begin_inset LatexCommand \label{fig:distribution}
+
+\end_inset 
+
+Distribution of top level problem categories for 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+arabic{tablerows}
+\end_inset 
+
+ examples of GP.
+\end_inset 
+
+ Although there is a bias towards the classification, control and regression
+ problems, none of the categories dominate.
+ The spread of program sizes is shown in Figure 
+\begin_inset LatexCommand \ref{fig:program sizes}
+
+\end_inset 
+
+.
+ One conclusion we can draw from this result is that for the most part GP
+ has been restricted to solving problems that require a modest sized program
+ and is indicative of the obstacles that face GP when trying to scale up
+ to produce large programs.
+\layout Standard
+
+
+\begin_inset Float figure
+placement htbp
+wide false
+collapsed false
+
+\layout Standard
+\align center 
+
+\begin_inset Graphics FormatVersion 1
+	filename images/progsizes.eps
+	display color
+	size_type 1
+	width 9cm
+	keepAspectRatio
+	rotateOrigin center
+	lyxsize_type 0
+	lyxwidth 141pt
+	lyxheight 141pt
+\end_inset 
+
+
+\layout Caption
+
+
+\begin_inset LatexCommand \label{fig:program sizes}
+
+\end_inset 
+
+Spread of program sizes found in 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+arabic{progsizes}
+\end_inset 
+
+ Genetic Programming examples
+\end_inset 
+
+ The number of generations that the problems were run for is plotted in
+ Figure 
+\begin_inset LatexCommand \ref{cap:Number-of-generations}
+
+\end_inset 
+
+.
+ This shows that the majority of problems analysed required less than 125
+ generations.
+ 
+\begin_inset Float figure
+placement htbp
+wide false
+collapsed false
+
+\layout Standard
+\align center 
+
+\begin_inset Graphics FormatVersion 1
+	filename images/Generations.eps
+	display default
+	size_type 1
+	width 9cm
+	rotateOrigin center
+	lyxsize_type 0
+	lyxwidth 6cm
+
+\end_inset 
+
+
+\layout Caption
+
+
+\begin_inset LatexCommand \label{cap:Number-of-generations}
+
+\end_inset 
+
+Number of generations for 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+arabic{Generations}
+\end_inset 
+
+ problems.
+\end_inset 
+
+
+\layout Standard
+
+From 131 examples used to construct the taxonomy only three have used hardware
+ for all or part of the implementation.
+ 
+\layout Standard
+
+The population sizes used in the experiments is shown in Figure 
+\begin_inset LatexCommand \ref{cap:Population-sizes-for}
+
+\end_inset 
+
+.
+ This shows that almost all problems have used population sizes 50\SpecialChar ~
+000 or
+ less.
+ 
+\begin_inset Float figure
+placement htbp
+wide false
+collapsed false
+
+\layout Standard
+\align center 
+
+\begin_inset Graphics FormatVersion 1
+	filename images/Populationsizes.eps
+	display default
+	size_type 1
+	width 9cm
+	keepAspectRatio
+	rotateOrigin center
+	lyxsize_type 0
+	lyxwidth 5cm
+
+\end_inset 
+
+
+\layout Caption
+
+
+\begin_inset LatexCommand \label{cap:Population-sizes-for}
+
+\end_inset 
+
+Population sizes for 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+arabic{Populationsizes}
+\end_inset 
+
+ problems.
+\end_inset 
+
+
+\layout Standard
+
+However, Figure 
+\begin_inset LatexCommand \ref{cap:Population-sizes-for}
+
+\end_inset 
+
+ does not show the details of the population sizes for the majority of problems,
+ so Figure 
+\begin_inset LatexCommand \ref{cap:Population-sizes-where}
+
+\end_inset 
+
+ shows the population size distribution for sizes less than 10\SpecialChar ~
+000.
+ This shows that the majority of population sizes used in the reported experimen
+ts are less than 1000.
+\layout Standard
+
+
+\begin_inset Float figure
+placement htbp
+wide false
+collapsed false
+
+\layout Standard
+\align center 
+
+\begin_inset Graphics FormatVersion 1
+	filename images/Populationsizes-II.eps
+	display default
+	size_type 1
+	width 9cm
+	keepAspectRatio
+	rotateOrigin center
+	lyxsize_type 0
+
+\end_inset 
+
+
+\layout Caption
+
+
+\begin_inset LatexCommand \label{cap:Population-sizes-where}
+
+\end_inset 
+
+Population sizes for the 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+arabic{Populationsizes-II}
+\end_inset 
+
+ problems where the size is less than 10\SpecialChar ~
+000.
+\end_inset 
+
+
+\layout Standard
+
+The examples in this section are by no means exhaustive, but they show the
+ utility of the taxonomy when analysing GP.
+ 
+\layout Subsection
+
+Conformance to Original Criteria
+\layout Standard
+
+The taxonomy presented in this chapter has been constructed with the characteris
+tics in Section 
+\begin_inset LatexCommand \ref{sub:Characteristics-of-a-good-taxonomy}
+
+\end_inset 
+
+ in mind.
+ To date, the first four criteria (mutually exclusive, exhaustive, unambiguous
+ and repeatable) have largely been met, in that the number of categories
+ available covers all examples of GP that have been analysed.
+ Number 5 (accepted) is for others to judge.
+ Number 6 (useful) can be judged from the fact that the strong software
+ bias of GP implementations can be quantitatively shown.
+ Number 7 (expandable) is addressed in Section 
+\begin_inset LatexCommand \ref{sec:extending categories}
+
+\end_inset 
+
+.
+ It is hoped that the taxonomy will prove to be useful in identifying other
+ areas of research.
+\layout Subsection
+
+
+\begin_inset LatexCommand \label{sub:Meta-Genetic-Programming}
+
+\end_inset 
+
+Meta Genetic Programming
+\layout Standard
+
+Despite the impression given by some of the literature on GP, running an
+ instance of the GP algorithm is only part of a process.
+ Koza 
+\begin_inset LatexCommand \cite[p121]{koza:book}
+
+\end_inset 
+
+ enumerates 5 steps needed to operate GP: 1) determining the set of parameters,
+ 2) determining the set of functions, 3) determining the fitness measure,
+ 4) determining the parameters and variables for controlling the run, and
+ 5) determining the method of designating a result and the criterion for
+ terminating a run.
+ In later work 
+\begin_inset LatexCommand \cite{koza:gp2}
+
+\end_inset 
+
+, an additional step is used: 6) determining the programs
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbstart 
+\end_inset 
+
+' 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbend
+\end_inset 
+
+ architecture.
+ In reality however, it is unusual that using GP would be a linear step
+ by step process.
+ It is likely that for many examples of GP the parameters have been found
+ by trial and error until the system produced acceptable results, or that
+ particular parameters were changed to get a particular result.
+ This fact is not always acknowledged in the reports of running GP experiments,
+ though some authors do explicitly report the fact, for example 
+\begin_inset LatexCommand \cite{poli:2000:22par}
+
+\end_inset 
+
+.
+ 
+\layout Standard
+
+Despite continuing advances in the theory of evolutionary techniques in
+ general, and GP in particular, there is a general lack of robust theoretically
+ based rules for determining parameter values.
+ One exception is the development of general schema theories 
+\begin_inset LatexCommand \cite{poli:2001:EuroGP_general}
+
+\end_inset 
+
+
+\begin_inset LatexCommand \cite{poli:2001:EuroGP_exact}
+
+\end_inset 
+
+.
+ An application of the schema theory shows how the choice of breeding operators
+ and their proportions can be made to meet certain structural goals during
+ a run of GP 
+\begin_inset LatexCommand \cite{mcphee:2002}
+
+\end_inset 
+
+.
+ There is also a limited amount of cross problem analysis of parameter settings
+ available from experimental results.
+ Most studies into parameter selection focus on a single problem or a limited
+ set of problems.
+ While this gives valuable insight into particular aspects of GP, it does
+ not help practitioners who want to apply GP to hitherto untried problems.
+ One helpful set of guidelines has been provided by Banzhaf 
+\shape italic 
+et al.
+
+\shape default 
+ 
+\begin_inset LatexCommand \cite[(pp 334-338)]{banzhaf:1997:book}
+
+\end_inset 
+
+, giving the practitioner a few rules of thumb in choosing function and
+ terminal sets, mutation and crossover rates and allowable depth of the
+ program trees.
+ One of the problems faced by practitioners is that the search space of
+ viable parameters is large and that changing one parameter by a small amount,
+ for example the number of generations to run, will cause other effects
+ come into play, such as extended run time or a complete failure to find
+ a solution.
+\layout Standard
+
+The process of modifying the parameters during a GP experiment can be seen
+ as a form of Meta-GP.
+ In practice, the results of an experiment are used to help modify one or
+ more of the GP parameters identified in the preceding sections.
+ A flow chart of this meta GP process is shown in Figure 
+\begin_inset LatexCommand \ref{fig:meta GP}
+
+\end_inset 
+
+.
+\layout Standard
+
+
+\begin_inset Float figure
+placement htbp
+wide false
+collapsed false
+
+\layout Standard
+\align center 
+
+\begin_inset Graphics FormatVersion 1
+	filename images/metagp.eps
+	display color
+	size_type 1
+	height 12cm
+	rotateOrigin center
+	lyxsize_type 1
+	lyxwidth 424pt
+	lyxheight 340pt
+\end_inset 
+
+
+\layout Caption
+
+
+\begin_inset LatexCommand \label{fig:meta GP}
+
+\end_inset 
+
+Flow chart for the meta GP process.
+\end_inset 
+
+The initial choice of function set, terminal set, fitness function and operation
+al parameters will probably be based on previous examples of using GP, and
+ on the specialised domain knowledge of the user.
+ After the first experimental run, the choice of which of the many parameters
+ to change, or whether the function set, terminal set, or fitness function
+ should be modified is driven by 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbstart 
+\end_inset 
+
+ observations about how the population and individuals behave as well as
+ 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbend
+\end_inset 
+
+ the quality of the result obtained from the previous runs.
+ In this way, over the lifetime of running a GP experiment, an evolutionary
+ approach is used initially to find the set of primitives needed, and then
+ to tune the operational parameters.
+\layout Standard
+
+Generally, Meta-GP takes the form of an iterative process that involves
+ the (human) implementor of a GP system, but several examples where GP has
+ been used to evolve settings of some of the parameters have been published.
+ For example, Kantschik 
+\begin_inset LatexCommand \cite{kantschik:1999:m-egGP}
+
+\end_inset 
+
+ used GP to evolve an improved set of operators, and a precursor to standard
+ GP by Schmidhuber 
+\begin_inset LatexCommand \cite[(pp 7-13)]{Schmidhuber:1987}
+
+\end_inset 
+
+ used a GP like system that recursively improved its performance.
+ 
+\layout Standard
+
+Of course, the idea 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbstart 
+\end_inset 
+
+ of 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbend
+\end_inset 
+
+ an evolutionary approach to problem solving is not new.
+ Fogel, Owens and Walsh 
+\begin_inset LatexCommand \cite{fogel:1966}
+
+\end_inset 
+
+ suggested that the scientific method is an evolutionary process, and the
+ adoption of evolutionary techniques in software engineering is well established
+, for example 
+\begin_inset LatexCommand \cite{Stevens:1998}
+
+\end_inset 
+
+ and 
+\begin_inset LatexCommand \cite{sommerville:1997}
+
+\end_inset 
+
+.
+ There is a parallel between a mechanical evolutionary system such as GP
+ or ADATE 
+\begin_inset LatexCommand \cite{olsson:1995}
+
+\end_inset 
+
+ and human centred techniques that use an evolutionary approach, including
+ Meta-GP.
+ They both share an iterative invent-test-modify cycle that uses feedback
+ from previous results to refine the search.
+ In the case of GP, promising solutions are identified by their fitness,
+ and the modify phase is carried out by using one or more of the operators
+ commonly found in GP such as reproduction, crossover and mutation.
+ In Meta-GP, the identification of promising solutions is usually the acceptance
+ or rejection of the results of the latest experiment, often by comparing
+ partial results, analysing population dynamics or considering the rate
+ of convergence towards an acceptable solution.
+ The modification phase consists of a change to one or more of the attributes
+ of the system.
+ Despite these similarities, two important differences exist between GP
+ and Meta-GP.
+ Firstly, in the case of GP, a population of individuals is considered together,
+ while in Meta-GP, usually only one individual is considered at a time.
+ The second major difference is that repeated GP runs, given identical starting
+ conditions and a repeatable source of pseudo random numbers, will always
+ behave the same.
+ However, Meta-GP relies on characteristics that have not yet been encoded
+ in a computer program -- the creative ingenuity and intuitive leaps of
+ the user to select the initial starting conditions, identify fitness and
+ choose which parameters to change, and so will be less repeatable.
+\layout Subsection
+
+
+\begin_inset LatexCommand \label{sec:extending categories}
+
+\end_inset 
+
+Extending the Categories
+\layout Standard
+
+The taxonomy presented here has attempted to be exhaustive with respect
+ to GP problems, but there are arguably other attributes that could be added.
+ Examples of these include details of the problem specification, such as
+ the number of objectives that the problem has to meet or whether the problem
+ is known to be NP.
+ 
+\layout Standard
+
+Daida 
+\emph on 
+et al
+\emph default 
+.
+ 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cite{daida:1997:vrmGP}
+\end_inset 
+
+,
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cite{daida:1999:CVRMCGPGM}
+\end_inset 
+
+ showed that other parameters such as the range over which fitness values
+ are spread, or the random number generator algorithm used, can have a large
+ impact on the performance of GP, and so should also be considered for the
+ taxonomy.
+\layout Standard
+
+It is recognised that representations and operators are probably the most
+ commonly studied and reported of the GP specific attributes, and that the
+ proposed classification of these attributes is rather limited.
+ The taxonomy would benefit from a further refinement of these attributes.
+\layout Section
+
+Summary
+\layout Standard
+
+Following a historical review of the precursors to GP, this chapter presented
+ a review of standard GP which showed that GP has many parameters and settings
+ that must be chosen if GP is to find an acceptable solution to a problem.
+ From the review it is also clear that there have been many modifications
+ made to standard GP.
+ This prompted a more detailed review of the many attributes associated
+ with GP with a view to grouping related attributes into a taxonomy.
+ One result of constructing the taxonomy is that it provides a formalism
+ to describe a GP problem in more detail than the standard tableau.
+ The data used to construct the taxonomy also allows the discovery of some
+ general features of the problems for which GP has been used.
+ Five examples have been presented showing the spread of applications, the
+ distribution of program sizes, the range of population size, the different
+ numbers of generations used and the very strong bias towards software implement
+ations of GP.
+\layout Standard
+
+Practical experience has shown that running GP is not simply a case of choosing
+ a few attribute values and setting the GP system running.
+ Using GP is part of a larger process, called Meta-GP.
+ Meta-GP is an iterative and interactive process, so the time needed to
+ execute the core GP algorithm is important.
+ Because there is always a finite amount of time in which to carry out experimen
+ts, a problem that takes a long time to run means there is less opportunity
+ to modify a GP system.
+ Speeding up the core GP algorithm should allow more time to find a set
+ of attributes that performs adequately.
+ Therefore, there is a real incentive to reduce the run time of a GP system.
+ Implementing GP in hardware is a way of tackling the problem of long run
+ times, and one that has to date been rather less well explored than software
+ only GP systems.
+ 
+\the_end

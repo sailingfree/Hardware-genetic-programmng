@@ -1,0 +1,141 @@
+
+
+
+
+<fontfamily><param>Times</param><bigger><bigger>Dear GECCO-2002
+Participant,
+
+
+This message confirms your reservation at PACE University housing for
+the dates specified below. Please review all the information carefully,
+including room type, arrival and departure dates and roommate selection
+(if applicable). Please notify me immediately of any changes or
+discrepancies. <bold>We will not be able to make any changes or
+cancellations to your reservation after June 14, 2002</bold>.
+
+
+NAME:Peter Martin
+
+ARRIVAL DATE: July 9
+
+DEPARTURE DATE: July 14
+
+RATE:  single 
+
+TOTAL NIGHTS: 5
+
+ROOMMATE(if applicable):  
+
+ 
+
+PACE University is located near the Brooklyn Bridge in the heart of the
+civic and financial center of New York City. Contact information for
+PACE is as follows:
+
+
+1 Pace Plaza
+
+New York, NY 10038
+
+(212) 346-1200
+
+Automated telephone directions: (212) 346-1133
+
+
+Upon arrival at PACE University, please check in at the Auxiliary
+Services Office located on the B-Level of One Pace Plaza. This part of
+the campus is most easily accessed from the Spruce and William street
+entrance. The phone number for the Auxiliary Services Office is (212)
+346-1015. Check in / check out is available during the hours of 9:00 am
+- 5:00 pm on weekdays and 9:00 am - 1:00 pm on weekends. Pace will be
+conduct extended check in hours on July 8th ONLY. On July 8th, the
+Auxiliary Services office will be open from 9:00 am to 11:00 pm for
+check in. Please keep in mind that summer staffing at PACE University
+is extremely limited. In order to guarantee that a staff person will be
+available to check you in or out of PACE, please be sure that your
+arrival and departure schedule coincides with the above mentioned
+times.
+
+
+<bold>DIRECTIONS TO PACE UNIVERSITY</bold>:
+
+
+It is suggested that you <bold>do not </bold>attempt to take public
+transportation from either JFK or LGA airports to PACE University,
+especially if you will be arriving late or carrying substantial
+luggage. Instead, it is recommended that you either take a cab (expect
+to pay approximately $35-40 one way) to PACE or use the New York
+Airport Service, a convenient and less expensive shuttle service which
+provides transportation from both JFK and LGA airports to downtown
+Manhattan and various other locations. Shuttles depart approximately
+every half-hour from both airports, beginning at about 6:30 am and
+running until 11:00 pm. Signs for the shuttle service are located
+outside of baggage claim areas.  
+
+
+Perhaps the least expensive, yet still convenient, option is to take
+the New York Airport Service to Grand Central Station (approximately
+$10.00 one way) and then take a cab from Grand Central to PACE
+University (approximately $7.00 one way). It is slightly less expensive
+if you reserve your shuttle trip on-line, though their website! For
+more information, including schedules, sample fares and online
+reservations, see:
+
+
+http://www.nyairportservice.com/index.html
+
+
+Getting from PACE University to the GECCO-2002 headquarters located at
+the Roosevelt is generally safe and convenient via public
+transportation. The closest subway stops to PACE University are Park
+Place (#1 or #2 train) or Brooklyn Bridge/City Hall Park (#4 or #5
+train). The Roosevelt Hotel is directly across the street from Grand
+Central Station, which is on the same line as the #4 and #5 train or
+one transfer from the #1 or #2 line<bold>. For up-to-date schedules,
+fares and maps for New York City subway and buses</bold>, see:
+
+
+<underline><color><param>0000,0000,00FF</param>http://www.mta.nyc.ny.us
+
+
+</color></underline>Also, attached is an information sheet provided by
+PACE University to help answer some of your questions concerning their
+housing set-up, rules and helpful suggestions for out-of-town
+travelers. 
+
+
+Please feel free to contact me should you have any further questions. I
+look forward to seeing you in New York!
+
+
+Sincerely,
+
+
+Elizabeth Ericson
+
+Conference Coordinator       
+
+  
+
+  
+
+
+</bigger></bigger></fontfamily>_________________________________________________
+
+Elizabeth Ericson
+
+Conference Coordinator
+
+American Association for Artificial Intelligence 
+
+445 Burgess Drive
+
+Menlo Park, CA 94025
+
+Tel: 650-328-3123 
+
+Fax: 650-321-4457 
+
+ericson@aaai.org
+
+_________________________________________________ 

@@ -1,0 +1,22 @@
+# Auto-generated parameter file for experiment fit-dual
+app.trail = santafe.trl
+app.maxtime = 400
+max_generations = 50
+pop_size = 1024
+output.basename = fit-dual
+# how to generate the initial population
+init.method = full
+init.depth = 6-6
+init.random_attempts = 1000
+# limits on tree size.
+#max_depth = 17
+## breeding parameters (emulates Koza Ch. 7)
+breed_phases = 2
+breed[1].operator = crossover, select=fitness_overselect
+breed[1].rate = 0.9
+breed[2].operator = reproduction, select=fitness_overselect
+breed[2].rate = 0.1
+dofitness = yes
+keep_trying1 = yes
+keep_trying2 = yes
+max_nodes = 100000

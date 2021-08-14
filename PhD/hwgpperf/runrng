@@ -1,0 +1,68 @@
+#!/usr/bin/perl -w
+##########################################################################
+# Perl script to run the standalone random number generators and create 
+# plots of the v(t0, v(t+1) serial
+##########################################################################
+
+$cmds="plotcmds";
+
+runserial('lfsrrng', ' -v', 'lfsrrng_1', 'lfsr rng');
+runserial('lfsrrng', ' -v -s', 'lfsrrng_skip', 'lfsr rng with skip');
+
+runserial('lcarng', ' -v', 'lcarng_1', 'lca rng');
+runserial('lcarng', ' -v -s', 'lcarng_skip', 'lca rng with skip');
+
+
+
+sub runserial {
+    my $prog  = shift(@_);
+    my $pargs = shift(@_);
+    my $exp   = shift(@_);
+
+    unlink $prog;
+    open CC, "gcc -o $prog $prog.c -Wall -O7 |" || die "Failed to compile test";
+    close CC;
+
+    genserial($prog, $pargs, $exp);
+    plot($exp);
+}
+
+sub genserial {
+    my $prog  = shift(@_);
+    my $pargs = shift(@_);
+    my $exp   = shift(@_);
+    print "Running $prog $pargs\n";
+
+    open DAT, ">$exp.dat" || die "Cannot open $exp.dat";
+    open RUN, "./$prog $pargs|";
+    while(<RUN>) { 
+	print DAT $_;
+    }
+    close RUN;
+    close DAT;
+}
+
+sub plot {
+    my $exp = shift(@_);
+    
+    open GNUPLOT, ">$cmds" || die "Unable to create plot commands\n";
+#    print GNUPLOT "set title 'Serial test'\n";
+    print GNUPLOT "set xlabel 'v(t+1)'\n";
+    print GNUPLOT "set ylabel 'v(t)\n";
+#    print GNUPLOT "set ytics rotate\n";
+    print GNUPLOT "set xtics 1000000000\n";
+    print GNUPLOT "set ytics 1000000000\n";
+    print GNUPLOT "set mxtics\n";
+    print GNUPLOT "set mytics\n";
+    print GNUPLOT "set nokey\n";
+    print GNUPLOT "plot '$exp.dat' with points\n";
+    print GNUPLOT "set output '$exp.eps'\n";
+    print GNUPLOT "set term postscript eps 'Times-Roman' 26\n";
+    print GNUPLOT "pause 10\n";
+    print GNUPLOT "replot\n";
+    close GNUPLOT;
+
+    open PLOT, "|gnuplot $cmds";
+    close PLOT;
+
+}

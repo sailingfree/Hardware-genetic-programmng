@@ -1,0 +1,14 @@
+building function set(s):
+    set 0: if-food-ahead progn2 move move right left
+    tree 0 uses function set 0.
+    function set complete.
+    no random number seed specfied; using 9151.
+creating initial population(s):
+    1026 trees were generated to fill the population of 1024 (1024 trees).
+    initial population(s) complete.
+
+
+starting evolution.
+no checkpointing will be done.
+=== generation 0.
+    evaluation complete.  (1s wall)

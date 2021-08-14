@@ -1,0 +1,47 @@
+###
+### lilgpSetup v1.0
+### Machine Generated - DO NOT EDIT
+### Generation Date:
+###    Tue Dec 11 08:35:22 EST 2001
+###
+
+#
+# General Parameters
+#
+max_generations = 50
+pop_size = 1000
+random_seed = 1
+
+#
+# Output Parameters
+#
+output.basename = ant
+output.detail = 50
+output.stt_interval = 1
+output.bestn = 1
+output.digits = 4
+checkpoint.filename = gp%06d.ckp
+
+#
+# Size Limit Parameters
+#
+max_depth = 17
+
+#
+# Initialization Parameters
+#
+init.method = half_and_half
+init.depth = 2-6
+init.random_attempts = 100
+
+#
+# Breed Phase Parameters
+#
+probabilistic_operators = on
+breed_phases = 2
+
+breed[1].operator = crossover, select=fitness_overselect
+breed[1].rate = 0.9
+
+breed[2].operator = reproduction, select=fitness_overselect
+breed[2].rate = 0.1

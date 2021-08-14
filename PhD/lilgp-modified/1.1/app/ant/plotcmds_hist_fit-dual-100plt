@@ -1,0 +1,15 @@
+set title 'Lengths of 100% correct programs'
+set xlabel 'Program Length'
+set ylabel 'Frequency
+set ytics rotate
+set nokey
+maxy=1
+xpos=10
+ypos=maxy+1
+set yrange [0:maxy+(maxy/20)+2]
+set label '1 correct programs out of 1 runs' at 30,ypos right
+plot 'fit-dual-100.hist' with boxes
+set output 'fit-dual-100_lengths.eps'
+set term postscript eps 'Times-Roman' 24
+replot
+pause 2

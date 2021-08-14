@@ -1,0 +1,37 @@
+<!DOCTYPE svg ><svg width="595" height="841" >
+ <text x="-23" y="14" transform="matrix(1 0 0 1 256 62)" style="font-family:helvetica; font-size:14; fill:rgb(0,0,0)" >Source</text>
+ <text x="-17" y="31" transform="matrix(1 0 0 1 256 62)" style="font-family:helvetica; font-size:14; fill:rgb(0,0,0)" >Code</text>
+ <rect width="80" x="180" y="160" height="60" transform="matrix(1 0 0 1 -60 -1)" style="fill:none ; stroke:rgb(0,0,0) ; stroke-width:2.16" />
+ <text x="-25" y="14" transform="matrix(1 0 0 0.980392 160 163)" style="font-family:helvetica; font-size:14; fill:rgb(0,0,0)" >Compile</text>
+ <text x="-10" y="31" transform="matrix(1 0 0 0.980392 160 163)" style="font-family:helvetica; font-size:14; fill:rgb(0,0,0)" >for </text>
+ <text x="-29" y="48" transform="matrix(1 0 0 0.980392 160 163)" style="font-family:helvetica; font-size:14; fill:rgb(0,0,0)" >Simulator</text>
+ <rect width="80" x="120" y="260" height="60" transform="matrix(1 0 0 1 -1.78814e-06 0)" style="fill:none ; stroke:rgb(0,0,0) ; stroke-width:2.16" />
+ <text x="-27" y="14" transform="matrix(1 0 0 1 158 270)" style="font-family:helvetica; font-size:14; fill:rgb(0,0,0)" >Simulate</text>
+ <text x="-34" y="31" transform="matrix(1 0 0 1 158 270)" style="font-family:helvetica; font-size:14; fill:rgb(0,0,0)" >and debug</text>
+ <rect width="80" x="300" y="160" height="60" transform="matrix(1 0 0 1 1 -1)" style="fill:none ; stroke:rgb(0,0,0) ; stroke-width:2.16" />
+ <text x="-35" y="14" transform="matrix(1 0 0 1 341 165)" style="font-family:helvetica; font-size:14; fill:rgb(0,0,0)" >Compile to </text>
+ <text x="-19" y="31" transform="matrix(1 0 0 1 341 165)" style="font-family:helvetica; font-size:14; fill:rgb(0,0,0)" >netlist</text>
+ <rect width="80" x="300" y="260" height="60" style="fill:none ; stroke:rgb(0,0,0) ; stroke-width:2.16" />
+ <text x="-32" y="14" transform="matrix(1 0 0 1 338 270)" style="font-family:helvetica; font-size:14; fill:rgb(0,0,0)" >Place and</text>
+ <text x="-18" y="31" transform="matrix(1 0 0 1 338 270)" style="font-family:helvetica; font-size:14; fill:rgb(0,0,0)" >Route</text>
+ <rect width="80" x="300" y="360" height="60" style="fill:none ; stroke:rgb(0,0,0) ; stroke-width:2.16" />
+ <text x="0" y="14" transform="matrix(1 0 0 1 315 371)" style="font-family:helvetica; font-size:14; fill:rgb(0,0,0)" >Program </text>
+ <text x="0" y="31" transform="matrix(1 0 0 1 315 371)" style="font-family:helvetica; font-size:14; fill:rgb(0,0,0)" >FPGA</text>
+ <polyline points="340,160 260,120 160,160 160,160 " style="fill:none ; stroke:rgb(0,0,0) ; stroke-width:2.16" />
+ <polyline points="160,220 160,260 " style="fill:none ; stroke:rgb(0,0,0) ; stroke-width:2.16" />
+ <polyline points="340,220 340,260 " style="fill:none ; stroke:rgb(0,0,0) ; stroke-width:2.16" />
+ <polyline points="340,320 340,360 " style="fill:none ; stroke:rgb(0,0,0) ; stroke-width:2.16" />
+ <text x="0" y="0" transform="matrix(1 0 0 1 384 232)" style="font-family:helvetica; font-size:11; fill:rgb(0,0,0)" >EDIF</text>
+ <text x="-23" y="14" transform="matrix(0.901961 0 0 1 457.275 243)" style="font-family:helvetica; font-size:14; fill:rgb(0,0,0)" >Timing </text>
+ <text x="-28" y="31" transform="matrix(0.901961 0 0 1 457.275 243)" style="font-family:helvetica; font-size:14; fill:rgb(0,0,0)" >Analysis</text>
+ <text x="-5" y="48" transform="matrix(0.901961 0 0 1 457.275 243)" style="font-family:helvetica; font-size:14; fill:rgb(0,0,0)" >&amp;</text>
+ <text x="-38" y="65" transform="matrix(0.901961 0 0 1 457.275 243)" style="font-family:helvetica; font-size:14; fill:rgb(0,0,0)" >Gate Usage</text>
+ <polyline points="440,140 440,220 520,220 520,220 520,160 500,140 500,160 500,160 520,160 520,160 500,140 440,140 440,140 440,140 " transform="matrix(1 0 0 1 -20 0)" style="fill:none ; stroke:rgb(0,0,0) ; stroke-width:2.16" />
+ <polyline points="440,140 440,220 520,220 520,220 520,160 500,140 500,160 500,160 520,160 520,160 500,140 440,140 440,140 440,140 " transform="matrix(1 0 0 1 -20 100)" style="fill:none ; stroke:rgb(0,0,0) ; stroke-width:2.16" />
+ <polyline points="440,140 440,220 520,220 520,220 520,160 500,140 500,160 500,160 520,160 520,160 500,140 440,140 440,140 440,140 " transform="matrix(1 0 0 1 -440 100)" style="fill:none ; stroke:rgb(0,0,0) ; stroke-width:2.16" />
+ <text x="0" y="14" transform="matrix(1 0 0 1 20 261)" style="font-family:helvetica; font-size:14; fill:rgb(0,0,0)" >Cycle</text>
+ <text x="0" y="31" transform="matrix(1 0 0 1 20 261)" style="font-family:helvetica; font-size:14; fill:rgb(0,0,0)" >Count</text>
+ <text x="-15" y="14" transform="matrix(1 0 0 1 459 160)" style="font-family:helvetica; font-size:14; fill:rgb(0,0,0)" >Gate</text>
+ <text x="-33" y="31" transform="matrix(1 0 0 1 459 160)" style="font-family:helvetica; font-size:14; fill:rgb(0,0,0)" >Estimation</text>
+ <polyline points="440,140 440,220 520,220 520,220 520,160 500,140 500,160 500,160 520,160 520,160 500,140 440,140 440,140 440,140 " transform="matrix(1 0 0 1 -220 -100)" style="fill:none ; stroke:rgb(0,0,0) ; stroke-width:2.16" />
+</svg>

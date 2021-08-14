@@ -1,0 +1,1 @@
+These are the papers, article, thesis and code for the hardware genetic programming work I carried out as part of my PhD.

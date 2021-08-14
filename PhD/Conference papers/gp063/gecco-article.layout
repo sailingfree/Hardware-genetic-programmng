@@ -1,0 +1,214 @@
+#% Do not delete the line below; configure depends on this
+#  \DeclareLaTeXClass[article]{article (for GECCO)}
+# GECCO textclass definition file. 
+# For the Proceedings of the Genetic and Evolutionary Computation Conference (GECCO)
+# published by Morgan Kaufmann Publishers.
+# 
+# This layout depends on GECCO_proceedings2e.sty 
+#
+# Initial version Pete Martin December 30 2001
+# --------
+
+##########################
+# General textclass parameters
+##########################
+Columns			2
+Sides			1
+PageStyle		Plain
+MaxCounter		Counter_Section
+
+##########################
+# Layout specific preamble
+##########################
+Preamble
+  \usepackage{GECCO_proceedings2e}
+EndPreamble
+
+##########################
+# Standard style definition
+##########################
+Style Standard
+  Margin  		Static
+  LatexType 		Paragraph
+  LatexName 		dummy
+  ParIndent		MM
+  ParSkip 		0.4
+  ParSep                0.5
+  Align 		Block
+  AlignPossible 	Block, Left, Right, Center
+  LabelType 		No_Label
+End
+
+# The standard sections
+Input stdsections.inc
+
+##########################
+# Section style definition
+##########################
+Style Section
+  # standard font definition
+  Font
+    Series		Bold
+    Shape 		Up
+    Size		Larger
+  EndFont
+End
+
+
+##########################
+# Subsection style definition
+##########################
+Style Subsection
+  Font
+    Series		Bold
+    Shape		Up
+    Size		Large
+  EndFont
+End
+
+##########################
+# Subsubsection style definition
+##########################
+Style Subsubsection
+  # standard font definition
+  Font 
+    Series		Bold
+    Shape		Up
+    Size		Normal
+  EndFont
+End
+
+##########################
+# Now define the starred versions from the normal ones.
+##########################
+Input stdstarsections.inc
+
+# Remove the ones that we do not want
+NoStyle		Part
+NoStyle		Part*
+NoStyle		Chapter
+NoStyle		Chapter*
+NoStyle         Paragraph
+NoStyle         Subparagraph
+NoStyle		Quotation
+NoStyle		Quote
+NoStyle		Verse
+
+# Some standard things
+Input stdlayouts.inc
+Input stdlists.inc
+
+##########################
+# Title style definition
+##########################
+Style Title
+  Margin		Static
+  LatexType		Command
+  LatexName             title
+  InTitle		0
+  NextNoIndent		1
+  ParSkip		0.4
+  TopSep		0.5
+  BottomSep		0.5
+  ParSep		0.7
+  Align			Center
+  LabelType		No_Label
+  Fill_Top		1
+  Fill_Bottom		1
+
+  # standard font definition
+  Font 
+    Family  		Roman
+    Series 		Bold
+    Size		larger
+  EndFont
+End
+
+
+##########################
+# Author style definition
+##########################
+Style Author
+  Margin		Static
+  LatexType		Command
+  InTitle		1
+  LatexName		author
+  NextNoIndent		1
+  ParSkip		0.4
+  TopSep		0.7
+  BottomSep		0.7
+  ItemSep		0
+  ParSep		0
+  Align			Center
+  AlignPossible		Center
+  LabelType		No_Label
+
+  # standard font definition
+  Font 
+    Series 		Medium
+    Shape		Up
+  EndFont
+End
+
+
+##########################
+# Abstract style definition
+##########################
+Style Abstract 
+  Margin		First_Dynamic
+  LatexType		Environment
+  LatexName		abstract
+  NextNoIndent		0
+  ParIndent		MM
+  LabelSep		xx
+  ItemSep		0
+  TopSep		0.7
+  BottomSep		0.7
+  ParSep		0
+  Align			Block
+  AlignPossible		Block, Left
+  LabelType		Centered_Top_Environment
+  LabelString		Abstract. 
+  LeftMargin            MM
+  RightMargin           MM
+
+  # label font definition
+  LabelFont 
+    Series		Bold
+  EndFont
+End 
+
+#
+# Bibliography style definition
+Style Bibliography
+  Margin		First_Dynamic
+  LatexType		Item_Environment
+  LatexName		lyxbibliography
+  NextNoIndent		1
+  LeftMargin		MM
+  ParSkip		0.4
+  ItemSep		0
+  TopSep		0.7
+  BottomSep		0.7
+  ParSep		0.5
+  Align			Block
+  AlignPossible		Block, Left
+  LabelType		Bibliography
+  LabelString		References 
+  LabelBottomSep    0.7
+
+  # label font definition
+  LabelFont 
+    Series		Bold
+  EndFont
+
+  Preamble
+    \newcommand{\lyxbibliography}{\thebibliography{References}%
+      \renewcommand{\bibitem}[3][!]{\@bibitem{##1}{##2}{##3}}}
+  EndPreamble
+
+
+End
+
+#Finally a few older definitions for compatibility
+Input obsolete.inc

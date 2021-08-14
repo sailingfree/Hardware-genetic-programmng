@@ -1,0 +1,2960 @@
+#LyX 1.1 created this file. For more info see http://www.lyx.org/
+\lyxformat 218
+\textclass gecco-article
+\begin_preamble
+\widowpenalty=10000
+\clubpenalty=10000
+\end_preamble
+\language english
+\inputencoding auto
+\fontscheme pslatex
+\graphics default
+\float_placement !h+tb
+\paperfontsize default
+\spacing single 
+\papersize a4paper
+\paperpackage a4
+\use_geometry 0
+\use_amsmath 0
+\paperorientation portrait
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\defskip medskip
+\quotes_language english
+\quotes_times 2
+\papercolumns 2
+\papersides 1
+\paperpagestyle default
+
+\layout Title
+
+An Analysis of Random Number Generators for a Hardware Implementation of
+ Genetic Programming using FPGAs and Handel-C
+\layout Author
+
+Peter Martin
+\newline 
+Department of Computer Science, Essex University,
+\newline 
+Colchester, Essex, UK
+\newline 
+petemartin@ntlworld.com
+\layout Abstract
+
+This paper analyses the effect of using different random number generators
+ (RNG) in a hardware implementation of Genetic Programming using Field Programma
+ble Gate Arrays.
+ Hardware systems have typically used RNGs based on Logical Feedback Shift
+ Registers or Cellular Automata.
+ Different configurations of these generators are evaluated as well as using
+ a source of true random numbers and a standard multiply/add generator.
+ The results show that using a more sophisticated generator than a simple
+ LFSR slightly improves the performance of GP.
+\layout Section
+
+Introduction
+\layout Standard
+
+Previous work 
+\begin_inset LatexCommand \cite{martin:2001:gpem}
+
+\end_inset 
+
+ described an implementation of Genetic Programming using a Field Programmable
+ Gate Array (FPGA) and a high level language to hardware compilation system
+ called Handel-C.
+ Subsequent work 
+\begin_inset LatexCommand \cite{martin:2002:eurogp2002}
+
+\end_inset 
+
+ described a pipelined implementation that improved the performance and
+ demonstrated that the technique could be used to solve the artificial ant
+ problem .
+ In both cases the work concentrated on the implementation issues and improving
+ the clock speed of the implementation, but put to one side the performance
+ of the system with respect to its ability to solve GP problems.
+ Now that the raw throughput issues have been addressed it is time to look
+ at how good the hardware implementation performs, in particular the effectivene
+ss of the Random Number Generator (RNG) used.
+ 
+\layout Standard
+
+A comment often made about Genetic Programming and other stochastic search
+ methods is that a good random number generator is needed.
+ The evidence so far is that the quality of the RNG is probably not as important
+ as often stated.
+ Nevertheless, it is important to consider the effect of design decisions
+ and to investigate alternatives where practicable.
+\layout Standard
+
+In the hardware implementation of GP, the random number generator is implemented
+ using a Logical Feedback Shift Register (LFSR) which has a number of known
+ weaknesses.
+ This suggests that other random number generators should be investigated.
+ This paper begins with a brief description of the hardware GP system and
+ Handel-C.
+ This is followed by a review of previous work on random number generation
+ that has been implemented in hardware.
+ We then present an analysis of the pseudo random number generator used
+ in the original design, and investigate other random number generators.
+ We finish with a discussion of the results and draw some conclusions.
+\layout Section
+
+A Hardware Implementation of GP using FPGAs
+\layout Standard
+
+Implementing GP in hardware is motivated by the potential speedups that
+ can be obtained.
+ The platform chosen is an FPGA which is a reconfigurable logic circuit
+ than can be programmed to perform a wide range of logic functions.
+ A typical FPGA is arranged as an array of configurable logic cells, input-outpu
+t circuits and programmable interconnections.
+ A typical FPGA architecture is shown in Figure 
+\begin_inset LatexCommand \ref{fig:FPGA}
+
+\end_inset 
+
+.
+\layout Standard
+
+\begin_float fig 
+\layout Standard
+\align center 
+
+\begin_inset Figure size 226 157
+file images/Slide1.eps
+width 1 8
+flags 9
+
+\end_inset 
+
+
+\layout Caption
+
+
+\begin_inset LatexCommand \label{fig:FPGA}
+
+\end_inset 
+
+Typical FPGA architecture.
+ The CLBs are the configurable logic blocks, IOBs are the Input Output Blocks
+ and the RAMs are on-chip Random Access memory blocks.
+ 
+\end_float 
+\layout Standard
+
+Traditionally FPGAs have been programmed using hardware design languages
+ such as VHDL
+\begin_float footnote 
+\layout Standard
+
+VHDL is a standard hardware design language.
+ It stands for VHSIC Hardware Design Language.
+ VHSIC itself stands for Very High Speed Integrated Circuit.
+\end_float 
+, but an alternative approach using high level language to hardware compilation
+ techniques has been developed, which allows a high level imperative language
+ to be used to generate the configuration information for the FPGA.
+ Handel-C is one example of this technology, and has been used for the work
+ described in this paper.
+\layout Standard
+
+Handel-C is a high level language that is at the heart of a hardware compilation
+ system known as Celoxica DK1 
+\begin_inset LatexCommand \cite{Celoxica:website}
+
+\end_inset 
+
+ which is designed to compile programs written in a C-like high level language
+ into synchronous hardware.
+ The output from Handel-C is a file that is used to create the configuration
+ data for the FPGA.
+ A description of the process used by Handel-C to transform a high level
+ language into hardware and examples of the hardware generated can be found
+ in 
+\begin_inset LatexCommand \cite{page:1996}
+
+\end_inset 
+
+.
+ The C-like syntax makes the tool appealing to software engineers with little
+ or no experience of hardware.
+ They can quickly translate a software algorithm into hardware, without
+ having to learn about VHDL or FPGAs in detail.
+\layout Subsection
+
+Target Hardware
+\layout Standard
+
+The target hardware for this work is a Celoxica RC1000 FPGA development
+ board fitted with a Xilinx XCV2000E Virtex-E FPGA having 43,200 logic cells
+ and 655,360 bits of block ram.
+ The board also has a PCI bridge that communicates between the RC1000 board
+ and the host computer's PCI bus, and four banks of Static Random Access
+ Memory (SRAM).
+ Fast switches isolate the FPGA from the SRAM, allowing both the host CPU
+ and the FPGA to access the SRAM, though not concurrently.
+ 
+\layout Subsection
+
+Program Representation
+\layout Standard
+
+The lack of a stack in Handel-C means that a standard tree based representation
+ is difficult to implement because recursion cannot be handled by the language.
+ An alternative to a tree representation is a linear representation which
+ has been used by others to solve some hard GP problems 
+\begin_inset LatexCommand \cite{Nordin:1995:tcp}
+
+\end_inset 
+
+.
+ Using a linear representation, a program consists of a sequence of words
+ which are decoded by the problem specific fitness function.
+ 
+\layout Subsection
+
+Previous work using FPGAs in Evolutionary Computing
+\layout Standard
+
+A detailed review of previous work using FPGAs in Evolutionary Computing
+ can be found in 
+\begin_inset LatexCommand \cite{martin:2001:gpem}
+
+\end_inset 
+
+.
+\layout Section
+
+Previous Work on Pseudo Random Numbers for Genetic Programming and Hardware
+\layout Standard
+
+This section reviews the types of random number generators that have been
+ used by hardware implementations of GA, GP and other applications of hardware
+ to probabilistic algorithms.
+\layout Standard
+
+Linear Feedback Shift Register (LFSR) or Tauseworth generators have been
+ used by Maruyama et al 
+\begin_inset LatexCommand \cite{maruyama:19}
+
+\end_inset 
+
+.
+ In their paper they referred to the generator as a m-sequence, or maximal
+ sequence.
+ This means that the generator of length 
+\begin_inset Formula \( n \)
+\end_inset 
+
+ generates 
+\begin_inset Formula \( 2^{n}-1 \)
+\end_inset 
+
+ numbers.
+ Graham 
+\begin_inset LatexCommand \cite{Graham:96}
+
+\end_inset 
+
+ implemented a single cycle LFSR.
+\layout Standard
+
+An interesting hybrid approach was used by Tommiska and Vuori 
+\begin_inset LatexCommand \cite{tommiska:1996}
+
+\end_inset 
+
+ where three coupled LFSRs were used to provide a random sequence.
+ An interesting feature of this work is that the RNG was combined with a
+ source of noise.
+ The amplified noise from a diode was fed into an analogue to digital converter,
+ and the resulting digital values were used to seed the RNG, and also added
+ to the LFSR at intervals.
+\layout Standard
+
+The manufacturers of FPGAs provide example designs of LFSRs to be used as
+ random sequence generators.
+ For example Xilinx 
+\begin_inset LatexCommand \cite{xilinx:rng:2001}
+
+\end_inset 
+
+, and Altera 
+\begin_inset LatexCommand \cite{altera:2001}
+
+\end_inset 
+
+ provide Hardware Design Language (HDL) code for LFSRs.
+\layout Standard
+
+Aporntewan 
+\begin_inset LatexCommand \cite{aporntewan:2001}
+
+\end_inset 
+
+ used a one dimensional 2-state Cellular Automata (CA).
+ Shackleford et al 
+\begin_inset LatexCommand \cite{shackleford:2001}
+
+\end_inset 
+
+ implemented a CA based on the work by Wolfram 
+\begin_inset LatexCommand \cite{Wolfram:1986}
+
+\end_inset 
+
+.
+\layout Standard
+
+In the field of GP, the behavior of GP and GAs has been investigated using
+ different RNGs.
+ Meysenburg and Foster considered the effect of different RNGs on GAs 
+\begin_inset LatexCommand \cite{meysenburg:1999:RGPR}
+
+\end_inset 
+
+ and GP 
+\begin_inset LatexCommand \cite{meysenburg:1999:RGQGP}
+
+\end_inset 
+
+.
+ Their conclusions were that there were no statistically significant differences
+ in the performance of GA or GP when different RNGs were used.
+\layout Section
+
+Experimental setup
+\layout Standard
+
+The performance of the various RNGs was evaluated using three methods.
+ Firstly, the Diehard test suite maintained by Marsaglia 
+\begin_inset LatexCommand \cite{diehard:2001}
+
+\end_inset 
+
+ was used to gauge the general performance of the RNG.
+ This suite consists of up to 15 tests that are modeled on applications
+ of random numbers.
+ All the RNGs considered in this paper were implemented in ISO-C and were
+ submitted to all 15 tests.
+ The test method for Diehard is similar to that described in Meysenburg
+ and Foster 
+\begin_inset LatexCommand \cite{meysenburg:1999:RGQGP}
+
+\end_inset 
+
+.
+ Each RNG was used to generate a binary file of about 10\SpecialChar ~
+MiB
+\begin_float footnote 
+\layout Standard
+
+The notation MiB indicates 
+\begin_inset Formula \( 2^{20} \)
+\end_inset 
+
+ (1048576) bytes.
+ This paper uses the binary prefixes from the NIST.
+\begin_inset LatexCommand \cite{NIST:2001}
+
+\end_inset 
+
+
+\end_float 
+.
+ Each Diehard test produces one or more 
+\begin_inset Formula \( p \)
+\end_inset 
+
+-values.
+ A 
+\begin_inset Formula \( p \)
+\end_inset 
+
+-value can be considered good, bad, or suspect.
+ Meysenburg used a scheme by Johnson 
+\begin_inset LatexCommand \cite{Johnson:1996}
+
+\end_inset 
+
+ which assigns a score to a 
+\begin_inset Formula \( p \)
+\end_inset 
+
+-value as follows.
+ If 
+\begin_inset Formula \( p\geq 0.998 \)
+\end_inset 
+
+ then it is classified as bad.
+ If 
+\begin_inset Formula \( 0.95\leq p<0.998 \)
+\end_inset 
+
+ then it is classified as suspect.
+ All other 
+\begin_inset Formula \( p \)
+\end_inset 
+
+-values are classified as good.
+ Every bad 
+\begin_inset Formula \( p \)
+\end_inset 
+
+-value scores 4, every suspect 
+\begin_inset Formula \( p \)
+\end_inset 
+
+-value scores 2 and good 
+\begin_inset Formula \( p \)
+\end_inset 
+
+-values score zero.
+ For each RNG, the scores for each test were summed, and the total for each
+ RNG is the sum of all the test scores for that RNG.
+ Using this scheme, high scores indicate a poor RNG and low scores indicate
+ a good RNG.
+ The results for each test are given in Appendix A.
+\layout Standard
+
+Each RNG was then implemented using Handel-C and used in the hardware implementa
+tion of the artificial ant problem 
+\begin_inset LatexCommand \cite{koza:book}
+
+\end_inset 
+
+
+\begin_inset LatexCommand \cite{martin:2002:eurogp2002}
+
+\end_inset 
+
+.
+ In the hardware implementation the function set differs from the standard
+ example in only having two functions: 
+\begin_inset Formula \( {\cal F}=\{IF\_FOOD,\, PROGN2\} \)
+\end_inset 
+
+ where 
+\begin_inset Formula \( IF\_FOOD \)
+\end_inset 
+
+ is a two argument function that looks at the cell ahead and if it contains
+ food it evaluates the first terminal, otherwise it evaluates the second
+ terminal.
+ 
+\begin_inset Formula \( PROGN2 \)
+\end_inset 
+
+ evaluates its first and second terminals in sequence.
+ The terminal set 
+\begin_inset Formula \( {\cal T}=\{LEFT,\, RIGHT,\, MOVE,\, NOP\} \)
+\end_inset 
+
+, where 
+\begin_inset Formula \( LEFT \)
+\end_inset 
+
+ and 
+\begin_inset Formula \( RIGHT \)
+\end_inset 
+
+ change the direction the ant is facing, 
+\begin_inset Formula \( MOVE \)
+\end_inset 
+
+ moves the ant one space forwards to a new cell, and if the new cell contains
+ food, the food is eaten.
+ 
+\begin_inset Formula \( NOP \)
+\end_inset 
+
+ is a no-operation terminal and has no effect on the ant but is included
+ to make the number of terminals a power of 2, which simplifies the hardware
+ logic.
+ Each time 
+\begin_inset Formula \( LEFT,\, RIGHT \)
+\end_inset 
+
+ or 
+\begin_inset Formula \( MOVE \)
+\end_inset 
+
+ is executed, the ant consumes one time step.
+ The run stops when either all the time steps have been used, or the ant
+ has eaten all the food.
+ All the experiments use the Santa Fe trail, which has 89 pellets of food.
+ Each experiment was run 500 times and the total number of 100% correct
+ programs recorded.
+ This is used as a measure of how well the RNG performs.
+ In all cases the population size is 1024, the maximum program length is
+ 31 and all experiments were run for 31 generations.
+ The ant was allocated 600 timesteps.
+ The probability of selecting crossover was 67%, mutation 10% and reproduction
+ 23%.
+ The crossover operator used the truncating method of limiting the maximum
+ program length, as described in 
+\begin_inset LatexCommand \cite{martin:poli:2002a-a}
+
+\end_inset 
+
+.
+\layout Standard
+
+Each RNG was also implemented as a stand alone application for an FPGA using
+ Handel-C, and the number of slices used and the maximum attainable clock
+ frequency was recorded.
+ This gives a measure of the hardware resources needed to implement the
+ RNG, and also an indication of the logic depth required.
+\layout Section
+
+Random Number Generator Implementations
+\layout Subsection
+
+LFSR RNG
+\layout Standard
+
+Figure 
+\begin_inset LatexCommand \ref{fig:LFSR}
+
+\end_inset 
+
+ shows a schematic of the LFSR used in this work.
+ 
+\layout Standard
+
+\begin_float fig 
+\layout Standard
+\align center 
+
+\begin_inset Figure size 170 67
+file images/lfsr.eps
+width 1 6
+flags 9
+
+\end_inset 
+
+
+\layout Caption
+
+
+\begin_inset LatexCommand \label{fig:LFSR}
+
+\end_inset 
+
+Logical Feedback Shift Register Random Number Generator
+\end_float 
+\layout Standard
+
+The random number is read from the highest bits as required.
+ The obvious weakness of this type of RNG is that sequential values fail
+ the serial test described by Knuth 
+\begin_inset LatexCommand \cite[pp 55-56]{Knuth:vol2}
+
+\end_inset 
+
+.
+ At any time step 
+\begin_inset Formula \( t \)
+\end_inset 
+
+ there is a 50% probability that the value at time 
+\begin_inset Formula \( t+1 \)
+\end_inset 
+
+ can be predicted.
+ If for an LFSR of length 
+\begin_inset Formula \( n \)
+\end_inset 
+
+ at time 
+\begin_inset Formula \( t \)
+\end_inset 
+
+ the value is 
+\begin_inset Formula \( v \)
+\end_inset 
+
+, then at time 
+\begin_inset Formula \( t+1 \)
+\end_inset 
+
+ the value will be 
+\begin_inset Formula \( v/2 \)
+\end_inset 
+
+ or 
+\begin_inset Formula \( v/2+2^{n-1} \)
+\end_inset 
+
+.
+ This is shown in Figure 
+\begin_inset LatexCommand \ref{fig:LFSR pairs test}
+
+\end_inset 
+
+ where pairs of values 
+\begin_inset Formula \( v_{t} \)
+\end_inset 
+
+ and 
+\begin_inset Formula \( v_{t+1} \)
+\end_inset 
+
+ are plotted.
+ 
+\layout Standard
+
+\begin_float fig 
+\layout Standard
+\align center 
+
+\begin_inset Figure size 226 158
+file images/lfsrrng_1.eps
+width 1 8
+flags 9
+
+\end_inset 
+
+
+\layout Caption
+
+
+\begin_inset LatexCommand \label{fig:LFSR pairs test}
+
+\end_inset 
+
+Serial test of a simple LFSR RNG
+\end_float 
+\layout Standard
+
+It can be seen that for any value 
+\begin_inset Formula \( v_{t} \)
+\end_inset 
+
+ there are only two possible values of 
+\begin_inset Formula \( v_{t+1} \)
+\end_inset 
+
+.
+ Though the random number generator runs in parallel with the main GP machine,
+ it is possible to access sequential values when creating an initial program,
+ or when choosing crossover points.
+ There is then a possibility of a potentially degrading bias by using such
+ an RNG.
+ 
+\layout Subsection
+
+Multiple LFSRs
+\layout Standard
+
+One method of obtaining better serial test results for the LFSR of length
+ 
+\begin_inset Formula \( n \)
+\end_inset 
+
+ is to allow the LFSR to run for 
+\begin_inset Formula \( n \)
+\end_inset 
+
+ cycles before reading another number.
+ Since this would limit the rate at which random numbers could be generated
+ in the present design it is not explored any further.
+ However, an equivalent result can be obtained by implementing 
+\begin_inset Formula \( n \)
+\end_inset 
+
+ LFSRs of length 
+\begin_inset Formula \( m \)
+\end_inset 
+
+ and using a single bit from each LFSR at each time step.
+ This can also be done using a single long LFSR of 
+\begin_inset Formula \( n\times m \)
+\end_inset 
+
+ bits, 
+\begin_inset LatexCommand \cite{Stiliadis:1995}
+
+\end_inset 
+
+ effectively implementing 
+\begin_inset Formula \( n \)
+\end_inset 
+
+ parallel LFSRs.
+ However, implementing a long shift register in a Xilinx Virtex FPGA is
+ not efficient because the look up tables can implement a 16 bit shift register
+ very easily, but longer shift registers require more extensive routing
+ resources.
+ 
+\layout Standard
+
+The effect of using a better RNG was investigated by implementing 32 16
+ bit LFSR machines that run in parallel, and initializing each LFSR to a
+ different value.
+ Bit32 from each LFSR is used to construct a 32 bit random number.
+ The serial test result is shown in Figure 
+\begin_inset LatexCommand \ref{fig:16 LFSR RNG pairs test}
+
+\end_inset 
+
+, which shows the serial test result for 32 LFSRs is better than the single
+ LFSR.
+ This generator is referred to as the 32LFSR.
+\layout Standard
+
+\begin_float fig 
+\layout Standard
+\align center 
+
+\begin_inset Figure size 226 158
+file images/lfsrrng_skip.eps
+width 1 8
+flags 9
+
+\end_inset 
+
+
+\layout Caption
+
+
+\begin_inset LatexCommand \label{fig:16 LFSR RNG pairs test}
+
+\end_inset 
+
+Serial test for an RNG using 32 parallel LFSRs
+\end_float 
+\layout Subsection
+
+Cellular Automata RNG
+\layout Standard
+
+Another popular RNG for hardware implementations is based on Cellular Automata
+ (CA).
+ A one-dimensional (1D) CA consists of a string of cells.
+ Each cell has two neighbors - left and right, or in some literature west
+ and east respectively.
+ At each time step, the value of any cell 
+\begin_inset Formula \( c \)
+\end_inset 
+
+ is given by a rule.
+ For this implementation, rule 30 is used, which states that for any cell
+ 
+\begin_inset Formula \( c \)
+\end_inset 
+
+ at time 
+\begin_inset Formula \( t \)
+\end_inset 
+
+, 
+\begin_inset Formula \( c_{t+1}=((west_{t} \)
+\end_inset 
+
++
+\begin_inset Formula \( c_{t})\oplus east_{t}) \)
+\end_inset 
+
+, where 
+\begin_inset Formula \( \oplus  \)
+\end_inset 
+
+ denotes the exclusive OR function.
+ In practice the CA is implemented using a single 32 bit word, and for cell
+ 0, its right-hand neighbor is cell 31, and similarly for cell 31 its left
+ hand neighbor is cell 0.
+ Figure 
+\begin_inset LatexCommand \ref{fig:CA pairs test}
+
+\end_inset 
+
+ shows the result of running this RNG using the serial test.
+ As in the simple LFSR RNG there is a distinct pattern to the numbers, but
+ for most values of 
+\begin_inset Formula \( v_{t} \)
+\end_inset 
+
+ there are several possible values for 
+\begin_inset Formula \( v_{t+1} \)
+\end_inset 
+
+.
+ This generator is referred to as 1DCA.
+\layout Standard
+
+\begin_float fig 
+\layout Standard
+\align center 
+
+\begin_inset Figure size 226 158
+file images/lcarng_1.eps
+width 1 8
+flags 9
+
+\end_inset 
+
+
+\layout Caption
+
+
+\begin_inset LatexCommand \label{fig:CA pairs test}
+
+\end_inset 
+
+Serial test for a 1DCA RNG
+\end_float 
+\layout Subsection
+
+Multiple CA generators
+\layout Standard
+
+As in the case of the LFSR RNG, if several CAs are combined, the results
+ should be much better.
+ For this test, 32 CAs were implemented, and by taking one bit from each
+ CA, a 32 bit random number can be generated.
+ The serial test appears to be much more random, as shown in Figure 
+\begin_inset LatexCommand \ref{fig:CA 16}
+
+\end_inset 
+
+.
+ Each CA is initialized with a different pattern.
+ This generator is referred to as the 32CA
+\begin_float fig 
+\layout Standard
+\align center 
+
+\begin_inset Figure size 226 158
+file images/lcarng_skip.eps
+width 1 8
+flags 9
+
+\end_inset 
+
+
+\layout Caption
+
+
+\begin_inset LatexCommand \label{fig:CA 16}
+
+\end_inset 
+
+Serial test for a 32CA
+\end_float 
+\layout Subsection
+
+Standard C RNGs
+\layout Standard
+
+Another frequently used RNG is the linear congruential (LC) generator that
+ is often found in implementations of the standard C library.
+ The general equation for these is 
+\begin_inset Formula \( I_{j+1}=(aI_{j}+c)\bmod m \)
+\end_inset 
+
+, where 
+\begin_inset Formula \( a,c \)
+\end_inset 
+
+ and 
+\begin_inset Formula \( m \)
+\end_inset 
+
+ are constants chosen to produce a maximal length RNG.
+ However, as pointed out by many authors (eg:
+\begin_inset LatexCommand \cite{press86numerical}
+
+\end_inset 
+
+) these generators are not good.
+ Another factor against such a generator for implementing in hardware is
+ that it requires one addition, one multiplication, and one modulus operator,
+ which in Handel-C would consume a large amount of silicon and because of
+ the deep logic produced, would be slow.
+ An alternative given by 
+\begin_inset LatexCommand \cite{press86numerical}
+
+\end_inset 
+
+ avoids the modulus operator, and is called the Even Quicker Generator (EQG).
+ It is claimed that this is about as good as any 32 bit linear congruential
+ generator.
+ Its equation is 
+\begin_inset Formula \( I_{j+1}=aI_{j}+c \)
+\end_inset 
+
+, and values for 
+\begin_inset Formula \( a=1664525 \)
+\end_inset 
+
+ and 
+\begin_inset Formula \( c=1013904223 \)
+\end_inset 
+
+ are suggested.
+ 
+\layout Standard
+
+As a sanity check that the experimental method of ranking the RNGs using
+ Diehard was the same as that used by Meysenburg, the generator known as
+ ``the mother of all generators'' was also implemented and run against the
+ Diehard suite.
+ This is a multiply with carry generator and is described by Marsaglia 
+\begin_inset LatexCommand \cite{marsaglia:1994}
+
+\end_inset 
+
+.
+ It was not implemented in the hardware GP system.
+\layout Subsection
+
+Non random sequences
+\layout Standard
+
+Until now we have considered pseudo random sequences.
+ These are sequences where it is hard to guess the next number in a sequence.
+ As an experiment, a further set of runs were performed with an obviously
+ non-random number generator.
+ For this a sequential generator which generates the sequence 
+\begin_inset Formula \( n,n+1,n+2,\ldots  \)
+\end_inset 
+
+ was used.
+ Rather surprisingly this also worked to produce 100% correct programs,
+ though substantially fewer than the other generators achieved.
+ 
+\layout Subsection
+
+Truly Random Sequences
+\layout Standard
+
+All the RNGs considered so far are not true random sequences, relying on
+ the manipulation of objects of finite size, and so fail one or more of
+ the Diehard battery of tests.
+ So a set of random numbers was obtained from a source generated by using
+ the atmospheric noise captured by a radio receiver
+\begin_inset LatexCommand \cite{randomorg:2002}
+
+\end_inset 
+
+.
+ Each GP run for the ant problem needs about half a million random numbers,
+ so a block of 10\SpecialChar ~
+MiB was downloaded from www.random.org, and a randomly selected
+ 2\SpecialChar ~
+MiB block was transferred to one of the SRAM on the FPGA system using
+ DMA.
+ The FPGA read this block sequentially to get its random numbers.
+\layout Standard
+
+As reported in 
+\begin_inset LatexCommand \cite{tommiska:1996}
+
+\end_inset 
+
+, RNGs based on sampling a source of noise are often slow, so they are not
+ always applicable to high speed systems.
+\layout Section
+
+Experimental Results
+\layout Standard
+
+The results from running the Diehard tests are given in Appendix A and are
+ summarized in Table 
+\begin_inset LatexCommand \ref{table:Summary of Diehard}
+
+\end_inset 
+
+.
+ This shows the total results for each test and ranks them according to
+ the Diehard score.
+\layout Standard
+
+\begin_float tab 
+\layout Caption
+
+
+\begin_inset LatexCommand \label{table:Summary of Diehard}
+
+\end_inset 
+
+Summary results of running the Diehard tests on the RNGS.
+\layout Standard
+
+
+\begin_inset  Tabular
+<lyxtabular version="2" rows="8" columns="2">
+<features rotate="false" islongtable="false" endhead="0" endfirsthead="0" endfoot="0" endlastfoot="0">
+<column alignment="left" valignment="top" leftline="false" rightline="false" width="" special="">
+<column alignment="center" valignment="top" leftline="false" rightline="false" width="" special="">
+<row topline="true" bottomline="true" newpage="false">
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+RNG
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="true" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+Score
+\end_inset 
+</cell>
+</row>
+<row topline="false" bottomline="false" newpage="false">
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+Mother
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="true" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+20
+\end_inset 
+</cell>
+</row>
+<row topline="false" bottomline="false" newpage="false">
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+True
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="true" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+22
+\end_inset 
+</cell>
+</row>
+<row topline="false" bottomline="false" newpage="false">
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+32LFSR
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="true" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+162
+\end_inset 
+</cell>
+</row>
+<row topline="false" bottomline="false" newpage="false">
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+EQG
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="true" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+288
+\end_inset 
+</cell>
+</row>
+<row topline="false" bottomline="false" newpage="false">
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+32CA
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="true" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+640
+\end_inset 
+</cell>
+</row>
+<row topline="false" bottomline="false" newpage="false">
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+CA
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="true" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+676
+\end_inset 
+</cell>
+</row>
+<row topline="false" bottomline="false" newpage="false">
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+LFSR
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="true" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+756
+\end_inset 
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset 
+
+
+\end_float 
+\layout Standard
+
+The number of correct programs that were produced by running the ant problem
+ on the hardware using each random number generator was recorded and is
+ shown in Table 
+\begin_inset LatexCommand \ref{table:Correct program counts}
+
+\end_inset 
+
+.
+ The results are ranked according to how many correct programs were found
+ and shows how each RNG performed.
+ The table also shows the slice count for the RNG implemented using Handel-C
+ and the maximum clock rate as reported by the place and route tools.
+ The slice count is a vendor and device dependent measure of the number
+ of FPGA logic blocks that have been used.
+ The clock rate is an indication of the logic depth required to implement
+ the generator, with deeper logic having a greater gate delay, and therefore
+ a lower maximum clock rate.
+ The slice count and clock rate for the true RNG assumes that the source
+ of random numbers is supplied by an external device to the FPGA, and that
+ the FPGA simply reads the value from a port and writes it to a register.
+\begin_float tab 
+\layout Caption
+
+
+\begin_inset LatexCommand \label{table:Correct program counts}
+
+\end_inset 
+
+Summary of GP performance for all random number generators tested from 500
+ runs of the artificial ant problem
+\layout Standard
+
+
+\begin_inset  Tabular
+<lyxtabular version="2" rows="8" columns="5">
+<features rotate="false" islongtable="false" endhead="0" endfirsthead="0" endfoot="0" endlastfoot="0">
+<column alignment="left" valignment="top" leftline="false" rightline="false" width="1.3cm" special="">
+<column alignment="left" valignment="top" leftline="false" rightline="false" width="0.7cm" special="">
+<column alignment="left" valignment="top" leftline="false" rightline="false" width="1.1cm" special="">
+<column alignment="left" valignment="top" leftline="false" rightline="false" width="0.8cm" special="">
+<column alignment="left" valignment="top" leftline="false" rightline="false" width="1.4cm" special="">
+<row topline="true" bottomline="true" newpage="false">
+<cell multicolumn="0" alignment="left" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+RNG
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="left" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+Rank
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="left" valignment="top" topline="true" bottomline="false" leftline="true" rightline="true" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+Correct
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="left" valignment="top" topline="true" bottomline="false" leftline="true" rightline="true" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+Slice
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="left" valignment="top" topline="true" bottomline="false" leftline="true" rightline="true" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+Clock rate 
+\begin_inset Formula \( F_{max} \)
+\end_inset 
+
+ (MHz)
+\end_inset 
+</cell>
+</row>
+<row topline="false" bottomline="false" newpage="false">
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+32CA
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+1
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="true" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+82
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="left" valignment="top" topline="true" bottomline="false" leftline="true" rightline="true" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+284
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="left" valignment="top" topline="true" bottomline="false" leftline="true" rightline="true" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+105
+\end_inset 
+</cell>
+</row>
+<row topline="false" bottomline="false" newpage="false">
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+True
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+2
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="true" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+81
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="true" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+6
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="true" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+>200
+\end_inset 
+</cell>
+</row>
+<row topline="false" bottomline="false" newpage="false">
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+32LFSR
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+3
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="true" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+79
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="true" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+130
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="true" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+134
+\end_inset 
+</cell>
+</row>
+<row topline="false" bottomline="false" newpage="false">
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+EQG
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+4
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="true" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+78
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="true" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+288
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="true" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+42
+\end_inset 
+</cell>
+</row>
+<row topline="false" bottomline="false" newpage="false">
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+ID CA
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+5
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="true" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+78
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="true" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+22
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="true" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+125
+\end_inset 
+</cell>
+</row>
+<row topline="false" bottomline="false" newpage="false">
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+LFSR
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+6
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="true" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+68
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="true" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+18
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="true" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+188
+\end_inset 
+</cell>
+</row>
+<row topline="false" bottomline="true" newpage="false">
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+Sequential
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+7
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="true" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+39
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="true" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+21
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="true" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+155
+\end_inset 
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset 
+
+
+\end_float 
+\layout Section
+
+Discussion
+\layout Standard
+
+The score obtained by the Mother RNG was close to that obtained by Meysenburg
+ (19), the difference being explained by the fact that Meysenburg used the
+ average of 32 runs using 32 different seeds, while the work described here
+ used only a single run.
+ It is likely that using 32 different seeds, that different scores would
+ be observed.
+ This confirms that the experimental method used for ranking the RNGs using
+ Diehard is comparable.
+\layout Standard
+
+Despite the apparently serious deficiencies found in both the simple LFSR
+ used in the original implementation and the simple one dimensional CA random
+ number generator, the overall effect of implementing a more sophisticated
+ RNG on the overall GP performance appeared to be small.
+ This result generally agrees with the work by Meysenburg and Foster 
+\begin_inset LatexCommand \cite{meysenburg:1999:RGQGP}
+
+\end_inset 
+
+, with the exception that they did not consider a single-cycle LFSR or an
+ obviously non-random generator.
+ The single-cycle LFSR performs the least well of the RNGs considered in
+ this paper.
+\layout Standard
+
+A surprising result was the emergence of programs when a non-random sequence
+ was used.
+ Clearly a non-random sequence does not allow GP to operate as efficiently
+ in terms of producing 100% correct programs, presumably because of the
+ failure to explore some areas of the search space.
+\layout Standard
+
+Despite the small differences in performance, from the results we can say
+ that using a different RNG from the single LFSR would improve the performance
+ of the hardware GP implementation by a measurable and therefore useful
+ amount, and that an RNG based on multiple LFSRs or multiple CAs would be
+ a better choice for a hardware GP system.
+ The use of a truly random number source did not appear to improve performance
+ over the 1DCA, 32CA and 32LFSR RNGs.
+ This provides more evidence countering the notion that GP needs a very
+ high quality RNG.
+ 
+\layout Standard
+
+Table 
+\begin_inset LatexCommand \ref{table:Correct program counts}
+
+\end_inset 
+
+ shows that the difference in GP performance between the 32CA, True, 32LFSR,
+ EQG and 1DCA generators is small.
+ However, these 5 generators have very different Diehard scores, so there
+ does not appear to be a straightforward relationship between the Diehard
+ score and the performance of GP.
+ This raises a question about the role that RNGs play in GP.
+ Is a RNG that scores well in the standard tests for randomness the best
+ RNG for GP?
+\layout Standard
+
+When looking at the FPGA slice counts and maximum clock rates, it is clear
+ that the 32LFSR uses about half the FPGA resources of the 32CA, and the
+ 32LFSR exhibits a smaller delay than the 32CA.
+ As predicted, the EQG uses the most FPGA resources and has very deep logic,
+ meaning that it can only run at a much slower rate than the other generators.
+ The EQG RNG could be re-implemented in the FPGA using pipelines to achieve
+ a higher clock rate, but since it performed no better than the 32CA and
+ 32LFSR, this was not investigated any further.
+\layout Standard
+
+Random numbers are used in several functions within a GP system: Initial
+ population creation, selection and crossover point selection.
+ In common with all reported GP systems, the same RNG is been used for all
+ these functions within a run.
+ From a practical point of view it would appear that there is little point
+ in using more than one type of RNG for different functions, but from the
+ result using a non-random sequence a question arises about the role that
+ random sequences play as opposed to sequences that simply enumerate a set
+ of numbers.
+ From this it follows that different stages in GP may use random number
+ sequences in different ways, and that using an enumeration may be helpful
+ when investigating the dynamics of GP.
+\layout Section
+
+Conclusions
+\layout Standard
+
+The main conclusion from this investigation is that for the hardware GP
+ system, the simple LFSR used in the original design can be improved upon
+ by using a generator based on multiple LFSRs, multiple CAs, or if available,
+ a high speed source of true random numbers.
+ A secondary conclusion is that with the exception of the non-random sequence
+ and the single LFSR, there is no significant difference in GP performance
+ when different hardware RNGs are used.
+\layout Subsection*
+
+Acknowledgments
+\layout Standard
+
+I would like to thank Riccardo Poli for his invaluable help in preparing
+ this paper and the anonymous reviewers for their helpful comments.
+ I would also like to thank Marconi plc, Celoxica Ltd.
+ and Xilinx Inc.
+ for supporting this work.
+\layout Standard
+
+
+\begin_inset LatexCommand \BibTeX[abbrv]{handelc}
+
+\end_inset 
+
+
+\layout LaTeX
+
+
+\backslash 
+onecolumn
+\layout Section*
+
+
+\begin_inset LatexCommand \label{Appendix A}
+
+\end_inset 
+
+Appendix A
+\layout Subsection*
+
+Results of the Diehard Tests
+\layout Standard
+
+This appendix contains the results of running the Diehard tests for all
+ RNGs in this paper.
+ Max score represents the case where an RNG fails all the tests.
+\layout Standard
+
+\begin_float tab 
+\layout Caption
+
+
+\begin_inset LatexCommand \label{table:Diehard results}
+
+\end_inset 
+
+Diehard test results for all RNGs considered in this paper.
+\layout Standard
+
+
+\begin_inset  Tabular
+<lyxtabular version="2" rows="17" columns="9">
+<features rotate="false" islongtable="false" endhead="0" endfirsthead="0" endfoot="0" endlastfoot="0">
+<column alignment="left" valignment="top" leftline="false" rightline="false" width="4cm" special="">
+<column alignment="left" valignment="top" leftline="false" rightline="false" width="1cm" special="">
+<column alignment="left" valignment="top" leftline="false" rightline="false" width="1cm" special="">
+<column alignment="left" valignment="top" leftline="false" rightline="false" width="1cm" special="">
+<column alignment="left" valignment="top" leftline="false" rightline="false" width="1cm" special="">
+<column alignment="left" valignment="top" leftline="false" rightline="false" width="1cm" special="">
+<column alignment="left" valignment="top" leftline="false" rightline="false" width="1cm" special="">
+<column alignment="left" valignment="top" leftline="false" rightline="false" width="1cm" special="">
+<column alignment="left" valignment="top" leftline="false" rightline="false" width="1cm" special="">
+<row topline="true" bottomline="true" newpage="false">
+<cell multicolumn="0" alignment="left" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+Test
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="left" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+Max score
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="left" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+LFSR
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="left" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+EQG
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="left" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+32LFSR
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="left" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+IDCA
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="left" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+32CA
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="left" valignment="top" topline="true" bottomline="false" leftline="true" rightline="true" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+True
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="left" valignment="top" topline="true" bottomline="false" leftline="true" rightline="true" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+Mother
+\end_inset 
+</cell>
+</row>
+<row topline="false" bottomline="false" newpage="false">
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+Birthday
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+36
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+36
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+8
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+2
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+0
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+8
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="true" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+0
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="true" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+0
+\end_inset 
+</cell>
+</row>
+<row topline="false" bottomline="false" newpage="false">
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+Overlapping permutation
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+8
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+8
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+0
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+4
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+8
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+8
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="true" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+0
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="true" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+0
+\end_inset 
+</cell>
+</row>
+<row topline="false" bottomline="false" newpage="false">
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+Binary Rank 32x32
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+8
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+8
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+2
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+8
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+2
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+6
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="true" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+0
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="true" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+0
+\end_inset 
+</cell>
+</row>
+<row topline="false" bottomline="false" newpage="false">
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+Binary Rank 6x
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+104
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+104
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+40
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+8
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+140
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+70
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="true" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+4
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="true" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+6
+\end_inset 
+</cell>
+</row>
+<row topline="false" bottomline="false" newpage="false">
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+Bitstream
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+80
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+80
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+0
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+0
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+80
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+80
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="true" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+4
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="true" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+0
+\end_inset 
+</cell>
+</row>
+<row topline="false" bottomline="false" newpage="false">
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+Overlapping pairs tests
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+328
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+328
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+188
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+94
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+328
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+320
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="true" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+6
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="true" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+2
+\end_inset 
+</cell>
+</row>
+<row topline="false" bottomline="false" newpage="false">
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+Count the ones (stream)
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+8
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+8
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+8
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+8
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+8
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+8
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="true" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+0
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="true" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+0
+\end_inset 
+</cell>
+</row>
+<row topline="false" bottomline="false" newpage="false">
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+Count the ones (specific)
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+100
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+100
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+42
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+30
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+100
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+100
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="true" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+2
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="true" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+4
+\end_inset 
+</cell>
+</row>
+<row topline="false" bottomline="false" newpage="false">
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+Parking Lot
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+44
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+4
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+0
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+0
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+4
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+2
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="true" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+0
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="true" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+0
+\end_inset 
+</cell>
+</row>
+<row topline="false" bottomline="false" newpage="false">
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+Minimum Distance
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+4
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+4
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+0
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+4
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+4
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+4
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="true" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+0
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="true" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+0
+\end_inset 
+</cell>
+</row>
+<row topline="false" bottomline="false" newpage="false">
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+3D spheres
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+84
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+4
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+0
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+2
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+4
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+2
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="true" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+4
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="true" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+4
+\end_inset 
+</cell>
+</row>
+<row topline="false" bottomline="false" newpage="false">
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+Squeeze
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+4
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+4
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+0
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+0
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+4
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+4
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="true" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+0
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="true" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+0
+\end_inset 
+</cell>
+</row>
+<row topline="false" bottomline="false" newpage="false">
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+Overlapping Sums
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+44
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+44
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+0
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+0
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+6
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+0
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="true" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+2
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="true" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+2
+\end_inset 
+</cell>
+</row>
+<row topline="false" bottomline="false" newpage="false">
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+Runs
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+16
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+16
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+0
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+2
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+16
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+8
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="true" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+0
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="true" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+2
+\end_inset 
+</cell>
+</row>
+<row topline="false" bottomline="true" newpage="false">
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+Craps
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+8
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+8
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+0
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+0
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+8
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+12
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="true" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+0
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="true" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+0
+\end_inset 
+</cell>
+</row>
+<row topline="false" bottomline="true" newpage="false">
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+Total
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+876
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+756
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+288
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+162
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+676
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+640
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="true" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+22
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="true" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+20
+\end_inset 
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset 
+
+
+\end_float 
+\the_end

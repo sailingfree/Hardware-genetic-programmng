@@ -1,0 +1,112 @@
+       NOTE: Most of the tests in DIEHARD return a p-value, which             
+       should be uniform on [0,1) if the input file contains truly            
+       independent random bits.   Those p-values are obtained by              
+       p=F(X), where F is the assumed distribution of the sample              
+       random variable X---often normal. But that assumed F is just           
+       an asymptotic approximation, for which the fit will be worst           
+       in the tails. Thus you should not be surprised with                    
+       occasional p-values near 0 or 1, such as .0012 or .9983.               
+       When a bit stream really FAILS BIG, you will get p's of 0 or           
+       1 to six or more places.  By all means, do not, as a                   
+       Statistician might, think that a p < .025 or p> .975 means             
+       that the RNG has "failed the test at the .05 level".  Such             
+       p's happen among the hundreds that DIEHARD produces, even              
+       with good RNG's.  So keep in mind that " p happens".                   
+     :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::      
+     ::             The  OVERLAPPING SUMS test                        ::      
+     :: Integers are floated to get a sequence U(1),U(2),... of uni-  ::      
+     :: form [0,1) variables.  Then overlapping sums,                 ::      
+     ::   S(1)=U(1)+...+U(100), S2=U(2)+...+U(101),... are formed.    ::      
+     :: The S's are virtually normal with a certain covariance mat-   ::      
+     :: rix.  A linear transformation of the S's converts them to a   ::      
+     :: sequence of independent standard normals, which are converted ::      
+     :: to uniform variables for a KSTEST. The  p-values from ten     ::      
+     :: KSTESTs are given still another KSTEST.                       ::      
+     :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::      
+                Test no.  1      p-value 1.000000
+                Test no.  2      p-value 1.000000
+                Test no.  3      p-value 1.000000
+                Test no.  4      p-value 1.000000
+                Test no.  5      p-value 1.000000
+                Test no.  6      p-value 1.000000
+                Test no.  7      p-value 1.000000
+                Test no.  8      p-value 1.000000
+                Test no.  9      p-value 1.000000
+                Test no. 10      p-value 1.000000
+   Results of the OSUM test for seq.bin        
+        KSTEST on the above 10 p-values: 1.000000
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+
+     :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::      
+     ::     This is the RUNS test.  It counts runs up, and runs down, ::      
+     :: in a sequence of uniform [0,1) variables, obtained by float-  ::      
+     :: ing the 32-bit integers in the specified file. This example   ::      
+     :: shows how runs are counted:  .123,.357,.789,.425,.224,.416,.95::      
+     :: contains an up-run of length 3, a down-run of length 2 and an ::      
+     :: up-run of (at least) 2, depending on the next values.  The    ::      
+     :: covariance matrices for the runs-up and runs-down are well    ::      
+     :: known, leading to chisquare tests for quadratic forms in the  ::      
+     :: weak inverses of the covariance matrices.  Runs are counted   ::      
+     :: for sequences of length 10,000.  This is done ten times. Then ::      
+     :: repeated.                                                     ::      
+     :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::      
+           The RUNS test for file seq.bin        
+     Up and down runs in a sample of 10000
+_________________________________________________ 
+                 Run test for seq.bin        :
+       runs up; ks test for 10 p's:1.000000
+     runs down; ks test for 10 p's:1.000000
+                 Run test for seq.bin        :
+       runs up; ks test for 10 p's:1.000000
+     runs down; ks test for 10 p's:1.000000
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+
+     :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::      
+     :: This is the CRAPS TEST. It plays 200,000 games of craps, finds::      
+     :: the number of wins and the number of throws necessary to end  ::      
+     :: each game.  The number of wins should be (very close to) a    ::      
+     :: normal with mean 200000p and variance 200000p(1-p), with      ::      
+     :: p=244/495.  Throws necessary to complete the game can vary    ::      
+     :: from 1 to infinity, but counts for all>21 are lumped with 21. ::      
+     :: A chi-square test is made on the no.-of-throws cell counts.   ::      
+     :: Each 32-bit integer from the test file provides the value for ::      
+     :: the throw of a die, by floating to [0,1), multiplying by 6    ::      
+     :: and taking 1 plus the integer part of the result.             ::      
+     :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::      
+                Results of craps test for seq.bin        
+  No. of wins:  Observed Expected
+                               200000    98585.86
+                 200000= No. of wins, z-score=****** pvalue=1.00000
+   Analysis of Throws-per-Game:
+ Chisq=******* for 20 degrees of freedom, p=    -inf
+               Throws Observed Expected  Chisq     Sum
+                  1        0    66666.7********66666.672
+                  2   200000    37654.3*****************
+                  3        0    26954.7*****************
+                  4        0    19313.5*****************
+                  5        0    13851.4*****************
+                  6        0     9943.59943.542*********
+                  7        0     7145.07145.025*********
+                  8        0     5139.15139.071*********
+                  9        0     3699.93699.865*********
+                 10        0     2666.32666.297*********
+                 11        0     1923.31923.329*********
+                 12        0     1388.71388.740*********
+                 13        0     1003.71003.715*********
+                 14        0      726.1 726.141*********
+                 15        0      525.8 525.836*********
+                 16        0      381.2 381.151*********
+                 17        0      276.5 276.539*********
+                 18        0      200.8 200.830*********
+                 19        0      146.0 145.984*********
+                 20        0      106.2 106.215*********
+                 21        0      287.1 287.116*********
+            SUMMARY  FOR seq.bin        
+                p-value for no. of wins:1.000000
+                p-value for throws/game:    -inf
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+
+ Results of DIEHARD battery of tests sent to file seq.out2       

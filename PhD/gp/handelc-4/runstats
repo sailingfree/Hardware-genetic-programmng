@@ -1,0 +1,36 @@
+#!/usr/bin/perl -w
+
+$maxrun=10;
+$run=0;
+$gen=0;
+$maxfit=89;
+@totals = 0;
+
+readin();
+analyse();
+
+sub readin {
+    while($run < $maxrun ) {
+	printf ("$run\n");
+	$gen=0;
+	open RUN, "./hwgp -s|";
+	while(<RUN>) {
+	    $fit = $_;
+	    $totals[$gen] += $fit;
+	    $gen++;
+	}
+	close RUN;
+	open SLEEP, "|sleep 1";
+	close SLEEP;
+	$run++;
+    }
+}
+
+sub analyse {
+    open FITVAL, ">fitness.dat" || die "Unable to opena output file";
+    for ($i=0;$i<$gen;$i++) {
+	$fitval = (($maxfit - ($totals[$i]/$run))/$maxfit)*100;
+	print FITVAL "$fitval\n";
+    }
+    close FITVAL;
+}

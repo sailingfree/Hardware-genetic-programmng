@@ -1,0 +1,31 @@
+<!DOCTYPE svg ><svg width="595" height="841" >
+ <text x="0" y="0" transform="matrix(1 0 0 0.9882 507 79.4454)" style="font-family:helvetica; font-size:11; fill:rgb(0,0,0)" ></text>
+ <rect width="100" x="60" y="380" height="40" transform="matrix(1.2 0 0 0.9882 8 -314.846)" style="fill:none ; stroke:rgb(0,0,0) ; stroke-width:2.16" />
+ <rect width="240" x="260" y="380" height="40" transform="matrix(1 0 0 0.9882 20 -314.846)" style="fill:none ; stroke:rgb(0,0,0) ; stroke-width:2.16" />
+ <polyline points="100,380 100,420 100,420 " transform="matrix(1 0 0 0.9882 20 -314.846)" style="fill:none ; stroke:rgb(0,0,0) ; stroke-width:2.16" />
+ <polyline points="140,380 140,420 " transform="matrix(1 0 0 0.9882 20 -314.846)" style="fill:none ; stroke:rgb(0,0,0) ; stroke-width:2.16" />
+ <polyline points="460,380 460,420 " transform="matrix(1 0 0 0.9882 20 -314.846)" style="fill:none ; stroke:rgb(0,0,0) ; stroke-width:2.16" />
+ <polyline points="420,380 420,420 " transform="matrix(1 0 0 0.9882 20 -314.846)" style="fill:none ; stroke:rgb(0,0,0) ; stroke-width:2.16" />
+ <polyline points="380,380 380,420 " transform="matrix(1 0 0 0.9882 20 -314.846)" style="fill:none ; stroke:rgb(0,0,0) ; stroke-width:2.16" />
+ <polyline points="340,380 340,420 " transform="matrix(1 0 0 0.9882 20 -314.846)" style="fill:none ; stroke:rgb(0,0,0) ; stroke-width:2.16" />
+ <polyline points="300,380 300,420 " transform="matrix(1 0 0 0.9882 20 -314.846)" style="fill:none ; stroke:rgb(0,0,0) ; stroke-width:2.16" />
+ <polyline points="180,380 260,380 " transform="matrix(1 0 0 0.9882 20 -314.846)" style="fill:none ; stroke:rgb(0,0,0) ; stroke-width:2.16" />
+ <polyline points="180,420 260,420 260,420 " transform="matrix(1 0 0 0.9882 20 -314.846)" style="fill:none ; stroke:rgb(0,0,0) ; stroke-width:2.16" />
+ <text x="0" y="0" transform="matrix(1 0 0 0.9882 86 70.5516)" style="font-family:helvetica; font-size:14; fill:rgb(0,0,0)" >bit64</text>
+ <text x="0" y="0" transform="matrix(1 0 0 0.9882 407 70.5516)" style="font-family:helvetica; font-size:14; fill:rgb(0,0,0)" >bit3</text>
+ <text x="0" y="0" transform="matrix(1 0 0 0.9882 368 70.5516)" style="font-family:helvetica; font-size:14; fill:rgb(0,0,0)" >bit4</text>
+ <text x="0" y="0" transform="matrix(1 0 0 0.9882 327 70.5516)" style="font-family:helvetica; font-size:14; fill:rgb(0,0,0)" >bit5</text>
+ <text x="0" y="0" transform="matrix(1 0 0 0.9882 288 70.5516)" style="font-family:helvetica; font-size:14; fill:rgb(0,0,0)" >bit6</text>
+ <text x="0" y="0" transform="matrix(1 0 0 0.9882 165 70.5516)" style="font-family:helvetica; font-size:14; fill:rgb(0,0,0)" >bit62</text>
+ <text x="0" y="0" transform="matrix(1 0 0 0.9882 126 70.5516)" style="font-family:helvetica; font-size:14; fill:rgb(0,0,0)" >bit63</text>
+ <text x="0" y="0" transform="matrix(1 0 0 0.9882 491 70.5516)" style="font-family:helvetica; font-size:14; fill:rgb(0,0,0)" >bit1</text>
+ <text x="0" y="0" transform="matrix(1 0 0 0.9882 448 70.5516)" style="font-family:helvetica; font-size:14; fill:rgb(0,0,0)" >bit2</text>
+ <text x="0" y="0" transform="matrix(1 0 0 0.9882 207 69.0693)" style="font-family:helvetica; font-size:14; fill:rgb(0,0,0)" >bits7 to 61</text>
+ <ellipse cx="100" cy="500" rx="20" ry="20" transform="matrix(1 0 0 0.9882 20 -314.846)" style="fill:none ; stroke:rgb(0,0,0) ; stroke-width:2.16" />
+ <polyline points="400,420 400,500 120,500 120,500 " transform="matrix(1 0 0 0.9882 20 -314.846)" style="fill:none ; stroke:rgb(0,0,0) ; stroke-width:2.16" />
+ <polyline points="360,420 360,480 140,480 120,500 120,500 " transform="matrix(1 0 0 0.9882 20 -314.846)" style="fill:none ; stroke:rgb(0,0,0) ; stroke-width:2.16" />
+ <polyline points="60,400 40,400 40,500 80,500 120,500 " transform="matrix(1 0 0 0.9882 20 -314.846)" style="fill:none ; stroke:rgb(0,0,0) ; stroke-width:2.16" />
+ <polyline points="80,420 80,460 100,480 100,480 100,520 100,520 " transform="matrix(1 0 0 0.9882 20 -314.846)" style="fill:none ; stroke:rgb(0,0,0) ; stroke-width:2.16" />
+ <polyline points="120,500 140,520 480,520 480,420 480,420 " transform="matrix(1 0 0 0.9882 20 -314.846)" style="fill:none ; stroke:rgb(0,0,0) ; stroke-width:2.16" />
+ <text x="0" y="0" transform="matrix(1 0 0 0.9882 193 33)" style="font-family:helvetica; font-size:14; fill:rgb(0,0,0)" >Direction of shift</text>
+</svg>

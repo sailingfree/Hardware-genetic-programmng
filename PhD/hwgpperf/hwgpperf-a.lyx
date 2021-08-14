@@ -1,0 +1,960 @@
+#LyX 1.1 created this file. For more info see http://www.lyx.org/
+\lyxformat 218
+\textclass article
+\language english
+\inputencoding auto
+\fontscheme default
+\graphics default
+\float_placement h+tb
+\paperfontsize default
+\spacing single 
+\papersize Default
+\paperpackage a4
+\use_geometry 0
+\use_amsmath 0
+\paperorientation portrait
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\defskip medskip
+\quotes_language english
+\quotes_times 2
+\papercolumns 2
+\papersides 1
+\paperpagestyle default
+
+\layout Title
+
+A Performance Analysis of a Hardware Implementation of Genetic Programming
+ using FPGAs and Handel-C
+\layout Author
+
+Peter Martin
+\layout Address
+
+Department of Computer Science, Essex University, Colchester, UK.
+\layout Abstract
+
+Abstract TBD.
+\layout Section
+
+Introduction
+\layout Standard
+
+Previous work has described an implementation of Genetic Programming using
+ Field Programmable Arrays and a high level language to hardware compilation
+ system called Handel-C 
+\begin_inset LatexCommand \cite{martin:2001:gpem}
+
+\end_inset 
+
+.
+ Further work described a pipelined implementation that delivered even better
+ performance and demonstrated that the technique could be used to solve
+ the artificial ant problem 
+\begin_inset LatexCommand \cite{martin:2002:eurogp2002}
+
+\end_inset 
+
+.
+ In both cases the work concentrated on the implementation issues and increasing
+ the clock speed of the implementation, but put to one side the performance
+ of the system with respect to it's ability to solve GP problems.
+ Now that the raw throughput issues have been considered it is time to look
+ at how good the hardware implementation performs with respect to GP, and
+ investigate and analyze some alternative implementation issues.
+\layout Standard
+
+The hardware GP system incorporates a number of features and simplifications
+ that allowed it to be realized, but that now need investigation.
+ Because of limited hardware resources in an FPGA, the maximum program size
+ was fixed.
+ To ensure that crossover always generated programs that were shorter than
+ the maximum, the crossover operator limited the program size by truncating
+ programs that would exceed the fixed storage allocation.
+ The effect of this decision is investigated in this paper.
+\layout Standard
+
+The paper begins with a brief description of the implementation of a GP
+ system using FPGAs.
+ This is followed by an analysis of the crossover operator, with comparisons
+ to standard GP systems.
+ The analysis is then discussed and finally some further work is suggested
+ and some conclusions are given.
+\layout Section
+
+A Hardware Implementation of GP using FPGAs
+\layout Standard
+
+For a review of previous work using FPGAs in Evolutionary Computing refer
+ to 
+\begin_inset LatexCommand \cite{martin:2001:gpem}
+
+\end_inset 
+
+.
+\layout Subsection
+
+Description of Handel-C
+\layout Standard
+
+Handel-C is a high level language that is at the heart of a hardware compilation
+ system known as Celoxica DK1 
+\begin_inset LatexCommand \cite{Celoxica:website}
+
+\end_inset 
+
+ which is designed to compile programs written in a C-like high level language
+ into synchronous hardware.
+ The output from Handel-C is a file that is used to create the configuration
+ data for the FPGA.
+ A description of the process used by Handel-C to transform a high level
+ language into hardware and examples of the hardware generated can be found
+ in 
+\begin_inset LatexCommand \cite{page:1996}
+
+\end_inset 
+
+.
+ Handel-C has its roots in CSP and Occam.
+\layout Standard
+
+The C-like syntax makes the tool appealing to software engineers with little
+ or no experience of hardware.
+ They can quickly translate a software algorithm into hardware, without
+ having to learn about VHDL or FPGAs in detail.
+\layout Standard
+
+One of the advantages of using hardware is the ability to exploit parallelism
+ directly.
+ Because standard C is a sequential language Handel-C has additional constructs
+ to support the parallelization of code, and to allow fine control over
+ what hardware is generated.
+\layout Standard
+
+Since Handel-C targets hardware, there are some programming restrictions
+ when compared to using ISO-C, and these need to be considered when designing
+ code that can be compiled by Handel-C.
+ Some of these restrictions particularly affect the building of a GP system.
+ Firstly, there is no stack available, so recursive functions cannot be
+ directly supported by the language.
+ Secondly, there is a severe limit to the size of memory that can be implemented
+ using standard logic cells on an FPGA because implementing memory is expensive
+ in terms of silicon real estate.
+ However, some FPGAs have internal RAM that can be used by Handel-C which
+ is supported by the 
+\family typewriter 
+ram
+\family default 
+ storage specifier.
+\layout Subsection
+
+Target Hardware
+\layout Standard
+
+The target hardware for this work is a Celoxica RC1000 FPGA development
+ board fitted with a Xilinx XCV2000E Virtex-E FPGA having 43,200 logic cells
+ and 655,360 bits of block ram, a PCI bridge that communicates between the
+ RC1000 board and the host computer's PCI bus, and four banks of Static
+ Random Access Memory (SRAM).
+ Logic circuits isolate the FPGA from the SRAM, allowing both the host CPU
+ and the FPGA to access the SRAM, though not concurrently.
+ 
+\layout Subsection
+
+Program Representation
+\layout Standard
+
+The lack of a stack in Handel-C means that a standard tree based representation
+ is difficult to implement because recursion cannot be handled by the language.
+ An alternative to a tree representation is a linear representation which
+ has been used by others to solve some hard GP problems 
+\begin_inset LatexCommand \cite{Nordin:1995:tcp}
+
+\end_inset 
+
+.
+ Using a linear representation, a program consists of a sequence of words
+ which are decoded by the problem specific fitness function.
+ 
+\layout Section
+
+Analysis of the Hardware Implementation
+\layout Standard
+
+This section considers the crossover operator used in the hardware implementatio
+n and compares the original operator to an alternative.
+ 
+\layout Standard
+
+The hardware design uses a linear program representation with a fixed maximum
+ size.
+ The choice of a fixed maximum size was made to make the storage of programs
+ in on-chip RAM and off-chip RAM efficient and simple to implement.
+ Handel-C does not support dynamic memory directly using the ISO-C function
+ malloc(), though this feature has been investigated by others in the field
+ of hardware compilation XXX.
+ Consequently a method of limiting the program size during crossover was
+ needed.
+ The first implementation used a truncating crossover.
+ This is compared to a second method of limiting lengths, called the limiting
+ crossover operator.
+\layout Standard
+
+All the results in this section are for the Santa Fe artificial ant problem
+ and are the average of 500 runs of each experiment.
+ In all cases, unless stated otherwise, the population size is 1024, the
+ maximum program length is 31 and all experiments were run for 32 generations.
+\layout Subsection
+
+Performance measurements
+\layout Standard
+
+The measurement of overall GP performance is frequently performed using
+ the method described in Koza 
+\begin_inset LatexCommand \cite{koza:book}
+
+\end_inset 
+
+.
+ This is shown for the artificial ant problem using the original hardware
+ implementation in figure 
+\begin_inset LatexCommand \ref{fig:Initial Performance}
+
+\end_inset 
+
+.
+ 
+\begin_float fig 
+\layout Standard
+\align center 
+
+\begin_inset Figure size 226 158
+file hw_trunc_lfsr_perf.eps
+width 1 8
+flags 9
+
+\end_inset 
+
+
+\layout Caption
+
+
+\begin_inset LatexCommand \label{fig:Initial Performance}
+
+\end_inset 
+
+GP Performance of the original design
+\end_float 
+\layout Standard
+
+This will be used as a baseline when looking at changes to the original
+ design.
+\layout Standard
+
+However, when looking for the reasons to explain why a feature of an operator,
+ or representation has an effect, raw performance gives us a very restricted
+ view of what is happening, and more sophisticated methods are needed.
+ Once such method is to consider one or more aspects of the internal population
+ dynamics during a run.
+ Recently a lot of work has been done to develop exact schema theories for
+ Genetic Programming 
+\begin_inset LatexCommand \cite{Poli00-16}
+
+\end_inset 
+
+
+\begin_inset LatexCommand \cite{McPhee00-22}
+
+\end_inset 
+
+, which give us a description of the expected population size during a GP
+ run.
+ It has been argued (langdon, poli) that the distribution of program sizes
+ has a marked influence on the performance, especially with respect to the
+ phenomenon of bloat [langdon, poli] and that it is the effect of fitness
+ that causes bloat 
+\begin_inset LatexCommand \cite{Langdon:1997:bloatICGA}
+
+\end_inset 
+
+.
+\layout Standard
+
+Starting with the standard GP model using standard subtree crossover, uniform
+ initial length distribution and ignoring the effects of fitness, figure
+ 
+\begin_inset LatexCommand \ref{fig:StandardGP size distribution}
+
+\end_inset 
+
+ shows the expected size distribution for generations 0,1,10 and 31.
+ In this case there is no maximum program size.
+\layout Standard
+
+\begin_float fig 
+\layout Standard
+\align center 
+
+\begin_inset Figure size 226 158
+file sim_nofit_stdgp.eps
+width 1 8
+flags 9
+
+\end_inset 
+
+
+\layout Caption
+
+
+\begin_inset LatexCommand \label{fig:StandardGP size distribution}
+
+\end_inset 
+
+Size distribution for standard GP crossover using a linear program representatio
+n, a global replacement strategy, non-steady state and a flat fitness landscape.
+ The maximum program size is unconstrained.
+\end_float 
+\layout Subsection
+
+Truncating Crossover Operator and Replacement Strategy
+\layout Standard
+
+This is a method that ensures programs do not exceed the maximum program
+ size by selecting crossover points in two individuals at random and exchanging
+ the tail portions up to the maximum program size.
+ Crossovers that result in programs exceeding the maximum size are truncated
+ at the maximum size.
+ This reduces the amount of logic required and the number of clock cycles
+ needed for crossover.
+ This is illustrated in figure 
+\begin_inset LatexCommand \ref{fig:Truncating crossover operator}
+
+\end_inset 
+
+.
+\layout Standard
+
+\begin_float fig 
+\layout Standard
+\align center 
+
+\begin_inset Figure size 226 138
+file crossover1.eps
+width 1 8
+flags 9
+
+\end_inset 
+
+
+\layout Caption
+
+
+\begin_inset LatexCommand \label{fig:Truncating crossover operator}
+
+\end_inset 
+
+Truncating crossover operator
+\end_float 
+\layout Standard
+
+For two programs 
+\begin_inset Formula \( a \)
+\end_inset 
+
+ and 
+\begin_inset Formula \( b \)
+\end_inset 
+
+, with lengths 
+\begin_inset Formula \( l_{a} \)
+\end_inset 
+
+ and 
+\begin_inset Formula \( l_{b} \)
+\end_inset 
+
+, two crossover points 
+\begin_inset Formula \( x_{a} \)
+\end_inset 
+
+ and 
+\begin_inset Formula \( x_{b} \)
+\end_inset 
+
+ are chosen so that 
+\begin_inset Formula \( 0>x_{a}>l_{a} \)
+\end_inset 
+
+ and 
+\begin_inset Formula \( 0>x_{b}>l_{b} \)
+\end_inset 
+
+.
+ The program size limit is 
+\begin_inset Formula \( maxlen \)
+\end_inset 
+
+.
+ After crossover the new lengths are 
+\begin_inset Formula \( l_{a}'= \)
+\end_inset 
+
+min
+\begin_inset Formula \( ((x_{a}+l_{b}-x_{b}),maxlen) \)
+\end_inset 
+
+ and 
+\begin_inset Formula \( l_{b}'= \)
+\end_inset 
+
+min
+\begin_inset Formula \( ((x_{b}+l_{a}-x_{a}),maxlen) \)
+\end_inset 
+
+.
+\layout Standard
+
+The replacement strategy in conventional steady-state GP for an individual
+ that has been evaluated is normally to replace the globally worst individual
+ in the population.
+ In a hardware implementation with parallel fitness evaluations this is
+ expensive to implement since a global search is required.
+ An alternative to this is called survival-driven evolution, which has been
+ used successfully by Shackleford et al 
+\begin_inset LatexCommand \cite{shackleford:2001}
+
+\end_inset 
+
+.
+ In this scheme only offspring that are fitter than the worst of their two
+ parents will survive into the next generation by replacing one of the parents.
+ This removes the need for any global search and this scheme was adapted
+ and modified to the current work.
+ Both new programs are evaluated in parallel and after evaluation, the fitness
+ each of the new programs 
+\begin_inset Formula \( a' \)
+\end_inset 
+
+ and 
+\begin_inset Formula \( b' \)
+\end_inset 
+
+ are compared to the fitness of their parents, 
+\begin_inset Formula \( a \)
+\end_inset 
+
+ and 
+\begin_inset Formula \( b \)
+\end_inset 
+
+ respectively.
+ For each new program, if it is fitter than it's parent it will replace
+ it's parent in the main population.
+ This contrasts to standard GP where the result of crossover may potentially
+ replace any program in the population.
+ The effect of the modified survival-driven evolution is explored in the
+ following experiments.
+\layout Standard
+
+When standard GP is modified to implement a truncating crossover, the result
+ is shown in figure 
+\begin_inset LatexCommand \ref{fig:Truncating GP with global replacement}
+
+\end_inset 
+
+.
+\layout Standard
+
+\begin_float fig 
+\layout Standard
+\align center 
+
+\begin_inset Figure size 226 158
+file sim_nofit_trunc.eps
+width 1 8
+flags 9
+
+\end_inset 
+
+
+\layout Caption
+
+
+\begin_inset LatexCommand \label{fig:Truncating GP with global replacement}
+
+\end_inset 
+
+Population size distribution using truncating crossover for standard GP
+ using a global replacement strategy on a flat fitness landscape.
+\end_float 
+\layout Standard
+
+When the replacement strategy is modified for the survival-driven evolution
+ and combined with the truncating crossover operator, the result is very
+ similar, as shown in figure 
+\begin_inset LatexCommand \ref{fig:Truncating GP size distribution hardware no fitness}
+
+\end_inset 
+
+.
+ This shows the size distribution from the hardware implementation using
+ the truncating crossover operator and survival-driven evolution at generations
+ 0, 1, 10 and 32, again without fitness.
+ 
+\layout Standard
+
+\begin_float fig 
+\layout Standard
+\align center 
+
+\begin_inset Figure size 226 158
+file hw_nofit_trunc.eps
+width 1 8
+flags 9
+
+\end_inset 
+
+
+\layout Caption
+
+
+\begin_inset LatexCommand \label{fig:Truncating GP size distribution hardware no fitness}
+
+\end_inset 
+
+Population size distribution using truncating crossover using a linear program
+ representation on a flat fitness landscape.
+ From the hardware implementation.
+\end_float 
+\layout Standard
+
+A feature of this result for both global replacement and survival-driven
+ evolution is that there is initially a large peak at the maximum program
+ size of 31, but in subsequent generations the distribution tends to resemble
+ the the gamma distribution seen in 
+\begin_inset LatexCommand \ref{fig:StandardGP size distribution}
+
+\end_inset 
+
+.
+ 
+\layout Standard
+
+When the fitness function is enabled, the size distribution changes considerably
+ as shown in figure 
+\begin_inset LatexCommand \ref{fig:Truncating GP size distribution hardware with fitness}
+
+\end_inset 
+
+.
+ The striking feature is the large peak at the maximum program size limit.
+ This peak represents 13% of the total population.
+\layout Standard
+
+\begin_float fig 
+\layout Standard
+\align center 
+
+\begin_inset Figure size 226 158
+file hw_fit_trunc.eps
+width 1 8
+flags 9
+
+\end_inset 
+
+
+\layout Caption
+
+
+\begin_inset LatexCommand \label{fig:Truncating GP size distribution hardware with fitness}
+
+\end_inset 
+
+Population size distribution using truncating crossover using a linear program
+ representation with fitness.
+ From the hardware implementation.
+\end_float 
+\layout Subsection
+
+Limiting Crossover Operator
+\layout Standard
+
+An alternative method of ensuring that programs do not exceed the fixed
+ limit is to choose crossover points that result in programs that are below
+ the limit.
+ 
+\layout Standard
+
+For two programs 
+\begin_inset Formula \( a \)
+\end_inset 
+
+ and 
+\begin_inset Formula \( b \)
+\end_inset 
+
+, with lengths 
+\begin_inset Formula \( l_{a} \)
+\end_inset 
+
+ and 
+\begin_inset Formula \( l_{b} \)
+\end_inset 
+
+, two crossover points 
+\begin_inset Formula \( x_{a} \)
+\end_inset 
+
+ and 
+\begin_inset Formula \( x_{b} \)
+\end_inset 
+
+ are chosen so that 
+\begin_inset Formula \( 0>x_{a}>l_{a} \)
+\end_inset 
+
+ and 
+\begin_inset Formula \( 0>x_{b}>l_{b} \)
+\end_inset 
+
+.
+ The program size limit is 
+\begin_inset Formula \( maxlen \)
+\end_inset 
+
+.
+ After crossover the new lengths are simply 
+\begin_inset Formula \( l_{a}'=x_{a}+l_{b}-x_{b} \)
+\end_inset 
+
+ and 
+\begin_inset Formula \( l_{b}'=x_{b}+l_{a}-x_{a} \)
+\end_inset 
+
+.
+ If 
+\begin_inset Formula \( l_{a}'>maxlen \)
+\end_inset 
+
+ or 
+\begin_inset Formula \( l_{b}'>maxlen \)
+\end_inset 
+
+ the selection of 
+\begin_inset Formula \( x_{a} \)
+\end_inset 
+
+ and 
+\begin_inset Formula \( x_{b} \)
+\end_inset 
+
+ is repeated until 
+\begin_inset Formula \( l_{a}'<maxlen \)
+\end_inset 
+
+ and 
+\begin_inset Formula \( l_{b}'<maxlen \)
+\end_inset 
+
+.
+\layout Standard
+
+This is the approach taken in lilgp 
+\begin_inset LatexCommand \cite{zonger:1996:lilgp}
+
+\end_inset 
+
+ and other tree based GP systems to limit the tree depth and the total number
+ of nodes in a program tree.
+ When this crossover operator is combined with standard population replacement
+ strategy, the population size distribution changes, as shown in figure
+ .
+ 
+\layout Standard
+
+\begin_float fig 
+\layout Standard
+\align center 
+
+\begin_inset Figure size 226 158
+file sim_nofit_limit.eps
+width 1 8
+flags 9
+
+\end_inset 
+
+
+\layout Caption
+
+Population size distribution using limiting crossover operator and a global
+ replacement strategy on a flat fitness landscape.
+\end_float 
+\layout Standard
+
+A feature of this result is that the mean size of the population moves towards
+ smaller values.
+ After 31 generations, the population size distribution shape resembles
+ standard GP.
+ 
+\layout Standard
+
+When this method of limiting the program size is implemented in the hardware
+ version with survival-driven evolution, we obtain the distribution shown
+ in figure 
+\begin_inset LatexCommand \ref{fig:Crossover point limited size distribution using the hardware without fitness}
+
+\end_inset 
+
+.
+ In contrast to the global replacement strategy the program size distribution
+ remains reasonably static between generations 1 and 31.
+\layout Standard
+
+\begin_float fig 
+\layout Standard
+\align center 
+
+\begin_inset Figure size 226 158
+file hw_nofit_limit.eps
+width 1 8
+flags 9
+
+\end_inset 
+
+
+\layout Caption
+
+
+\begin_inset LatexCommand \label{fig:Crossover point limited size distribution using the hardware without fitness}
+
+\end_inset 
+
+Population size distribution using limiting crossover with survival-driven
+ evolution on a flat fitness landscape.
+ From the hardware implementation.
+\end_float 
+\layout Standard
+
+However once again when fitness is enabled , there is a large bias in favor
+ of longer programs as shown in figure 
+\begin_inset LatexCommand \ref{fig:Crossover point limited size distribution using the hardware with fitness}
+
+\end_inset 
+
+.
+ An interesting artifact of this graph is the sharp rise in program lengths
+ for generations 10 and 31 above length 15, and the plateau after length
+ 15.
+\begin_float fig 
+\layout Standard
+\align center 
+
+\begin_inset Figure size 226 158
+file hw_fit_limit.eps
+width 1 8
+flags 9
+
+\end_inset 
+
+
+\layout Caption
+
+
+\begin_inset LatexCommand \label{fig:Crossover point limited size distribution using the hardware with fitness}
+
+\end_inset 
+
+Population size size distribution using limiting crossover with survival-driven
+ evolution and fitness.
+ From the hardware implementation.
+\end_float 
+\layout Standard
+
+Finally the effect of using the limiting crossover operator on the performance
+ of the system is shown in figure 
+\begin_inset LatexCommand \ref{fig:GP performance with crossover point limit}
+
+\end_inset 
+
+ together with the original performance.
+\layout Standard
+
+This graph shows that the two crossover implementations have a similar rate
+ of convergence, but that the truncating operator performs better when run
+ for more generations.
+\begin_float fig 
+\layout Standard
+\align center 
+
+\begin_inset Figure size 226 158
+file hw_limit_lfsr_perf.eps
+width 1 8
+flags 9
+
+\end_inset 
+
+
+\layout Caption
+
+
+\begin_inset LatexCommand \label{fig:GP performance with crossover point limit}
+
+\end_inset 
+
+Comparative GP Performance of the hardware implementation for the ant problem
+ using truncating crossover and limiting crossover.
+\end_float 
+Finally, the distribution of 100% correct program lengths was measured for
+ truncating and limiting crossovers.
+ The hardware implementation was run 500 times, and if a 100% correct program
+ was generated, the length was recorded.
+ These are shown in figures 
+\begin_inset LatexCommand \ref{fig:Lengths for truncating 100%}
+
+\end_inset 
+
+ and 
+\begin_inset LatexCommand \ref{fig:Lenghts for limiting 100%}
+
+\end_inset 
+
+.
+\layout Standard
+
+\begin_float fig 
+\layout Standard
+\align center 
+
+\begin_inset Figure size 226 158
+file hw_trunc_lengths.eps
+width 1 8
+flags 9
+
+\end_inset 
+
+
+\layout Caption
+
+
+\begin_inset LatexCommand \label{fig:Lengths for truncating 100%}
+
+\end_inset 
+
+Distribution of sizes of 100% correct programs using the truncating crossover
+ operator from the hardware implementation.
+\end_float 
+\layout Standard
+
+\begin_float fig 
+\layout Standard
+\align center 
+
+\begin_inset Figure size 226 158
+file hw_limit_lengths.eps
+width 1 8
+flags 9
+
+\end_inset 
+
+
+\layout Caption
+
+
+\begin_inset LatexCommand \label{fig:Lenghts for limiting 100%}
+
+\end_inset 
+
+Distribution of sizes of 100% correct programs using the limiting crossover
+ operator from the hardware implementation.
+\end_float 
+The limiting crossover operator has allowed GP to create more longer solutions
+ than the truncating operator.
+ One possible explanation for this is that the limiting crossover samples
+ fewer short programs than the truncating operator.
+ It is also clear from these results that truncating crossover produced
+ more correct solutions than limiting crossover, a reslut that is not obvious
+ from looking at the comparative performance graph in figure 
+\begin_inset LatexCommand \ref{fig:GP performance with crossover point limit}
+
+\end_inset 
+
+.
+\layout Section
+
+Discussion
+\layout Standard
+
+Some things to consider and expand on:
+\layout Itemize
+
+truncating crossover moves towards over representing small programs.
+\layout Itemize
+
+spiky nature of the hardware results - random number generator?
+\layout Itemize
+
+effect of survival-driven evolution on distribution for limiting crossover
+ - why is this so different form global replacement?
+\layout Itemize
+
+difference in performance - would expect a more uniform length distribution
+ to give better results, but for the ant problem it appears not to.
+\layout Standard
+
+A practical penalty of the limiting crossover approach is that multiple
+ passes may be required to obtain two crossover points that satisfy the
+ length constraints.
+ Depending on the implementation this could have an impact on the time needed
+ to complete a GP run.
+ In practice for most problems the time required for crossover in a standard
+ GP system is much smaller that the time for evaluating programs, and so
+ will only extend the time required by a small factor.
+ In the hardware implementation, crossover is performed in parallel with
+ evaluation, so there will be no impact for most problems, where fitness
+ evaluation takes longer than selection and breeding.
+ For the artificial ant problem implemented in hardware, the limiting crossover
+ operator did not have any effect on the overall performance of the design,
+ both the clock speed and number of clock cycles remained the same as the
+ truncating crossover implementation.
+\layout Section
+
+Further work and Conclusions
+\layout Standard
+
+Other techniques have been suggested for controlling the program size during
+ evolution, such as the smooth operators 
+\begin_inset LatexCommand \cite{page:1999:smuxspmGP}
+
+\end_inset 
+
+, homologous and size fair operators 
+\begin_inset LatexCommand \cite{langdon:1999:fairxo}
+
+\end_inset 
+
+.
+\layout Standard
+
+Only one problem has been analyzed using the hardware implementation of
+ GP.
+ To get a more complete picture of the effects of the design decisions more
+ problems need to be implemented and analyzed.
+\layout Standard
+
+In conclusion, both the truncating crossover operator and the limiting crossover
+ operator are effective in the hardware implementation, when applied to
+ the artificial ant problem.
+ The differences in overall performance are small but we can say that for
+ the artificial ant problem the truncating crossover operator had a higher
+ probability of producing a correct program than the limiting crossover,
+ but the limiting crossover produced a bigger range of lengths of programs.
+\layout Standard
+
+
+\begin_inset LatexCommand \BibTeX[plain]{handelc}
+
+\end_inset 
+
+
+\the_end

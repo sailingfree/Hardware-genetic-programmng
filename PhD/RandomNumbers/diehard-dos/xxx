@@ -1,0 +1,66 @@
+       NOTE: Most of the tests in DIEHARD return a p-value, which             
+       should be uniform on [0,1) if the input file contains truly            
+       independent random bits.   Those p-values are obtained by              
+       p=F(X), where F is the assumed distribution of the sample              
+       random variable X---often normal. But that assumed F is just           
+       an asymptotic approximation, for which the fit will be worst           
+       in the tails. Thus you should not be surprised with                    
+       occasional p-values near 0 or 1, such as .0012 or .9983.               
+       When a bit stream really FAILS BIG, you will get p's of 0 or           
+       1 to six or more places.  By all means, do not, as a                   
+       Statistician might, think that a p < .025 or p> .975 means             
+       that the RNG has "failed the test at the .05 level".  Such             
+       p's happen among the hundreds that DIEHARD produces, even              
+       with good RNG's.  So keep in mind that " p happens".                   
+     :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::      
+     ::               THE MINIMUM DISTANCE TEST                       ::      
+     :: It does this 100 times::   choose n=8000 random points in a   ::      
+     :: square of side 10000.  Find d, the minimum distance between   ::      
+     :: the (n^2-n)/2 pairs of points.  If the points are truly inde- ::      
+     :: pendent uniform, then d^2, the square of the minimum distance ::      
+     :: should be (very close to) exponentially distributed with mean ::      
+     :: .995 .  Thus 1-exp(-d^2/.995) should be uniform on [0,1) and  ::      
+     :: a KSTEST on the resulting 100 values serves as a test of uni- ::      
+     :: formity for random points in the square. Test numbers=0 mod 5 ::      
+     :: are printed but the KSTEST is based on the full set of 100    ::      
+     :: random choices of 8000 points in the 10000x10000 square.      ::      
+     :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::      
+               This is the MINIMUM DISTANCE test
+              for random integers in the file congru.bin     
+     Sample no.    d^2     avg     equiv uni            
+           5     .1996    .1317     .181773
+          10     .6460    .1844     .477577
+          15     .0973    .2182     .093155
+          20     .0053    .2051     .005270
+          25     .0936    .2128     .089741
+          30     .1200    .2139     .113656
+          35    1.0278    .2566     .644063
+          40     .0430    .2568     .042333
+          45     .3729    .2576     .312590
+          50     .0991    .2482     .094756
+          55     .1166    .2464     .110615
+          60     .0364    .2584     .035883
+          65     .6299    .2732     .469036
+          70     .1648    .2681     .152612
+          75     .5285    .2694     .412099
+          80     .0321    .2621     .031789
+          85     .0727    .2507     .070476
+          90     .3790    .2447     .316756
+          95     .0648    .2511     .063009
+         100     .5021    .2483     .396279
+     MINIMUM DISTANCE TEST for congru.bin     
+          Result of KS test on 20 transformed mindist^2's:
+                                  p-value=1.000000
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ 
+
+     :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::      
+     ::      This is the SQEEZE test                                  ::      
+     ::  Random integers are floated to get uniforms on [0,1). Start- ::      
+     ::  ing with k=2^31=2147483647, the test finds j, the number of  ::      
+     ::  iterations necessary to reduce k to 1, using the reduction   ::      
+     ::  k=ceiling(k*U), with U provided by floating integers from    ::      
+     ::  the file being tested.  Such j's are found 100,000 times,    ::      
+     ::  then counts for the number of times j was <=6,7,...,47,>=48  ::      
+     ::  are used to provide a chi-square test for cell frequencies.  ::      
+     :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::      

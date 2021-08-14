@@ -1,0 +1,102 @@
+Forrest, 
+
+
+> I enjoyed your paper in the Dec GP&EHW journal. I have some questions and 
+> comments.
+
+Many thanks for the comments and links. I have a few answers for you.
+There is also an update to this work, which I shall be giving at EuroGP2002.
+There is a tech report of essentiall the same EuroGP2002 paper now 
+available at:
+http://cswww.essex.ac.uk/technical-reports/cs-report-353.ps
+
+> Is there a main reason why you were only able to clock your designs at 
+> 18-25MHz? Does it have something to do with Handel-C? I would have 
+> nominally expected to be able to run a Virtex-II 2000-6 at 160MHz minimum 
+> assuming that all aspects of the design were fully staged.
+
+I guess the main reason is that when using Handel-C you are able to build
+expressions that result in deep logic. Of course, a hardware designer
+can also create deep logic using VHDL!. Experience has shown that to get 
+designs that have less delay, one has to code explicitly for that. In 
+addition, interpretation of the delay analysis output from the place and
+route tools needs to be done with care. 
+One way to easily trash the design is to use some simple constructs such as 
+a relational operator like < or > on words of more than a few bits. This
+is because the implementation is done using a signed subtraction which 
+generates huge carry chains. To get round this one has to resort to 
+other operators, or use the Xilinx coregen to access FPGA intrinsics
+directly. This I only learnt after the paper was published.
+I used the Virtex-E series, not the Virtex-II series which has a much
+better routing architecture, and smaller fabrication geometry, so can 
+chug along about twice as fast as a Virtex-E. 
+Logic is not the only contributor of course. Routing adds about twice the 
+gate delay for any non-trivial design, especially when large fanouts
+result.
+You are in the right ball park with your prediction, the revised design 
+has been simulated at around 150MHz for a Virtex-II device.
+
+> Why didn't you implement multiplication using the multiplies that are 
+> built into the Virtex-II? Are you unable to access them via Handel-C?
+The work was done with the Virtex-E series, so yes if one were to use
+a Virtex-II device, arithmetic operators would be easier to implement.
+Of course, using pipelined multipliers could be another approach, but I guess
+would only be of benefit if there were several dozen multiplications
+to be performed per fitness evaluation.
+
+> You state that you are concerned that you can only access the BlockRAMs 
+> once per cycle. In fact the BlockRAMs are dual ported, so can do 2 access 
+> per cycle. Furthermore, you can organize your data into multiple 
+> BlockRAMs. For example, if you wanted to support 8 populations you would 
+> group the BlockRAM into 8 groups; and then you can access _each_ 
+> population 2 times per cycle. You may be using one of the ports to connect 
+> the BlockRAM to the host, so you loose one of the dual ports, but this 
+> still leaves you with the grouping capability.
+
+Indeed, and the use of block rams has been exploited in the revised design.
+Another way to use the dual port capabilities is to allow the routing 
+more flexibility by using both ports for access from different parts 
+of the design.
+
+> You were also concerned in the paper about the limited bandwidth to the 
+> RAM on the card because the RC1000 has only 4 ports. The boards that 
+> Celoxica sells are made by a UK company called Alpha Data. They sell other 
+> boards compatible with Handel-C that have more (at least 6) ports. For 
+> example this Virtex-II daughter card:
+
+> Alpha Data ADM-XRC-II
+> http://www.alphadata.co.uk/dsheet/adm-xrc-ii.html
+
+> ... which sits on this PCI card:
+
+> XRC-PCI
+> http://www.alphadata.co.uk/dsheet/xrc-pci.html
+
+Thanks for the links, I was not aware of these.
+As it turns out the external RAMS are not a great bottleneck, as one
+would expect, the fitness evaluation takes much longer, so the RAM access
+can be parallelised with the fitness evaluation and effectively dissapear.
+One problem I did find when using external RAM, is the limited throughput
+due to the timing constraints of the board.
+
+> Have you been given access to, or used, Celoxica's PAL (Platform 
+> Abstraction Layer), which is supposed to contain an API for getting at 
+> hardware resources that are not on the fpga? All I know is from this 
+> article:
+> http://www.chipcenter.com/pld/products_600-699/prod615.htm
+
+No, I have not used this. 
+
+> I am amazed that Handel-C doesn't have floating point support. Have you 
+> heard anything about plans to add it in the future?
+
+The latest version of Handel-C, called DK1, includes floating point 
+support as a library. I have not tried this out yet, though it migh 
+be worthwhile to re-visit the regression type problems.
+
+
+Again, many thanks for the comments
+
+regards
+
+Pete Martin

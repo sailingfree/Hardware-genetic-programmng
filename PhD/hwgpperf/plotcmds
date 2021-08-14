@@ -1,0 +1,16 @@
+set title 'Lengths of 100% correct programs'
+set xlabel 'Program Length'
+set ylabel 'Frequency
+set ytics rotate
+set nokey
+maxy=7
+xpos=10
+ypos=maxy+1
+set yrange [0:maxy+(maxy/20)+2]
+set xrange [0:256]
+set label '478 correct programs out of 500 runs' at 200,ypos right
+plot 'hw_bool_parity-6_lengths-256.dat' title 'Limiting - parity' with boxes
+set output 'hw_bool_parity-6_lengths-256.eps'
+set term postscript eps 'Times-Roman' 24
+replot
+pause 10

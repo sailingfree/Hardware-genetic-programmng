@@ -1,0 +1,40 @@
+#LyX 1.1 created this file. For more info see http://www.lyx.org/
+\lyxformat 218
+\textclass article
+\language english
+\inputencoding auto
+\fontscheme default
+\graphics default
+\paperfontsize default
+\spacing single 
+\papersize Default
+\paperpackage a4
+\use_geometry 0
+\use_amsmath 0
+\paperorientation portrait
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\defskip medskip
+\quotes_language english
+\quotes_times 2
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+
+\layout Standard
+
+¡ ¿ ¢ £ $ ¤ ¥ § © ® « » ­ ± · ~ ª ° ¹ ² ³ º ´ µ ¶ ¼ ½ ¾ _ |¸ 
+\layout Standard
+
+.
+\layout Standard
+
+À Á Â Ã Ä Å Æ Ç È É Ê Ë Ì Í Î Ï Ð Ñ Ò Ó Ô Õ Ö × Ø Ù Ú Û Ü Ý Þ ß 
+\layout Standard
+
+.
+\layout Standard
+
+à á â ã ä å æ ç è é ê ë ì í î ï ð ñ ò ó ô õ ö ø ÷ ù ù ú û ü ý þ ÿ 
+\the_end

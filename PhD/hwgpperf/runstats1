@@ -1,0 +1,135 @@
+#!/usr/bin/perl -w
+##########################################################################
+# Perl script to run a set of tests using the iso-c version of hwgp 
+# and plot the performance graphs.
+# The first is the standard version - as reported in papers
+# Subsequent tests compare the performance of the standard to the changes
+##########################################################################
+
+
+$usage="Please give number of runs to do";
+
+$arg1 = shift(@main::ARGV) || die $usage;    
+
+$maxrun=$arg1;
+$maxfit=89;
+@totals = 0;
+$cmds="plotcmds";
+
+runtest('hwgp', ' -f -s', 'hw_trunc_lfsr_perf',    '-DANT  -DTRUNCATE -DLFSR', 
+	'Truncating', '', '', '', '');
+runtest('hwgp', ' -f -s', 'hw_limit_lfsr_perf',    '-DANT -DLIMITED -DLFSR -DDUALXOVER', 
+	'Limiting', 'hw_trunc_lfsr_perf', 'Truncating', '', '');
+runtest('hwgp', ' -f -s', 'hw_limit_lfsr_single_perf',    '-DANT -DLIMITED -DLFSR', 
+	'Limiting Single', 'hw_trunc_lfsr_perf', 'Truncating', 'hw_limit_lfsr_perf', 'Limiting');
+
+exit 1;
+
+runtest('hwgp', ' -f -s', 'hw_trunc_16lfsr_perf',    '-DANT  -DTRUNCATE -DLFSR_16', 
+	'16 lfsrs', 'hw_trunc_lfsr_perf', 'Standard', '', '');
+runtest('hwgp', ' -f -s', 'hw_trunc_16ca_perf',    '-DANT  -DTRUNCATE -DCA_16', 
+	'16 CAs', 'hw_trunc_lfsr_perf', 'Standard', '', '');
+runtest('hwgp', ' -f -s', 'hw_trunc_cong_perf',    '-DANT  -DTRUNCATE -DCONGRNG', 
+	'Linear Congruential', 'hw_trunc_lfsr_perf', 'Standard', '', '');
+runtest('hwgp', ' -f -s', 'hw_trunc_seq_perf',    '-DANT  -DTRUNCATE -DSEQRNG', 
+	'Sequential', 'hw_trunc_lfsr_perf', 'Standard', '', '');
+runtest('hwgp', ' -f -s', 'hw_trunc_sparse_perf',    '-DANT  -DTRUNCATE -DSPARSE', 
+	'Sparse', 'hw_trunc_lfsr_perf', 'Standard', '', '');
+runtest('hwgp', ' -f -s', 'hw_trunc_true_perf',    '-DANT  -DTRUNCATE -DTRUERANDOM', 
+	'True Random', 'hw_trunc_lfsr_perf', 'Standard', '', '');
+
+sub runtest {
+    my $prog  = shift(@_);
+    my $pargs = shift(@_);
+    my $exp   = shift(@_);
+    my $flags = shift(@_);
+    my $title1 = shift(@_);
+    my $exp2  = shift(@_);
+    my $title2 = shift(@_);
+    my $exp3   = shift(@_);
+    my $title3 = shift(@_);
+
+    unlink $prog;
+    open CC, "gcc -o $prog $prog.c $flags -I. -Wall -O7 |" || die "Failed to compile test";
+    close CC;
+
+    readin($prog, $pargs, $exp);
+    plot($exp, $title1, $exp2, $title2, $exp3, $title3);
+}
+
+sub readin {
+    my $prog  = shift(@_);
+    my $pargs = shift(@_);
+    my $exp   = shift(@_);
+    
+    my $topgen=0;
+    my $gen = 0;
+    my $run =0;
+    
+    reset 'totals';
+    $totals[$gen]=0;
+    while($run < $maxrun ) {
+	printf ("Run number $run\r");
+	$gen=0;
+	open RUN, "./$prog $pargs|";
+	while(<RUN>) {
+	    $fit = $_;
+	    $totals[$gen] += $fit;
+	    $gen++;
+	    if($gen>$topgen) {
+		$totals[$gen]=0;
+		$topgen=$gen;
+	    }
+	}
+	close RUN;
+	$run++;
+    }
+    analyse($exp, $gen, $run);
+}
+
+sub analyse {
+    my $exp = shift(@_);
+    my $gen = shift(@_);
+    my $run = shift(@_);
+
+    print "Calculating the average fitness for $gen generations\n";
+    open FITVAL, ">$exp.dat" || die "Unable to open the output file";
+    for ($i=0;$i<$gen;$i++) {
+	$fitval = (($maxfit - ($totals[$i]/$run))/$maxfit)*100;
+	print FITVAL "$fitval\n";
+    }
+    close FITVAL;
+}
+
+sub plot {
+    my $exp = shift(@_);
+    my $title1 = shift(@_);
+    my $exp2 = shift(@_);
+    my $title2 = shift(@_);
+    my $exp3 = shift(@_);
+    my $title3 = shift(@_);
+    
+    open GNUPLOT, ">$cmds" || die "Unable to create plot commands\n";
+    print GNUPLOT "set title 'Fitness value against generation\n";
+    print GNUPLOT "set xlabel 'Generation'\n";
+    print GNUPLOT "set ylabel 'Fitness (percent)\n";
+    print GNUPLOT "set ytics rotate\n";
+    print GNUPLOT "set key bottom right\n";
+    print GNUPLOT "set yrange [0:100]\n";
+    print GNUPLOT "plot '$exp.dat' title '$title1' with lines\n";
+    if($exp2 ne '') {
+	printf GNUPLOT "replot '$exp2.dat' title '$title2' with lines\n";
+    }
+    if($exp3 ne '') {
+	printf GNUPLOT "replot '$exp3.dat' title '$title3' with lines\n";
+    }
+    print GNUPLOT "set output '$exp.eps'\n";
+    print GNUPLOT "set term postscript eps 'Times-Roman' 24\n";
+    print GNUPLOT "pause 10\n";
+    print GNUPLOT "replot\n";
+    close GNUPLOT;
+
+    open PLOT, "|gnuplot $cmds";
+    close PLOT;
+
+}

@@ -1,0 +1,203 @@
+#!/usr/bin/perl -w
+##########################################################################
+# Run the hwgp and produce the size distribution graphs 
+# This runs the iso-c implementation on a workstation.
+# It compiles hwgp for :
+# 1 Truncating xover without fitness
+# 2 Truncating xover with fitness
+##########################################################################
+ 
+
+print "Creating size distribution graphs\n";
+
+$usage = "Please supply number of runs for experiment and 'sim', 'hw' or 'all'\n";
+
+$arg1 = shift(@main::ARGV) || die $usage;    
+$maxrun=$arg1;
+@hist = 0;
+@leng = 0;
+$maxyval=0;
+$maxxval=0;
+
+$arg1 = shift(@main::ARGV) || die $usage;
+
+mkdir 'tmp';
+
+
+if($arg1 eq 'hw') {
+    runhw();
+} elsif ($arg1 eq 'sim') {
+    runsim();
+} elsif ($arg1 eq 'all') {
+    runhw();
+    runsim();
+} else {
+    print "Unrecognised option $arg1\n";
+    die $usage;
+}
+
+
+
+sub runhw {
+#runtest('hwgp', ' -l -s', 'hw_bool_parity-256',    '-DBOOLPARITY  -DLIMITED  -DCONGRNG -DPARITYBITS=6 -DREGBITS=4 -DPOPSIZE=2048 -DGENERATION=64 -DMAXPROGLEN=256', 'top right');
+#runtest('hwgp', ' -l -s', 'hw_bool_parity-128',    '-DBOOLPARITY  -DLIMITED  -DCONGRNG -DPARITYBITS=6 -DREGBITS=4 -DPOPSIZE=2048 -DGENERATION=64 -DMAXPROGLEN=128', 'top right');
+#runtest('hwgp', ' -l -s', 'hw_bool_parity-64',     '-DBOOLPARITY  -DLIMITED  -DCONGRNG -DPARITYBITS=6 -DREGBITS=4 -DPOPSIZE=2048 -DGENERATION=64 -DMAXPROGLEN=64', 'top right');
+#runtest('hwgp', ' -l -s', 'hw_bool_parity_dual',   '-DBOOLPARITY  -DNOXOR -DDUALXOVER -DLIMITED  -DCONGRNG -DPARITYBITS=6 -DREGBITS=4 -DPOPSIZE=2048 -DGENERATION=64 -DMAXPROGLEN=256', 'top right');
+runtest('hwgp', ' -l -s', 'hw_bool_parity_truncate',    '-DBOOLPARITY  -DTRUNCATE -DLIMITED  -DCONGRNG -DPARITYBITS=6 -DREGBITS=4 -DPOPSIZE=2048 -DGENERATION=64 -DMAXPROGLEN=256', 'top right');
+
+#runtest('hwgp', ' -l -s', 'hw_nofit_trunc',  '-DANT -DNOFITNESS  -DTRUNCATE -DLFSR', 'top right');
+#runtest('hwgp', ' -l -s', 'hw_nofit_limit',  '-DANT -DNOFITNESS -DLIMITED -DLFSR -DDUALXOVER', 'top right');
+#runtest('hwgp', ' -l -s', 'hw_nofit_limit_single',  '-DANT -DNOFITNESS -DLIMITED -DLFSR', 'top right');
+#runtest('hwgp', ' -l -s', 'hw_fit_trunc',    '-DANT  -DTRUNCATE -DLFSR','top left');
+#runtest('hwgp', ' -l -s', 'hw_fit_limit',    '-DANT -DLIMITED -DLFSR -DDUALXOVER', 'top right');
+#    runtest('hwgp', ' -l -s', 'hw_fit_limit_single-32',    '-DANT -DLIMITED -DLFSR -DMAXPROGLEN=32', 'top right');
+#    runtest('hwgp', ' -l -s', 'hw_fit_limit_single-16',    '-DANT -DLIMITED -DLFSR -DMAXPROGLEN=16', 'top right');
+#    runtest('hwgp', ' -l -s', 'hw_fit_limit_single-8',    '-DANT -DLIMITED -DLFSR -DMAXPROGLEN=8', 'top right');
+} 
+
+sub runsim {
+    runtest('bloat', '', 'sim_nofit_stdgp',  '-DSTANDARD -DUNIFORM', 'top right');
+    #runtest('bloat', '', 'sim_nofit_trunc',  '-DTRUNCATE -DUNIFORM', '20,maxyval-(maxyval/20)');
+    #runtest('bloat', '', 'sim_nofit_limit',  '-DLIMITED  -DUNIFORM', '');
+}
+
+sub runtest {
+    my $prog  = shift(@_);
+    my $pargs = shift(@_);
+    my $exp   = shift(@_);
+    my $flags = shift(@_);
+    my $keypos = shift(@_);
+
+    unlink $prog;
+    open CC, "gcc -o $prog $prog.c $flags -I. -Wall -O7 |" || die "Failed to compile test";
+    close CC;
+
+    readin($prog, $pargs, $exp);
+
+    plot($exp, $keypos, $maxyval);
+}
+
+sub readin {
+    my $prog  = shift(@_);
+    my $pargs = shift(@_);
+    my $exp   = shift(@_);
+
+    my $gen  = 0;
+    my $bins = 0;
+    my $topgen=0;
+
+    reset('hist');
+    reset('leng');
+    $leng[0]=0;
+    $maxyval = 0;
+    $maxxval = 0;
+
+    for($runs=0;$runs<$maxrun;$runs++) {
+	open RUN, "./$prog $pargs|";
+	$gen=0;
+	while(<RUN>) {
+	    $total=0;
+	    chop;
+	    @len = split / /, $_;
+	    $count = @len;
+	    foreach $val (@len) {
+		if($val>$maxxval) {
+		    for($i=$maxxval; $i<=$val;$i++) {
+			$hist[$gen][$i]=0;
+		    }
+		    $maxxval = $val;
+		}
+		if($val >= $leng[$gen]) {
+		    $leng[$gen]=$val+1;
+		}
+		$hist[$gen][$val]++;
+		$total += $val;
+		if($hist[$gen][$val] > $maxyval) {
+		    $maxyval = $hist[$gen][$val];
+		}
+	    }
+	    $gen++;
+	    if($gen>=$topgen) {
+		$leng[$topgen+1]=0;
+	    }
+	    $topgen = $gen;
+	}
+	close RUN;
+	$mean = $total/$count;
+	print "Run number $runs Mean is $mean\r";
+    }
+
+    for($g=0;$g<$gen;$g++) {
+	analyse($g, $leng[$g], $exp, $maxrun);
+    }
+    close RUN;
+    $maxyval /= $runs;
+}
+
+sub analyse {
+    my $gen   = shift(@_);
+    my $bins  = shift(@_);
+    my $exp   = shift(@_);
+    my $runs  = shift(@_);
+    my $fname = 'tmp/'. $exp . '_' . $gen;
+
+    my $count = 0;
+    my $total = 0;
+    open HIST, ">$fname.dat" || die "Unable to open the histogram output";
+
+    print HIST "0\n";
+    for($i=1;$i<$bins;$i++) {
+	$val = ($hist[$gen][$i])/$runs;
+        print HIST "$val\n";
+	print "$i->$val\n";
+	$count += $val;
+	$total += ($val * $i);
+    }
+    print HIST "0\n";
+    close HIST;
+    $avg = $total/$count;
+    print "Generation $gen: Average length = $avg\n";
+}
+
+sub plot {
+    my $data = shift (@_);
+    my $keypos = shift(@_);
+    my $max    = shift(@_);
+
+    $cmds="plotcmds" . $data . ".plt";
+    print "MAX=$max\n";
+    open GNUPLOT, ">$cmds" || die "Unable to create plot commands\n";
+    print GNUPLOT "set xlabel 'Program Length'\n";
+    print GNUPLOT "set ylabel 'Number of Programs'\n";
+    print GNUPLOT "set ytics rotate\n";
+#    print GNUPLOT "set xrange [0:32]\n";
+    print GNUPLOT "maxyval=$max\n";
+    print GNUPLOT "set key $keypos\n";
+    print GNUPLOT "set mxtics 5\n";
+    print GNUPLOT "set grid xtics mxtics ytics mytics\n";
+    print GNUPLOT "set nogrid\n";
+
+    $fname = $data . '_0';
+    print GNUPLOT "plot 'tmp/$fname.dat' title 'Gen 0' with linespoints\n";
+
+    $fname =  $data . '_2';
+    print GNUPLOT "replot 'tmp/$fname.dat' title 'Gen 1' with linespoints\n";
+
+    $fname =  $data . '_10';
+    print GNUPLOT "replot 'tmp/$fname.dat' title 'Gen 10' with linespoints\n";
+
+    $fname =  $data . '_31';
+    print GNUPLOT "replot 'tmp/$fname.dat' title 'Gen 31' with linespoints\n";
+
+    $fname =  $data . '_63';
+    print GNUPLOT "replot 'tmp/$fname.dat' title 'Gen 63' with linespoints\n";
+
+    print GNUPLOT "set output '$data.eps'\n";
+    print GNUPLOT "set term postscript eps 'Times-Roman' 24\n";
+    print GNUPLOT "replot\n";
+    print GNUPLOT "pause 10\n";
+    close GNUPLOT;
+
+    open PLOT, "|gnuplot $cmds";
+    close PLOT;
+}

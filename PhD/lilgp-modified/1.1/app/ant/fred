@@ -1,0 +1,21 @@
+app.trail = santafe.trl
+app.maxtime = 400
+max_generations = 32
+pop_size = 1000
+output.basename = ant
+# how to generate the initial population
+init.method = grow
+init.depth = 8
+init.random_attempts = 1000
+# limits on tree size.
+max_depth = 8
+max_nodes = 64
+## breeding parameters (emulates Koza Ch. 7)
+breed_phases = 2
+breed[1].operator = crossover, select=fitness_overselect
+breed[1].rate = 0.9
+breed[2].operator = reproduction, select=fitness_overselect
+breed[2].rate = 0.1
+dofitness = no
+keep_trying1 = yes
+keep_trying2 = no
