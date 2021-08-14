@@ -1,0 +1,1262 @@
+#LyX 1.2 created this file. For more info see http://www.lyx.org/
+\lyxformat 220
+\textclass essex
+\begin_preamble
+\input{shortheader.tex}
+\end_preamble
+\language english
+\inputencoding latin1
+\fontscheme default
+\graphics default
+\float_placement htb
+\paperfontsize default
+\spacing single 
+\papersize a4paper
+\paperpackage a4
+\use_geometry 1
+\use_amsmath 0
+\use_natbib 0
+\use_numerical_citations 0
+\paperorientation portrait
+\leftmargin 4cm
+\topmargin 2cm
+\rightmargin 3cm
+\bottommargin 2cm
+\secnumdepth 2
+\tocdepth 2
+\paragraph_separation indent
+\defskip medskip
+\quotes_language english
+\quotes_times 2
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+
+\layout Comment
+
+
+\size huge 
+Chapter 7
+\layout Standard
+
+Previous chapters presented the results of implementing GP in hardware mainly
+ in terms of throughput and behaviour.
+ Taken in isolation, the results suggest that there is a strong case for
+ implementing GP in hardware, especially where the user wants to minimise
+ the time to run an experiment.
+ However, using Handel-C and FPGAs to implement GP involves additional costs
+ when compared with a software implementation of GP.
+ These costs may be broken down into the capital cost of the equipment and
+ software, the time needed to learn about Handel-C and FPGAs, and the cost
+ of the additional development time required when using Handel-C.
+\layout Standard
+
+The chapter begins with a review of the capital costs, followed by a discussion
+ on the changes that need to be made to traditional software engineering
+ when using Handel-C.
+ The economic factors that affect the suitability of using a hardware implementa
+tion of GP are then analysed using two problems.
+ The economics are viewed from the perspective of two groups of users.
+ First, the academic researcher who is exploring GP, and who would benefit
+ from the potential for reduced run times.
+ This user will typically be able to make use of academic discounts for
+ equipment and software.
+ The second user group is concerned primarily with exploiting GP in a commercial
+ or industrial context.
+ 
+\layout Section
+
+Hardware and Software Costs
+\layout Standard
+
+Two items of equipment were needed to implement the work described in Chapters
+ 
+\begin_inset LatexCommand \ref{main:implementation}
+
+\end_inset 
+
+, 
+\begin_inset LatexCommand \ref{main:Optimised implementation}
+
+\end_inset 
+
+ and 
+\begin_inset LatexCommand \ref{main:Behavioural analysis}
+
+\end_inset 
+
+: a high performance workstation, and the FPGA development board.
+ In addition, two software tools were required: Handel-C and the Xilinx
+ FPGA synthesis tools.
+ Because the price of hardware is continually changing, and different vendors
+ have different pricing policies, only general hardware pricing information
+ is provided in this section.
+ Similarly, because some software vendors do not make their pricing publicly
+ available, no detailed pricing information for the software can be provided.
+\layout Standard
+
+Handel-C and the FPGA vendors synthesis tools typically require a highly
+ specified workstation.
+ To illustrate this, a design from Section 
+\begin_inset LatexCommand \ref{sub:Artificial-Ant-Problem}
+
+\end_inset 
+
+ that implemented the artificial ant problem is used as an example.
+ This example used 32 parallel evaluations which required nearly 80% of
+ the total slices available on the FPGA.
+ To complete the compilation of the design using Handel-C, a PC with 750\SpecialChar ~
+MiB
+ of RAM was required.
+ A PC with a 1.4\SpecialChar ~
+GHz Athlon CPU required nearly four hours to complete the
+ place and route.
+ This is in contrast to a modest 500\SpecialChar ~
+MHz Pentium machine capable of compiling
+ and running lilgp and other popular GP packages.
+ However, smaller designs, for example the XOR problem with two parallel
+ fitness evaluations in Chapter 
+\begin_inset LatexCommand \ref{main:Optimised implementation}
+
+\end_inset 
+
+, could be compiled and synthesised using a 500\SpecialChar ~
+MHz PC with 256\SpecialChar ~
+MiB of memory
+ in about 10 minutes.
+\layout Standard
+
+There is a wide variety of FPGA boards available from vendors, though many
+ smaller FPGAs, for example the Spartan II 200K-gate FPGA fitted to some
+ low cost boards, do not have sufficient resources to host the GP system
+ described in Chapters 
+\begin_inset LatexCommand \ref{main:implementation}
+
+\end_inset 
+
+ and 
+\begin_inset LatexCommand \ref{main:Optimised implementation}
+
+\end_inset 
+
+ without some modifications.
+ Board costs typically range from 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+euro 
+\end_inset 
+
+200 for the simple boards fitted with small devices to over 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+euro
+\end_inset 
+
+ 10,000 for boards fitted with the largest devices.
+\layout Standard
+
+The costs for Handel-C and the synthesis tools must also be added to the
+ total capital cost.
+ For the academic researcher, the tool vendors often very generously make
+ these available at low or zero cost.
+ However, for the commercial user, these tools can represent a significant
+ cost.
+\layout Section
+
+
+\begin_inset LatexCommand \label{sec:software engineering}
+
+\end_inset 
+
+Software Engineering Issues
+\layout Standard
+
+Handel-C is designed to shield the programmer from the internal details
+ of FPGAs and low level hardware logic programming.
+ In this regard it performs well, allowing the designer to concentrate on
+ the functionality required in an FPGA and still use an algorithmic approach
+ to programming.
+ However, this approach has its limitations, particularly when it comes
+ to issues of performance that have traditionally been the preserve of hardware
+ design engineers.
+\layout Standard
+
+To understand the effect that using FPGAs and Handel-C can have on engineer
+ productivity, this section will consider the additional work needed by
+ an engineer implementing a hypothetical program in software who then translates
+ the same program in hardware using Handel-C.
+ This approach is used because one of the potential user groups of Handel-C
+ are software engineers who want to use FPGAs as part of a design.
+ The assumptions made about the engineer are that they are competent in
+ the use of a popular imperative programming language such as C, they have
+ a good understanding of the problem, and that there is a comprehensive
+ and accurate statement of the requirements for the program.
+ In this scenario it is assumed that the software engineer has designed
+ the program using well established techniques, and implemented and tested
+ the program using the C language and standard tools.
+ A straightforward translation, or port, of the program to Handel-C will
+ probably require some changes to accommodate the lack of a stack, restricted
+ data types, limited data memory capacity and limited code space.
+ This will mean the engineer having to learn about the basic features of
+ Handel-C and FPGAs.
+ Once the program has been successfully ported to Handel-C, and proved to
+ be functionally correct, the performance of the design will need to be
+ considered.
+ It is highly unlikely that, for any non-trivial program, a straight port
+ to Handel-C will result in a design with the required performance.
+ The biggest contributor to this will probably be the effect of the deep
+ combinatorial logic that some expressions generate.
+ The design will need to be changed to reduce logic depth by simplifying
+ expressions and breaking complex expressions into more steps.
+ Further changes would probably be needed to optimise loop control structures,
+ and possibly make use of optimised core components available from the FPGA
+ manufacturers.
+ An example of this is the use of the Coregen components when using the
+ Xilinx Alliance tool set.
+ However, to get the best performance it will usually be necessary to revise
+ the algorithm to exploit the parallelism available with hardware.
+ The engineer must also learn to interpret the detailed statistics available
+ from the place and route tools, which also requires an understanding of
+ the FPGA internal architecture, and an understanding of how Handel-C constructs
+ hardware.
+\layout Standard
+
+These issues are recognised by the vendors of Handel-C, and are documented
+ in the user manuals and in a range of application notes.
+ However, once the designer starts to optimise the design, a more detailed
+ knowledge of the underlying hardware structure of FPGAs is needed in order
+ to understand the optimisations.
+ 
+\layout Standard
+
+The second cost that is incurred when using Handel-C and FPGAs is the time
+ needed by Handel-C to compile the source language into a netlist.
+ Compiling the hardware GP system for the artificial ant problem using 32
+ parallel fitness evaluations required approximately 30 minutes.
+ This figure was obtained with full optimisation enabled, and can be reduced
+ by disabling most of the optimisations at the expense of a slower and larger
+ design.
+ A related cost is the time needed to synthesise the netlist into an FPGA
+ configuration file.
+ The artificial ant problem required about 4 hours.
+ The time can be reduced if the timing constraints are relaxed, but this
+ results in a design that can be clocked only at a much lower rate.
+ During the development of the GP system use was made of reducing the compile
+ times by disabling optimisations and reducing the clock rate so that the
+ development time was reduced.
+ The optimisations were enabled and stricter timing constraints were only
+ used when the design was functionally correct.
+\layout Standard
+
+In summary, the cost of using Handel-C can be broken down into the cost
+ of training, the time needed to become familiar with new techniques and
+ the additional time required to iteratively improve the design.
+ 
+\layout Section
+
+
+\begin_inset LatexCommand \label{sec:Genetic-Programming-Costs}
+
+\end_inset 
+
+Genetic Programming Costs
+\layout Standard
+
+The previous sections give some general observations about the costs of
+ using Handel-C and FPGAs.
+ This section discusses some of the implications of implementing GP in hardware.
+ Chapter 
+\begin_inset LatexCommand \ref{main:GP Introduction}
+
+\end_inset 
+
+ suggested that running the GP algorithm was part of a process called Meta-GP,
+ and that implementing GP in hardware could help speed up the process of
+ discovering good parameter settings.
+ However, when it takes several hours to recompile and synthesise an FPGA
+ based GP system, the benefits of a faster GP system are not so obvious.
+ The reason the synthesis takes so long is due to the algorithms that the
+ tools use internally.
+ This is not something the user has any great control over, other than by
+ relaxing the timing constraints and accepting a slower design.
+ 
+\layout Standard
+
+The benefits of a fast GP system are also eroded because the design of the
+ GP machine, as described in Chapters 
+\begin_inset LatexCommand \ref{main:implementation}
+
+\end_inset 
+
+ and 
+\begin_inset LatexCommand \ref{main:Optimised implementation}
+
+\end_inset 
+
+, is statically configured.
+ For example, no provision was made to allow the population size, number
+ of generations, operator proportions, or other run time parameters to be
+ modified without having to recompile the design.
+ This means that every time a GP run-time parameter is changed, the design
+ must be recompiled and synthesised.
+ One improvement that could be made is to allow some of the run-time parameters
+ to be configured before the GP run.
+ For example, the run-time parameter values could be written to SRAM by
+ the host and then read by the FPGA, in the same way that the random number
+ seed is initialised.
+ 
+\layout Standard
+
+Another aspect of the static design is that both the fitness evaluation
+ and the function set are hard coded into the design.
+ This leads to the idea of dynamically configuring the function set and
+ the fitness evaluation, possibly leaving the selection and breeding components
+ as statically configured parts of the design.
+ Reconfigurability was discussed in Chapter 
+\begin_inset LatexCommand \ref{main:FPGAs and HandelC}
+
+\end_inset 
+
+.
+ Approaches to a reconfigurable hardware GP system using Xilinx Virtex FPGAs
+ include the use of JBits 
+\begin_inset LatexCommand \cite{Sundararajan:2000}
+
+\end_inset 
+
+ or a configurable virtual machine 
+\begin_inset LatexCommand \cite{Sekanina:2000}
+
+\end_inset 
+
+.
+\layout Section
+
+Quantifying the Costs
+\layout Standard
+
+To help a practitioner decide whether a hardware implementation would be
+ cost effective, it would be useful to be able to quantitatively assess
+ the costs.
+ This section provides a quantitative method of assessing the costs of using
+ hardware GP.
+ The costs are then compared with the costs of using a software GP system.
+ The costs are approximate values in Euros, in 2002.
+ All times are in hours.
+ The times assigned to the hardware development are based on the times needed
+ for carrying out the experiments in the previous chapters.
+\layout Standard
+
+The cost is expressed as a cost per GP run, 
+\begin_inset Formula $C_{\mathrm{run}}$
+\end_inset 
+
+.
+ The total cost of running a GP experiment is the total capital cost of
+ equipment 
+\begin_inset Formula $C_{\mathrm{cap}}$
+\end_inset 
+
+ plus the cost associated with developing the GP application, 
+\begin_inset Formula $C_{\mathrm{dev}}$
+\end_inset 
+
+, plus a cost for the time to run the experiment, 
+\begin_inset Formula $C_{\mathrm{gp}}$
+\end_inset 
+
+.
+ Because it is likely that the equipment and development software would
+ be used for more than one experiment, the total hardware and software costs
+ are divided equally between 
+\begin_inset Formula $E$
+\end_inset 
+
+ GP experiments.
+ If 
+\begin_inset Formula $C_{\mathrm{hw}}$
+\end_inset 
+
+ is the cost of hardware and 
+\begin_inset Formula $C_{\mathrm{sw}}$
+\end_inset 
+
+ is the cost of software, then the cost of the equipment and software for
+ one experiment is given by:
+\layout Standard
+
+
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+nopagebreak
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset Formula \begin{equation}
+C_{\mathrm{cap}}=\frac{C_{\mathrm{hw}}+C_{\mathrm{sw}}}{E}\label{eq:cost_{e}qipment}\end{equation}
+
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+{
+\backslash 
+noindent }
+\end_inset 
+
+From this it can be seen that the more experiments the capital cost is spread
+ over, the smaller the value of the per-experiment capital cost 
+\begin_inset Formula $C_{\mathrm{cap}.}$
+\end_inset 
+
+ An approximation of the cost of developing and running of a GP program
+ is made by assuming that the a users time has a uniform cost of 
+\begin_inset Formula $C_{\mathrm{ut}}$
+\end_inset 
+
+ per hour.
+ The cost of developing the GP system, 
+\begin_inset Formula $C_{\mathrm{dev}}$
+\end_inset 
+
+, in time 
+\begin_inset Formula $T_{\mathrm{dev}}$
+\end_inset 
+
+ is given by:
+\layout Standard
+
+
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+nopagebreak
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset Formula \begin{equation}
+C_{\mathrm{dev}}=C_{\mathrm{ut}}\times T_{\mathrm{dev}}\label{eq:cost_{d}evel}\end{equation}
+
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+noindent 
+\end_inset 
+
+The cost of making a single GP run, 
+\begin_inset Formula $C_{\mathrm{gp}}$
+\end_inset 
+
+, in time 
+\begin_inset Formula $T_{\mathrm{run}}$
+\end_inset 
+
+ is given by:
+\layout Standard
+
+
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+nopagebreak
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset Formula \begin{equation}
+C_{\mathrm{gp}}=C_{\mathrm{ut}}\times T_{\mathrm{run}}\label{eq:cost_{r}un}\end{equation}
+
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+noindent 
+\end_inset 
+
+The total cost, 
+\begin_inset Formula $C_{\mathrm{tot}}$
+\end_inset 
+
+, to implement a GP system and perform one run is given by:
+\layout Standard
+
+
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+nopagebreak
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset Formula \begin{equation}
+C_{\mathrm{tot}}=C_{\mathrm{cap}}+C_{\mathrm{dev}}+C_{\mathrm{gp}}\label{eq:total_{c}ost}\end{equation}
+
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+noindent 
+\end_inset 
+
+Running the same GP system for 
+\begin_inset Formula $N$
+\end_inset 
+
+ runs, the cost per run is given by:
+\layout Standard
+
+
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+nopagebreak
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset Formula \begin{equation}
+C_{\mathrm{run}}=\frac{C_{\mathrm{cap}}+C_{\mathrm{dev}}+(N\times C_{\mathrm{gp}})}{N}\label{eq:cost_{n}{}_{r}uns}\end{equation}
+
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+noindent 
+\end_inset 
+
+From this it is clear that the greater the number of runs performed, the
+ more cost effective the GP implementation will be.
+ To see the effect of a different number of runs, two problems are used
+ as examples.
+ The first is the Boolean even-6-parity problem, described in Section 
+\begin_inset LatexCommand \ref{sec:boolean even-6-parity problem}
+
+\end_inset 
+
+.
+ The second is a hypothetical problem that takes 24\SpecialChar ~
+hours to run when implemented
+ in software.
+ Table 
+\begin_inset LatexCommand \ref{cap:Costs-for-implementing}
+
+\end_inset 
+
+ shows the costs used for the examples.
+ The time needed to implement the hardware GP system is taken as 100 and
+ the time to implement the software GP system 50.
+ These times assume that each GP system was developed independently.
+ The longer time needed for the hardware system is due to the longer time
+ needed for each program iteration, as discussed in Section 
+\begin_inset LatexCommand \ref{sec:software engineering}
+
+\end_inset 
+
+.
+ 
+\begin_inset Formula $C_{\mathrm{ut}}$
+\end_inset 
+
+ is assumed to be constant for both implementation and running, and is taken
+ as 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+euro
+\end_inset 
+
+ 10/hour.
+\layout Standard
+
+
+\begin_inset Float table
+placement htbp
+wide false
+collapsed false
+
+\layout ShortCaption
+
+Costs for implementing hardware GP and software GP.
+\layout Caption
+
+
+\begin_inset LatexCommand \label{cap:Costs-for-implementing}
+
+\end_inset 
+
+Costs for implementing hardware GP and software GP.
+ All costs are approximate and are in Euros as of 2002.
+\layout Standard
+\align center 
+
+\begin_inset  Tabular
+<lyxtabular version="3" rows="4" columns="3">
+<features>
+<column alignment="left" valignment="top" width="0pt">
+<column alignment="right" valignment="top" width="0pt">
+<column alignment="right" valignment="top" width="0pt">
+<row topline="true" bottomline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Hardware GP
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Software GP
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Hardware Costs 
+\begin_inset Formula $C_{hw}$
+\end_inset 
+
+
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+euro
+\end_inset 
+
+10,000
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+euro
+\end_inset 
+
+2,000
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Software Costs 
+\begin_inset Formula $C_{sw}$
+\end_inset 
+
+
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+euro
+\end_inset 
+
+10,000
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+euro
+\end_inset 
+
+100
+\end_inset 
+</cell>
+</row>
+<row bottomline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Implementation cost 
+\begin_inset Formula $C_{impl}$
+\end_inset 
+
+
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+euro
+\end_inset 
+
+2,000
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+euro
+\end_inset 
+
+1,000
+\end_inset 
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset 
+
+
+\end_inset 
+
+
+\layout Standard
+
+The Boolean even-6-parity problem using 64 parallel fitness evaluations
+ was clocked at 34\SpecialChar ~
+MHz, and required 
+\begin_inset Formula $40\times 10^{6}$
+\end_inset 
+
+ cycles.
+ Therefore a single run took 
+\begin_inset Formula $40\times 10^{6}/34\times 10^{6}$
+\end_inset 
+
+\SpecialChar ~
+s = 1.175\SpecialChar ~
+s or 0.00034\SpecialChar ~
+h.
+ The corresponding software implementation running at 200\SpecialChar ~
+MHz required 
+\begin_inset Formula $419\times 1.175$
+\end_inset 
+
+\SpecialChar ~
+s = 492\SpecialChar ~
+s or 0.136\SpecialChar ~
+h.
+ Using a value of 100 for 
+\begin_inset Formula $E$
+\end_inset 
+
+, Figure 
+\begin_inset LatexCommand \ref{fig:Cost benefit.}
+
+\end_inset 
+
+ shows the cost for both the hardware and the software implementation for
+ different values of 
+\begin_inset Formula $N$
+\end_inset 
+
+ between 1 and 1000.
+ Note the log scale for the cost per run.
+ 
+\begin_inset Float figure
+placement tbph
+wide false
+collapsed false
+
+\layout Standard
+\align center 
+
+\begin_inset Graphics FormatVersion 1
+	filename images/costbenefit.eps
+	display grayscale
+	size_type 1
+	height 7cm
+	keepAspectRatio
+	rotateOrigin center
+	lyxsize_type 0
+
+\end_inset 
+
+
+\layout Caption
+
+
+\begin_inset LatexCommand \label{fig:Cost benefit.}
+
+\end_inset 
+
+Cost benefit of using hardware GP for the Boolean even-6-parity problem.
+\end_inset 
+
+ The graph shows, for the Boolean even-6-parity problem, that as the number
+ of runs increases there is a point at which the hardware implementation
+ has a lower cost per run than the same algorithm implemented in software.
+\layout Standard
+
+The cost per run was also calculated for the hypothetical problem that requires
+ 24 hours to complete one run when implemented in software.
+ It is assumed that the hardware GP system can achieve a 
+\begin_inset Formula $\mathrm{Speedup}_{\mathrm{time}}$
+\end_inset 
+
+ of 500, so the hardware GP system would require 0.048\SpecialChar ~
+h.
+ This is plotted in Figure 
+\begin_inset LatexCommand \ref{fig:Cost benefit 2}
+
+\end_inset 
+
+.
+ This shows that for experiments that require a long time to run, a hardware
+ GP system can reduce the cost of running the experiments by an order of
+ magnitude or more.
+ 
+\begin_inset Float figure
+placement tbph
+wide false
+collapsed false
+
+\layout Standard
+\align center 
+
+\begin_inset Graphics FormatVersion 1
+	filename images/costbenefit-2.eps
+	display grayscale
+	size_type 1
+	height 7cm
+	keepAspectRatio
+	rotateOrigin center
+	lyxsize_type 0
+
+\end_inset 
+
+
+\layout ShortCaption
+
+Cost benefit using hardware GP for a hypothetical problem.
+\layout Caption
+
+
+\begin_inset LatexCommand \label{fig:Cost benefit 2}
+
+\end_inset 
+
+Cost benefit using hardware GP for a hypothetical problem that requires
+ 24 hours to run when implemented in software.
+\end_inset 
+
+ 
+\layout Standard
+
+However, the absolute cost of developing and running a GP system is often
+ not as important as the total time available to carry out experiments.
+ Within the total time two activities must be completed; the design and
+ implementation of the GP system, and running the GP experiments using the
+ process of Meta-GP as described in Section 
+\begin_inset LatexCommand \ref{sub:Meta-Genetic-Programming}
+
+\end_inset 
+
+.
+ In this scenario the number of runs that can be achieved in that time is
+ often the limiting factor and maximising the number of runs is therefore
+ an important goal.
+ 
+\layout Standard
+
+The number of runs, 
+\begin_inset Formula $N$
+\end_inset 
+
+, that can be completed in time 
+\begin_inset Formula $T_{\mathrm{tot}}$
+\end_inset 
+
+ is:
+\layout Standard
+
+
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+nopagebreak
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset Formula \begin{equation}
+N=\frac{T_{\mathrm{tot}}-T_{\mathrm{dev}}}{T_{\mathrm{run}}}\label{eq:number_{o}f_{r}uns}\end{equation}
+
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+{
+\backslash 
+noindent}
+\end_inset 
+
+where 
+\begin_inset Formula $T_{\mathrm{dev}}$
+\end_inset 
+
+ is the time to develop the GP system and 
+\begin_inset Formula $T_{\mathrm{run}}$
+\end_inset 
+
+ is the time required to complete a single run of the GP experiment.
+ 
+\layout Standard
+
+Using the Boolean even-6-parity problem as an example, 
+\begin_inset Formula $T_{\mathrm{dev}}$
+\end_inset 
+
+ is 100 for the hardware implementation and 50 for the software implementation.
+ The time for one run of the hardware implementation was 0.00034\SpecialChar ~
+h and for
+ the software implementation was 0.16\SpecialChar ~
+h.
+ 
+\layout Standard
+
+Figure 
+\begin_inset LatexCommand \ref{fig:number of runs possible}
+
+\end_inset 
+
+ shows the number of runs that can be run for values of 
+\begin_inset Formula $T_{\mathrm{tot}}$
+\end_inset 
+
+ between 1 and 150 hours.
+ Note the log scale for the number of runs.
+ 
+\begin_inset Float figure
+placement tbph
+wide false
+collapsed false
+
+\layout Standard
+\align center 
+
+\begin_inset Graphics FormatVersion 1
+	filename images/numberofruns.eps
+	display grayscale
+	size_type 1
+	height 7cm
+	keepAspectRatio
+	rotateOrigin center
+	lyxsize_type 0
+	lyxheight 5cm
+\end_inset 
+
+
+\layout ShortCaption
+
+Number of runs that can be achieved using the Boolean even-6-parity problem.
+\layout Caption
+
+
+\begin_inset LatexCommand \label{fig:number of runs possible}
+
+\end_inset 
+
+Number of runs that can be achieved using the Boolean even-6-parity problem
+ for a software implementation and a hardware implementation
+\end_inset 
+
+ This graph shows that where the total time is limited or the number of
+ runs is not critical, that the software implementation may be adequate.
+ However, where the number of runs in a given time needs to be maximised,
+ the hardware implementation has a clear advantage for this experiment.
+ 
+\layout Standard
+
+The number of runs for the hypothetical problem that requires 24 hours to
+ run is shown in Figure 
+\begin_inset LatexCommand \ref{fig:number of runs possible 2}
+
+\end_inset 
+
+.
+ 
+\begin_inset Float figure
+placement tbph
+wide false
+collapsed false
+
+\layout Standard
+\align center 
+
+\begin_inset Graphics FormatVersion 1
+	filename images/numberofruns-2.eps
+	display grayscale
+	size_type 1
+	height 7cm
+	keepAspectRatio
+	rotateOrigin center
+	lyxsize_type 0
+	lyxheight 5cm
+\end_inset 
+
+
+\layout ShortCaption
+
+Number of runs that can be achieved using a hypothetical problem 
+\layout Caption
+
+
+\begin_inset LatexCommand \label{fig:number of runs possible 2}
+
+\end_inset 
+
+Number of runs that can be achieved using a hypothetical problem that requires
+ 24 hours to run when implemented in software.
+\end_inset 
+
+ This graph shows that for problems with extended running times, when the
+ total time available is greater than the time to implement a hardware GP
+ system, the hardware GP system allows many more runs to be completed in
+ the time available.
+ The results in Figures 
+\begin_inset LatexCommand \ref{fig:number of runs possible}
+
+\end_inset 
+
+ and 
+\begin_inset LatexCommand \ref{fig:number of runs possible 2}
+
+\end_inset 
+
+ ignore the effect of having to recompile the GP system for every change
+ made to the GP parameters.
+ This is reasonable given that a method of achieving this has already been
+ proposed (
+\begin_inset LatexCommand \ref{sec:Genetic-Programming-Costs}
+
+\end_inset 
+
+).
+\layout Section
+
+Summary
+\layout Standard
+
+The use of Handel-C and FPGAs by a software engineer has a number of costs
+ associated with it.
+ Firstly, the cost of training the engineer in the use of Handel-C and the
+ underlying hardware.
+ Secondly, the capital costs of equipment and software.
+ Thirdly, the extended time needed to implement a design using Handel-C
+ and the FPGA vendor's synthesis tools.
+ Weighed against these costs are the potential for greatly reduced run times
+ for a GP problem, and the potential to explore areas of GP that would be
+ intractable using traditional software implementations.
+\layout Standard
+
+To obtain the best advantage from using hardware GP as part of the Meta-GP
+ process, the design should be modified to allow the dynamic modification
+ of the run time parameters.
+ This would avoid the time consuming process of having to recompile the
+ design every time a parameter change was required.
+\layout Standard
+
+A method of assessing the cost effectiveness of using hardware GP has been
+ presented, which should help a user decide whether a hardware GP system
+ can be justified in terms of cost.
+ A method of predicting the number of runs that a GP implementation can
+ complete in a given time has also been presented.
+ Two examples have been used to illustrate these methods.
+ The method of assessing the cost per run is sensitive to the capital cost
+ and the value of 
+\begin_inset Formula $C_{\mathrm{ut}}$
+\end_inset 
+
+.
+ 
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+cbdelete 
+\end_inset 
+
+ Where the capital cost is higher or the cost of implementing the GP system
+ is higher, then the use of hardware GP may not be justifiable on cost alone.
+ Where the equipment is only used for a small number of experiments, it
+ is unlikely that the user of GP would find a hardware implementation a
+ good economic proposition.
+ However, for problems that would be impractical to explore using traditional
+ software implementations, a hardware GP system could be justified on the
+ basis of cost.
+\layout Standard
+
+The use of hardware GP can also be justified where the number of runs that
+ can be completed in a fixed time needs to be maximised, for example when
+ the problem requires an extended running time.
+ 
+\layout Standard
+
+All the examples have assumed that the GP system is implemented completely
+ for each experiment.
+ In practice, once a GP system has been designed, the time needed to develop
+ a variant will be much smaller, so the advantages of using hardware GP
+ will be more pronounced.
+ 
+\the_end

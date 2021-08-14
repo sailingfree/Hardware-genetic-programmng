@@ -1,0 +1,75 @@
+#LyX 1.1 created this file. For more info see http://www.lyx.org/
+\lyxformat 218
+\textclass essex
+\begin_preamble
+
+%
+% Change this to input the prologue file for your own thesis
+%
+%\input{mythesis_prologue.tex}
+\rhead{}
+\usepackage{acronym}
+\usepackage{fancyhdr}
+\usepackage{url}
+\end_preamble
+\language british
+\inputencoding auto
+\fontscheme pslatex
+\graphics default
+\float_placement htb
+\paperfontsize 11
+\spacing onehalf 
+\papersize a4paper
+\paperpackage a4
+\use_geometry 0
+\use_amsmath 0
+\paperorientation portrait
+\secnumdepth 5
+\tocdepth 1
+\paragraph_separation indent
+\defskip medskip
+\quotes_language english
+\quotes_times 2
+\papercolumns 1
+\papersides 1
+\paperpagestyle fancy
+
+\layout Standard
+
+
+\latex latex 
+
+\backslash 
+setcounter{chapter}{7}
+\layout Chapter
+
+Conclusion
+\layout Standard
+
+
+\begin_inset Include \input{Conclusions.lyx}
+
+\end_inset 
+
+
+\layout LaTeX
+
+
+\begin_inset LatexCommand \BibTeX[alpha]{handelc}
+
+\end_inset 
+
+
+\layout Chapter*
+
+Acronyms and Abbreviations
+\layout Standard
+
+
+\latex latex 
+
+\backslash 
+input{acronyms.tex}
+\layout LaTeX
+
+\the_end

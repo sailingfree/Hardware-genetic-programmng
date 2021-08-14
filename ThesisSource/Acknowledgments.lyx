@@ -1,0 +1,114 @@
+#LyX 1.2 created this file. For more info see http://www.lyx.org/
+\lyxformat 220
+\textclass essex
+\options oneside
+\language british
+\inputencoding auto
+\fontscheme default
+\graphics default
+\paperfontsize default
+\spacing single 
+\papersize Default
+\paperpackage a4
+\use_geometry 0
+\use_amsmath 0
+\use_natbib 0
+\use_numerical_citations 0
+\paperorientation portrait
+\secnumdepth 2
+\tocdepth 2
+\paragraph_separation indent
+\defskip medskip
+\quotes_language english
+\quotes_times 2
+\papercolumns 1
+\papersides 2
+\paperpagestyle default
+
+\layout Standard
+
+
+\begin_inset ERT
+status Open
+
+\layout Standard
+
+\backslash 
+begin{singlespace}
+\end_inset 
+
+First of all, I would like to express my heartfelt thanks to my supervisor
+ Professor Riccardo Poli for agreeing to supervise me and for all the help
+ and guidance he gave me throughout the work.
+ I would like to thank him especially for always answering my questions
+ promptly and for reviewing and commenting on many drafts and papers, often
+ at short notice.
+\layout Standard
+
+A special note of thanks goes to Dr.
+ Stuart Wray, a former colleague from Marconi, for help and encouragement,
+ for thoroughly reviewing many papers and drafts and for many thought provoking
+ discussions about this work.
+ Stuart also planted the idea of Meta-GP which is described in Chapter\SpecialChar ~
+2.
+ I would also like to thank Icarus Sparry, again a former colleague from
+ Marconi, for his valuable comments.
+\layout Standard
+
+This work was sponsored by Marconi plc whom I would like to thank for their
+ support and for generously allowing me time to undertake this work.
+ In particular, I would like to thank Stuart Barratt who initially introduced
+ Handel-C to me and made it possible for me to have access to Handel-C software
+ while at Marconi.
+ He also lent me the RC1000 development board which was used for the experimenta
+l work.
+ I would also like to thank Steffan Westcott who provided useful guidance
+ in the use of Handel-C and for some perceptive comments and suggestions
+ on early drafts of my first paper.
+\layout Standard
+
+Celoxica have been generous in their support of this work, in particular
+ Graham McKenzie and Roger Gook for making a copy of Handel-C available
+ to me after I had left Marconi.
+ Xilinx Inc.
+ supplied the Alliance Tool set which was used for place and route.
+\layout Standard
+
+I would also like to thank the GP community for their help, especially the
+ anonymous reviewers of papers I have submitted who have made constructive
+ comments and who have helped me to improve my published papers.
+ I would also like to thank Bill Langdon for maintaining that most valuable
+ resource -- the GP bibliography.
+\layout Standard
+
+Finally, I would like to thank my wife Lynette and daughter Nicole for their
+ forbearance during the past 3 years while I carried out this work.
+ Without their understanding and encouragement, and for not complaining
+ when I disappeared into the study to spend many hours at my computers,
+ it would have been impossible to complete this thesis.
+ I would also like to thank Lynette for proof reading several papers and
+ parts of this thesis.
+\layout Section*
+\added_space_top vfill 
+Trademarks
+\layout Standard
+
+Many of the designations used by manufacturers to distinguish their products
+ are claimed as trademarks.
+ Where those designations appear in this thesis, and the author was aware
+ of a trademark claim, the designations are printed in initial capitals
+ or in all capitals.
+\layout Standard
+
+
+\begin_inset ERT
+status Open
+
+\layout Standard
+
+\backslash 
+end{singlespace}
+\end_inset 
+
+
+\the_end
