@@ -1,0 +1,2405 @@
+#LyX 1.1 created this file. For more info see http://www.lyx.org/
+\lyxformat 218
+\textclass article
+\begin_preamble
+
+\end_preamble
+\language english
+\inputencoding auto
+\fontscheme default
+\graphics default
+\float_placement htb
+\paperfontsize 11
+\spacing single 
+\papersize a4paper
+\paperpackage a4
+\use_geometry 0
+\use_amsmath 0
+\paperorientation portrait
+\leftmargin 0in
+\topmargin 0.15in
+\rightmargin 0.15in
+\bottommargin 0.15in
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\defskip medskip
+\quotes_language english
+\quotes_times 2
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+
+\layout LaTeX
+
+\layout Title
+
+A Pipelined Hardware implementation of Genetic Programming using FPGAs and
+ Handel-C
+\layout Author
+
+
+\size larger 
+Peter Martin
+\newline 
+ 
+\size small 
+Department of Computer Science, 
+\newline 
+University of Essex, 
+\newline 
+Wivenhoe Park, 
+\newline 
+Colchester, CO4 3SQ UK.
+\size larger 
+
+\newline 
+
+\newline 
+
+\newline 
+
+\newline 
+
+\newline 
+Technical Report CSM-353
+\newline 
+Department of Computer Science
+\newline 
+University of Essex
+\layout Abstract
+
+
+\size normal 
+A complete Genetic Programming (GP) system implemented in a single FPGA
+ is described in this paper.
+ The GP system is capable of solving problems that require large populations
+ and by using parallel fitness evaluations can solve problems in a much
+ shorter time that a conventional GP system in software.
+ A high level language to hardware compilation system called Handel-C is
+ used for implementation.
+ 
+\layout LaTeX
+
+
+\backslash 
+newpage
+\layout Section
+
+Introduction
+\layout Standard
+
+The motivation for this work is that as problems get harder, the performance
+ of traditional computers can be severely stretched despite the continuing
+ increase in performance of modern CPUs.
+ By implementing a GP system directly in hardware the aim is to increase
+ the performance by a sufficiently large factor to be able to tackle harder
+ problems and to make investigations into the operation of GP easier.
+ This paper is an update to the work presented in 
+\begin_inset LatexCommand \cite{martin:2001:gpem}
+
+\end_inset 
+
+ which describes how a GP system that includes initial population creation,
+ fitness evaluation, selection, and breeding operators can be implemented
+ in a Field Programmable Gate Array (FPGA) using a high level language to
+ hardware compilation technique.
+ Two major areas were singled out for further work in order to improve the
+ performance: 1) extend the implementation to handle larger populations;
+ 2) the use of pipelining to improve the parallelism of the hardware.
+ 
+\layout Standard
+
+The changes needed and the results of implementing the changes are described
+ in this paper.
+ The paper begins with a brief survey of previous work using FPGAs for evolution
+ary techniques and a short summary of the Handel-C language and the target
+ hardware.
+ This is followed by a description of the revised design that stores the
+ population in off-chip Static Random Access Memory (SRAM) and that also
+ uses pipelining.
+ The experimental setup is presented together with some results that illustrate
+ the effect of the changes.
+ The changes are then discussed and areas for further work are suggested.
+\layout Section
+
+Previous work using FPGAs in Evolutionary Computing
+\layout Standard
+
+FPGAs have featured in the field of evolutionary computing under three distinct
+ headings: 
+\layout Standard
+
+1) as a means of implementing the fitness functions of Genetic Algorithms
+ or Genetic Programming
+\shape italic 
+ 
+\shape default 
+
+\begin_inset LatexCommand \cite{Koza:1997:rrFPGAafeGP,Yamaguchi:2000}
+
+\end_inset 
+
+;
+\layout Standard
+
+2) as a platform for implementing a Genetic or Evolutionary Algorithm 
+\begin_inset LatexCommand \cite{Graham:96,heywood:2000:rbGPFPGA,EHW:ICES2000-Perkins,Scott:1997,shackleford:2001}
+
+\end_inset 
+
+;
+\layout Standard
+
+3) in relation to evolving hardware by means of an evolutionary technique
+ 
+\begin_inset LatexCommand \cite{Fogarty:miller:Thompson:1998,EHW:NASA99-Levi,thompson:1996:SiE,EHW:NASA99-Tufte}
+
+\end_inset 
+
+.
+\layout Standard
+
+
+\latex latex 
+
+\backslash 
+noindent
+\latex default 
+ A more detailed review of this and other work can be found in 
+\begin_inset LatexCommand \cite{martin:2001:gpem}
+
+\end_inset 
+
+.
+\layout Section
+
+A hardware implementation of Genetic Programming using Handel-C
+\layout Subsection
+
+Description of Handel-C
+\layout Standard
+
+Handel-C is a high level language that is at the heart of a hardware compilation
+ system known as Celoxica DK1 
+\begin_inset LatexCommand \cite{Celoxica:website}
+
+\end_inset 
+
+ which is designed to compile programs written in a C-like high level language
+ into synchronous hardware.
+ The output from Handel-C is a file that is used to create the configuration
+ data for the FPGA.
+ A description of the process used by Handel-C to transform a high level
+ language into hardware and examples of the hardware generated can be found
+ in 
+\begin_inset LatexCommand \cite{page:1996}
+
+\end_inset 
+
+.
+ Handel-C has its roots in CSP and Occam.
+\layout Standard
+
+The C-like syntax makes the tool appealing to software engineers with little
+ or no experience of hardware.
+ They can quickly translate a software algorithm into hardware, without
+ having to learn about VHDL or FPGAs in detail.
+ Examples of how Handel-C may be exploited can be found in work by Page
+ 
+\begin_inset LatexCommand \cite{page:video:1997}
+
+\end_inset 
+
+ where a number of video algorithms were implemented using just an FPGA,
+ and in work by Sulik 
+\shape italic 
+et al
+\shape default 
+ 
+\begin_inset LatexCommand \cite{sulik:2000}
+
+\end_inset 
+
+ that describes how a Reduced Instruction Set Computer core was designed
+ in 48 hours.
+\layout Standard
+
+One of the advantages of using hardware is the ability to exploit parallelism
+ directly.
+ Because standard C is a sequential language Handel-C has additional constructs
+ to support the parallelization of code, and to allow fine control over
+ what hardware is generated.
+\layout Standard
+
+Since Handel-C targets hardware, there are some programming restrictions
+ when compared to using ISO-C, and these need to be considered when designing
+ code that can be compiled by Handel-C.
+ Some of these restrictions particularly affect the building of a GP system.
+ Firstly, there is no stack available, so recursive functions cannot be
+ directly supported by the language.
+ Secondly, there is a severe limit to the size of memory that can be implemented
+ using standard logic cells on an FPGA because implementing memory is expensive
+ in terms of silicon real estate.
+ However, some FPGAs have internal RAM that can be used by Handel-C which
+ is supported by the 
+\family typewriter 
+ram
+\family default 
+ storage specifier.
+\layout Standard
+
+Handel-C supports two targets.
+ The first is a simulator that allows development and testing of code without
+ the need to use any hardware.
+ This is supported by a debugger and other tools.
+ The second target is the synthesis of a netlist for input to FPGA place
+ and route tools.
+ This allows the design to be translated into configuration data for particular
+ chips.
+ Analysis of cycle counts is available from the simulator, and an estimate
+ of the final gate count is generated by the Handel-C compiler.
+\layout Subsection
+
+Target Hardware
+\layout Standard
+
+The target hardware for this work is a Celoxica RC1000 FPGA development
+ board fitted with a Xilinx XCV2000E Virtex-E FPGA having 43,200 logic cells
+ and 655,360 bits of block ram, a PCI bridge that communicates between the
+ RC1000 board and the host computer's PCI bus, and four banks of Static
+ Random Access Memory (SRAM).
+ Logic circuits isolate the FPGA from the SRAM, allowing both the host CPU
+ and the FPGA to access the SRAM, though not concurrently.
+ 
+\layout Section
+
+System Architecture
+\layout Standard
+
+The previous implementation 
+\begin_inset LatexCommand \cite{martin:2001:gpem}
+
+\end_inset 
+
+ was a proof of concept system which stored the population directly in on-chip
+ Look Up Tables (LUTs) and also used a sequential model of operation.
+ Consequently it suffered from two major deficiencies.
+ Firstly, the size of the population that could be handled was very small,
+ in the region of 16 individuals because of the inefficiencies of using
+ LUTs to store individuals.
+ Secondly, the sequential nature of the select-breed-evaluate sequence resulted
+ in a non-linear relationship between the number of parallel evaluations
+ and the speed-up observed.
+ Both these deficiencies are addressed by the changes described in this
+ paper.
+\layout Subsection
+
+Program Representation and operators
+\layout Standard
+
+The lack of a stack in Handel-C means that a standard tree based representation
+ is difficult to implement because recursion cannot be handled by the language.
+ Instead, a linear program representation is used 
+\begin_inset LatexCommand \cite{Nordin:1995:tcp}
+
+\end_inset 
+
+, though other compact representations such as Cartesian Genetic Programming
+ 
+\begin_inset LatexCommand \cite{miller:2000:CGP}
+
+\end_inset 
+
+ in which programs are represented as graphs, are also worth considering.
+ Using a linear representation, a program consists of a sequence of words
+ which are interpreted by the problem specific fitness function.
+ To ease the design, each program has a fixed maximum length that it can
+ grow to.
+ Crossover is performed by selecting crossover points at random in two individua
+ls and swapping the nodes after the crossover points.
+ If the length of a program would exceed the maximum, it is simply truncated
+ to the maximum.
+ Mutation is performed on an individual by replacing a word with a new randomly
+ generated word which has the potential effect of changing both the functionalit
+y and the terminals of that node.
+ The operators are chosen using an 8 bit random number and bit masks which
+ eliminates less-than or greater-than comparisons which are inefficient
+ in terms of logic.
+ The probability of selecting each operator is 31/255 (12%) for mutation,
+ 63/255 (24.5%) for copy and the remainder (63.5%) for crossover.
+\layout Subsection
+
+Extending the population size
+\layout Standard
+
+Large populations are supported by storing the entire population in off-chip
+ SRAM.
+ The Celoxica RC1000 board has 8\SpecialChar ~
+MiB
+\begin_float footnote 
+\layout Standard
+
+
+\latex latex 
+
+\backslash 
+noindent
+\latex default 
+ This paper uses the IEC recommended prefixes for binary multiples.
+ MiB indicates 
+\begin_inset Formula \( 2^{20} \)
+\end_inset 
+
+ bytes.
+ For more information see 
+\begin_inset LatexCommand \cite{nist:2002}
+
+\end_inset 
+
+.
+\end_float 
+ of SRAM arranged as 4 banks of 2\SpecialChar ~
+MiB that can be directly addressed by the
+ FPGA, and each bank is configured as 512\SpecialChar ~
+Ki 32bit words.
+ In practice, one bank is reserved for storing the results of the run (fitness
+ and lengths of each individual), leaving three banks available for the
+ population.
+ The total population size is determined by the program size chosen and
+ the size of the program nodes.
+ Table 
+\begin_inset LatexCommand \ref{Table:Population sizes}
+
+\end_inset 
+
+ illustrates the potential range that can be accommodated for a node size
+ of 32 bits.
+ 
+\layout Standard
+
+\begin_float tab 
+\layout Caption
+
+
+\begin_inset LatexCommand \label{Table:Population sizes}
+
+\end_inset 
+
+Possible population sizes when using three 2\SpecialChar ~
+MiB memory banks and a word
+ size of 32 bits for different program sizes.
+\layout Standard
+
+
+\begin_inset  Tabular
+<lyxtabular version="2" rows="2" columns="8">
+<features rotate="false" islongtable="false" endhead="0" endfirsthead="0" endfoot="0" endlastfoot="0">
+<column alignment="left" valignment="top" leftline="false" rightline="false" width="1.2in" special="">
+<column alignment="left" valignment="top" leftline="false" rightline="false" width="0.3in" special="">
+<column alignment="left" valignment="top" leftline="false" rightline="false" width="0.3in" special="">
+<column alignment="left" valignment="top" leftline="false" rightline="false" width="0.3in" special="">
+<column alignment="left" valignment="top" leftline="false" rightline="false" width="0.3in" special="">
+<column alignment="left" valignment="top" leftline="false" rightline="false" width="0.5in" special="">
+<column alignment="left" valignment="top" leftline="false" rightline="false" width="0.3in" special="">
+<column alignment="left" valignment="top" leftline="false" rightline="false" width="0.3in" special="">
+<row topline="true" bottomline="false" newpage="false">
+<cell multicolumn="0" alignment="left" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+Max program Length (words)
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="left" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+16
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="left" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+32
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="left" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+64
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="left" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+128
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="left" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+256
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="left" valignment="top" topline="true" bottomline="false" leftline="true" rightline="true" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+512
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="left" valignment="top" topline="true" bottomline="false" leftline="true" rightline="true" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+1024
+\end_inset 
+</cell>
+</row>
+<row topline="false" bottomline="true" newpage="false">
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+Max population size
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+98,304
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+49,152
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+24,576
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+12,288
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+6,144
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="true" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+3,072
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="true" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+1,536
+\end_inset 
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset 
+
+
+\end_float 
+\layout Standard
+
+No attempt has been made to compress more than one node into a 32 bit word.
+ If even larger populations were needed then this could yield a possible
+ 4 times increase assuming an 8 bit word node.
+ Because access to external memory is a bottleneck, a small working subset
+ of the population as well as the total population fitness values and some
+ control information is kept in on-chip block select RAM on the FPGA where
+ they can be accessed more efficiently by the logic.
+\layout Standard
+
+External SRAM can only be written to or read from once per clock cycle,
+ so care was taken in the design to ensure that parallel access to memory
+ cannot occur.
+ Similarly, the on-chip block select RAM must not be accessed more than
+ once per clock cycle.
+ Concurrent access to the block select RAMs is achieved by partitioning
+ the rams into smaller blocks that can be accessed in parallel.
+ Access to the SRAM is controlled by the pipeline.
+\layout Subsection
+
+Using pipelines to improve performance
+\layout Standard
+
+Implementing algorithmic parallelism or pipelining is a frequently used
+ technique in hardware design that reduces the number of clock cycles needed
+ to perform complex operations.
+ Pipelines can be implemented at a number of levels and in this work pipelines
+ have been used in several places; a high-level coarse grained control pipeline,
+ and fine grained pipelines in the fitness evaluation function and functions
+ that copy data to/from SRAM.
+ The four major GP operations are divided among the stages of the pipeline:
+ selection of individuals from the population for breeding, breeding new
+ individuals, fitness evaluation of the individuals, and replacement of
+ the new individuals in the population.
+ Because of the need to control access to the main population in SRAM during
+ the selection phase which reads individuals from SRAM into block ram, and
+ writing modified programs back to SRAM, these two operations are combined
+ into one stage.
+ This leaves the breeding and fitness evaluation/replacement operations.
+ Breeding is closely tied to selection and needs to occur before evaluation
+ can take place so this is combined into the selection phase.
+ Figure 
+\begin_inset LatexCommand \ref{fig:Overall architecture}
+
+\end_inset 
+
+ illustrates the resultant architecture and the coarse-grained control pipeline.
+\layout Standard
+
+\begin_float fig 
+\layout Standard
+\align center 
+
+\begin_inset Figure size 324 290
+file Chart1.eps
+width 2 4.5
+flags 9
+
+\end_inset 
+
+
+\layout Caption
+
+
+\begin_inset LatexCommand \label{fig:Overall architecture}
+
+\end_inset 
+
+Overall architecture of the pipelined GP system.
+ Stage1 runs continuously generating random numbers and counting cycles.
+ Stage2 is the main GP machine which is itself a pipeline consisting of
+ two stages.
+ 
+\end_float 
+\layout Standard
+
+Stage1 is a pseudo random number generator based on a logical feedback shift
+ register (LFSR), which runs continuously, generating a new random number
+ every clock cycle.
+ The random numbers are available to the rest of the machine with no overhead.
+ Stage2 is the main GP machine and consists of two sub-stages.
+ Communication between the WriteBack/Select/Breed sub-stage (stage 2a) and
+ the Evaluate/Replace sub-stage (stage 2b) is via a two dimensional array
+ of individuals in block ram, indexed by a global phase index which is toggled
+ each time stages 2a and 2b complete.
+ The WriteBack phase updates the main population in SRAM with the result
+ of the preceding Evaluate/Replace phase.
+ The Select phase selects a series of two parents using tournament selection
+ and copies the selected individuals from SRAM to the on-chip working RAM
+ and the Breed phase then creates a series of new individuals ready for
+ stage 2b to use.
+ Stage 2b performs parallel evaluations of the individuals and then determines
+ which individuals should be replaced.
+ Parallel evaluation is achieved by replicating the hardware for fitness
+ evaluation.
+ The individuals identified for replacement are in turn written back to
+ the main population at the start of the next WriteBack/Select/Breed sub-stage.
+ The wait between evaluation and replacement is needed because both selection
+ and replacement require access to the global fitness vector.
+ In practice this only comes into play when the evaluation phase takes less
+ time than WriteBack and Selection, which only happens for very simple fitness
+ functions.
+\layout Standard
+
+A finer grained level of pipelining is implemented in the fitness evaluation
+ function.
+ FPGAs are synchronous devices, meaning that a clock is used to latch data
+ into registers.
+ In Handel-C all expressions are implemented using combinatorial logic,
+ which if allowed to grow in depth can restrict the maximum frequency the
+ FPGA can be clocked at.
+ This is because of the delays introduced by the combinatorial paths.
+ Therefore, to reduce logic depth, and hence improve on the clock frequency,
+ it is often advantageous to split a complex expression into more but simpler
+ expressions.
+ This usually requires more clock cycles, but by pipelining the operations
+ an effective single cycle throughput can be achieved.
+ In this design, the function read, and decode is pipelined with the function
+ evaluation, though the effectiveness of this is problem specific.
+\layout Subsection
+
+Replacement Strategy
+\layout Standard
+
+In conventional steady-state GP, once an individual has been evaluated it
+ replaces the worst individual in the population.
+ In a hardware implementation with parallel fitness evaluations this is
+ expensive to implement since a global search is required.
+ An alternative to this called survival-driven evolution, has been successfully
+ used by Shackleford et al 
+\begin_inset LatexCommand \cite{shackleford:2001}
+
+\end_inset 
+
+.
+ In this scheme only offspring that are fitter than the worst of their two
+ parents will survive into the next generation by replacing one of the parents.
+ This removes the need for any global search and this scheme was adapted
+ to the current work by maintaining a record of the parents of each individual.
+\layout Subsection
+
+Measuring performance
+\layout Standard
+
+To compare the performance of different implementations a way of measuring
+ the number of cycles used by the FPGA is needed.
+ One possibility is to use the DK1 simulator, but in large designs with
+ long running times this can take many hours of running which is often impractic
+al.
+ An alternative is to include a cycle counter in the design which can be
+ read by external programs.
+ The internal cycle counter runs in parallel with the rest of the hardware,
+ incrementing a counter once per clock cycle.
+ This approach could be extended to providing fine-grained measurement of
+ the cycles required by the individual phases which would be valuable for
+ evaluating the detailed performance of the design.
+\layout Subsection
+
+Obtaining the results from a run
+\layout Standard
+
+Once the GP machine has finished a run, the best program needs to be communicate
+d to the outside world.
+ The individual programs are already in SRAM, so they can be read directly
+ by the host.
+ The program fitness and lengths are written to SRAM when the GP machine
+ has finished so they can also be read by the host.
+ In addition, the cycle count(s), and other parameters are made available
+ to the host via SRAM.
+ 
+\layout Section
+
+Experimental setup
+\layout Standard
+
+To evaluate the effect of the changes made, two experiments were performed.
+ Firstly, a direct comparison with the previous design using the XOR problem
+ was run.
+ This was done to gauge the overall effect of storing the population in
+ off-chip SRAM, and of implementing the pipelines.
+ Next the Santa Fe Ant problem was implemented both as a demonstration of
+ a hard problem and an example of where the function set is equivalent to
+ that of a traditional CPU instruction set.
+\layout Standard
+
+Each experiment was run using four different environments.
+ Firstly, an ISO-C version of the algorithm was developed to prove the operation
+ of the program because debugging tools for standard C are readily available,
+ and the development time for C is considerably shorter than when using
+ Handel-C and FPGA tools.
+ Secondly, a PowerPC simulator was used to measure how many cycles the algorithm
+ needed when run on a typical Reduced Instruction Set Computer (RISC) and
+ thirdly, the design was implemented on an FPGA.
+ Each problem was implemented with a range of parallel evaluations.
+ Lastly to get a feel for the total effect of implementing a GP system in
+ hardware when compared to using a popular software GP system, the problems
+ were implemented using lilgp and a comparison made of the performance.
+\layout Standard
+
+When the design is implemented on an FPGA, a host control program configures
+ the FPGA, sets up the random number seed and other control parameters in
+ SRAM, and initiates the GP run.
+ Once the GP run has finished, the FPGA signals the host program and the
+ host control program reads the fitness values from SRAM, decides which
+ program(s) are suitable, reads the appropriate SRAM locations and outputs
+ the program in a usable form.
+ For the two experiments, host programs were also written to verify the
+ programs, and in the case of the ant problem, display a simple graphical
+ trace of the ant's behavior.
+\layout Section
+
+Experiment Descriptions and Results
+\layout Subsection
+
+Exclusive Or Problem
+\layout Subsubsection
+
+Description
+\layout Standard
+
+The 2 bit XOR function 
+\begin_inset Formula \( x=(a\overline{b})+(\overline{a}b) \)
+\end_inset 
+
+ uses the four basic two input logic primitives AND, OR, NOR and NAND which
+ take two registers, R
+\begin_inset Formula \( _{a} \)
+\end_inset 
+
+ and R
+\begin_inset Formula \( _{b} \)
+\end_inset 
+
+.
+ The result is placed into R
+\begin_inset Formula \( _{a} \)
+\end_inset 
+
+.
+ These functions have been shown to be sufficient to solve the boolean XOR
+ problem 
+\begin_inset LatexCommand \cite{koza:book}
+
+\end_inset 
+
+.
+ Execution is terminated when the last instruction in the program has been
+ executed.
+ The two inputs 
+\begin_inset Formula \( a \)
+\end_inset 
+
+ and 
+\begin_inset Formula \( b \)
+\end_inset 
+
+ were written to registers R
+\begin_inset Formula \( _{0} \)
+\end_inset 
+
+ and R
+\begin_inset Formula \( _{1} \)
+\end_inset 
+
+ before the fitness evaluation, and the result 
+\begin_inset Formula \( x \)
+\end_inset 
+
+ read from register R
+\begin_inset Formula \( _{0} \)
+\end_inset 
+
+ after the fitness evaluation.
+ The full set of parameters is given in Table 
+\begin_inset LatexCommand \ref{table:xor problem parameters}
+
+\end_inset 
+
+.
+\begin_float tab 
+\layout Caption
+
+
+\begin_inset LatexCommand \label{table:xor problem parameters}
+
+\end_inset 
+
+Parameters for the XOR problem
+\layout Standard
+
+
+\begin_inset  Tabular
+<lyxtabular version="2" rows="8" columns="2">
+<features rotate="false" islongtable="false" endhead="0" endfirsthead="0" endfoot="0" endlastfoot="0">
+<column alignment="left" valignment="top" leftline="false" rightline="false" width="1.5in" special="">
+<column alignment="left" valignment="top" leftline="false" rightline="false" width="2.9in" special="">
+<row topline="true" bottomline="false" newpage="false">
+<cell multicolumn="0" alignment="left" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+Parameter
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="left" valignment="top" topline="true" bottomline="false" leftline="true" rightline="true" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+Value
+\end_inset 
+</cell>
+</row>
+<row topline="true" bottomline="false" newpage="false">
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+Population Size
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="true" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+16
+\end_inset 
+</cell>
+</row>
+<row topline="false" bottomline="false" newpage="false">
+<cell multicolumn="0" alignment="left" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+Functions
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="true" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+AND(R
+\begin_inset Formula \( _{a} \)
+\end_inset 
+
+,R
+\begin_inset Formula \( _{b} \)
+\end_inset 
+
+), OR(R
+\begin_inset Formula \( _{a} \)
+\end_inset 
+
+,R
+\begin_inset Formula \( _{b} \)
+\end_inset 
+
+), NOR(R
+\begin_inset Formula \( _{a} \)
+\end_inset 
+
+,R
+\begin_inset Formula \( _{b} \)
+\end_inset 
+
+), NAND(R
+\begin_inset Formula \( _{a} \)
+\end_inset 
+
+,R
+\begin_inset Formula \( _{b} \)
+\end_inset 
+
+) 
+\end_inset 
+</cell>
+</row>
+<row topline="false" bottomline="false" newpage="false">
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+Terminals
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="true" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+4 registers
+\end_inset 
+</cell>
+</row>
+<row topline="false" bottomline="false" newpage="false">
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+Max Program Size
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="true" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+16
+\end_inset 
+</cell>
+</row>
+<row topline="false" bottomline="false" newpage="false">
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+Generations
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="true" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+511
+\end_inset 
+</cell>
+</row>
+<row topline="false" bottomline="false" newpage="false">
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+Fitness Cases
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="true" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+4 pairs of values of 
+\begin_inset Formula \( a \)
+\end_inset 
+
+ and 
+\begin_inset Formula \( b \)
+\end_inset 
+
+
+\end_inset 
+</cell>
+</row>
+<row topline="false" bottomline="true" newpage="false">
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+Raw Fitness
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="true" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+The number of fitness cases that failed to yield the expected result.
+\end_inset 
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset 
+
+
+\end_float 
+\layout Subsubsection
+
+XOR Problem Results
+\layout Standard
+
+The results from running the XOR problem are given in Table 
+\begin_inset LatexCommand \ref{table:Results of running the XOR problem}
+
+\end_inset 
+
+.
+\begin_float tab 
+\layout Caption
+
+
+\begin_inset LatexCommand \label{table:Results of running the XOR problem}
+
+\end_inset 
+
+Results of running the XOR problem.
+ The results are the average of 10 runs for each configuration, each run
+ using a different random seed.
+\layout Standard
+
+
+\begin_inset  Tabular
+<lyxtabular version="2" rows="7" columns="6">
+<features rotate="false" islongtable="false" endhead="0" endfirsthead="0" endfoot="0" endlastfoot="0">
+<column alignment="left" valignment="top" leftline="false" rightline="false" width="1.4in" special="">
+<column alignment="left" valignment="top" leftline="false" rightline="false" width="0.5in" special="">
+<column alignment="left" valignment="top" leftline="false" rightline="false" width="0.5in" special="">
+<column alignment="left" valignment="top" leftline="false" rightline="false" width="0.5in" special="">
+<column alignment="left" valignment="top" leftline="false" rightline="false" width="0.5in" special="">
+<column alignment="left" valignment="top" leftline="false" rightline="false" width="0.5in" special="">
+<row topline="true" bottomline="true" newpage="false">
+<cell multicolumn="0" alignment="left" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+Measurement
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="left" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+PowerPC
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="left" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="left" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+HandelC
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="left" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="left" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+\end_inset 
+</cell>
+</row>
+<row topline="false" bottomline="false" newpage="false">
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+Parallel fitness evaluations
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+n/a
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+1
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+2
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+4
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+8
+\end_inset 
+</cell>
+</row>
+<row topline="false" bottomline="false" newpage="false">
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+Cycles
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+13,723,187
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+74,819
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+73,232
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+72,184
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+81,767
+\end_inset 
+</cell>
+</row>
+<row topline="false" bottomline="false" newpage="false">
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+Clock Frequency
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+200MHz
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+52MHz
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+48MHz
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+42MHz
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+37MHz
+\end_inset 
+</cell>
+</row>
+<row topline="false" bottomline="false" newpage="false">
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+Number of Slices
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+n/a
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+1238
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+1247
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+1725
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+2801
+\end_inset 
+</cell>
+</row>
+<row topline="false" bottomline="false" newpage="false">
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+
+\begin_inset Formula \( Speedup_{cycles} \)
+\end_inset 
+
+
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+1
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+183
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+187
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+190
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+167
+\end_inset 
+</cell>
+</row>
+<row topline="false" bottomline="true" newpage="false">
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+
+\begin_inset Formula \( Speedup_{time} \)
+\end_inset 
+
+
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+1
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+47
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+44
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+39
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+31
+\end_inset 
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset 
+
+
+\end_float 
+\layout Standard
+
+
+\latex latex 
+
+\backslash 
+noindent
+\latex default 
+ Comparing these results first with the results in 
+\begin_inset LatexCommand \cite{martin:2001:gpem}
+
+\end_inset 
+
+ which achieved a speedup (time) of 6 times for 4 parallel evaluations,
+ it can be seen that splitting the algorithm into two sub-stages gives a
+ useful increase in performance.
+ However, the surprising result is that it takes longer to run the XOR problem
+ when more evaluations are performed in parallel, in particular when 8 parallel
+ evaluations are done.
+ Detailed investigation showed that this was a side effect of the selection
+ method.
+ During selection the number of individuals selected from the main population
+ is the number of parallel fitness evaluations wanted, and these are selected
+ at random from the population, but only those individuals that are not
+ currently being evaluated by the Evaluate/Replace sub-stage are valid candidate
+s.
+ When the number of individuals required is half the population size, many
+ more attempts must be made by the selection phase to find valid individuals.
+ This explains why when the number of parallel evaluations is 8, the run
+ time is greater than when only two individuals are being selected.
+\layout Standard
+
+The frequencies in table 
+\begin_inset LatexCommand \ref{table:Results of running the XOR problem}
+
+\end_inset 
+
+ for the Handel-C implementations is that reported by the place&route tools,
+ and takes into account the delays introduced by the combinatorial logic
+ and the delays introduced by the routing resources used on the FPGA.
+ A lot of effort was spent to reduce the logic and routing delays in the
+ design, with the result that this design runs substantially faster that
+ the previous design which could only reach 18\SpecialChar ~
+MHz.
+\layout Standard
+
+Running this problem with lilgp required approximately 
+\begin_inset Formula \( 165\times 10^{9} \)
+\end_inset 
+
+ cycles, or more than 12 times the number of cycles needed by the linear
+ implementation.
+\layout Subsection
+
+Artificial Ant Problem
+\layout Subsubsection
+
+Description
+\layout Standard
+
+The motivation for choosing this problem for a hardware implementation is
+ two fold: Firstly it is a hard problem for GP to solve 
+\begin_inset LatexCommand \cite{langdon:1998:antspace}
+
+\end_inset 
+
+, and secondly it demonstrates that a custom hardware design can efficiently
+ encode the function and terminal set as native `instructions'.
+ That is to say one of the attractions of using an FPGA is that custom instructi
+ons not normally found in production CPUs can easily be constructed.
+\layout Standard
+
+\begin_float tab 
+\layout Caption
+
+
+\begin_inset LatexCommand \label{table:ant problem parameters}
+
+\end_inset 
+
+Parameters for the ANT problem
+\layout Standard
+
+
+\begin_inset  Tabular
+<lyxtabular version="2" rows="8" columns="2">
+<features rotate="false" islongtable="false" endhead="0" endfirsthead="0" endfoot="0" endlastfoot="0">
+<column alignment="left" valignment="top" leftline="false" rightline="false" width="1.5in" special="">
+<column alignment="left" valignment="top" leftline="false" rightline="false" width="2.9in" special="">
+<row topline="true" bottomline="false" newpage="false">
+<cell multicolumn="0" alignment="left" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+Parameter
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="left" valignment="top" topline="true" bottomline="false" leftline="true" rightline="true" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+Value
+\end_inset 
+</cell>
+</row>
+<row topline="true" bottomline="false" newpage="false">
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+Population Size
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="true" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+512
+\end_inset 
+</cell>
+</row>
+<row topline="false" bottomline="false" newpage="false">
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+Functions
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="true" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+IF_FOOD(T
+\begin_inset Formula \( _{\textrm{a}} \)
+\end_inset 
+
+,T
+\begin_inset Formula \( _{\textrm{b}} \)
+\end_inset 
+
+), PROGN(T
+\begin_inset Formula \( _{\textrm{a}} \)
+\end_inset 
+
+, T
+\begin_inset Formula \( _{\textrm{b}} \)
+\end_inset 
+
+)
+\end_inset 
+</cell>
+</row>
+<row topline="false" bottomline="false" newpage="false">
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+Terminals
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="true" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+MOVE, LEFT, RIGHT, NOP
+\end_inset 
+</cell>
+</row>
+<row topline="false" bottomline="false" newpage="false">
+<cell multicolumn="0" alignment="left" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+Max Program Size
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="true" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+32
+\end_inset 
+</cell>
+</row>
+<row topline="false" bottomline="false" newpage="false">
+<cell multicolumn="0" alignment="left" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+Generations
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="true" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+511
+\end_inset 
+</cell>
+</row>
+<row topline="false" bottomline="false" newpage="false">
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+Fitness Cases
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="true" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+One fitness case.
+ The program was run until 1024 timesteps had elapsed or the ant had consumed
+ all the food.
+\end_inset 
+</cell>
+</row>
+<row topline="false" bottomline="true" newpage="false">
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+Raw Fitness
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="true" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+The number of pieces of food not eaten in the time available.
+\end_inset 
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset 
+
+
+\end_float 
+The full set of parameters is given in Table 
+\begin_inset LatexCommand \ref{table:ant problem parameters}
+
+\end_inset 
+
+.
+\layout Subsubsection
+
+ANT Problem Results
+\layout Standard
+
+The ANT problem was executed using the same environments as the XOR problem
+ and the results are presented in Table 
+\begin_inset LatexCommand \ref{table:Results of running the ANT problem}
+
+\end_inset 
+
+.
+\layout Standard
+
+\begin_float tab 
+\layout Caption
+
+
+\begin_inset LatexCommand \label{table:Results of running the ANT problem}
+
+\end_inset 
+
+Results of running the ANT problem
+\layout Standard
+
+
+\begin_inset  Tabular
+<lyxtabular version="2" rows="7" columns="7">
+<features rotate="false" islongtable="false" endhead="0" endfirsthead="0" endfoot="0" endlastfoot="0">
+<column alignment="left" valignment="top" leftline="false" rightline="false" width="1.2in" special="">
+<column alignment="left" valignment="top" leftline="false" rightline="false" width="0.4in" special="">
+<column alignment="left" valignment="top" leftline="false" rightline="false" width="0.4in" special="">
+<column alignment="left" valignment="top" leftline="false" rightline="false" width="0.4in" special="">
+<column alignment="left" valignment="top" leftline="false" rightline="false" width="0.4in" special="">
+<column alignment="left" valignment="top" leftline="false" rightline="false" width="0.4in" special="">
+<column alignment="left" valignment="top" leftline="false" rightline="false" width="0.4in" special="">
+<row topline="true" bottomline="true" newpage="false">
+<cell multicolumn="0" alignment="left" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+Measurement
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="left" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+PowerPC
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="left" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="left" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="left" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+HandelC
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="left" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="left" valignment="top" topline="true" bottomline="false" leftline="true" rightline="true" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+\end_inset 
+</cell>
+</row>
+<row topline="false" bottomline="false" newpage="false">
+<cell multicolumn="0" alignment="left" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+Parallel fitness evaluations
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+n/a
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+2
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+4
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+8
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+16
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="true" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+32
+\end_inset 
+</cell>
+</row>
+<row topline="false" bottomline="false" newpage="false">
+<cell multicolumn="0" alignment="left" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+Cycles
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+2.695e9
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+42.58e6
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+23.19e6
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+13.15e6
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+7.53e6
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="true" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+4.2e6
+\end_inset 
+</cell>
+</row>
+<row topline="false" bottomline="false" newpage="false">
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+Clock Frequency
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+200MHz
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+40
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+38
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+36
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+33
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="true" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+31
+\end_inset 
+</cell>
+</row>
+<row topline="false" bottomline="false" newpage="false">
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+Number of Slices
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+n/a
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+1,835
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+2,636
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+4,840
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+7,429
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="true" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+14,908
+\end_inset 
+</cell>
+</row>
+<row topline="false" bottomline="false" newpage="false">
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+
+\begin_inset Formula \( Speedup_{cycles} \)
+\end_inset 
+
+
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+1
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+69
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+116
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+204
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+358
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="true" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+642
+\end_inset 
+</cell>
+</row>
+<row topline="false" bottomline="true" newpage="false">
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+
+\begin_inset Formula \( Speedup_{time} \)
+\end_inset 
+
+
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+1
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+13
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+22
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+36
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+59
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="true" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+99
+\end_inset 
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset 
+
+
+\end_float 
+\layout Standard
+
+An example program from this problem found in one run is:
+\layout LyX-Code
+
+IF_FOOD(LEFT,RIGHT)
+\newline 
+PROGN (NOP,RIGHT)
+\newline 
+IF_FOOD (NOP,LEFT)
+\newline 
+PROGN (MOVE,LEFT)
+\layout Standard
+
+Figure 
+\begin_inset LatexCommand \ref{fig:speedup for ant}
+
+\end_inset 
+
+ shows the speedup results for the Ant problem, and gives both the 
+\begin_inset Formula \( Speedup_{cycles} \)
+\end_inset 
+
+ and 
+\begin_inset Formula \( Speedup_{time} \)
+\end_inset 
+
+.
+\layout LyX-Code
+
+\begin_float fig 
+\layout LyX-Code
+\align center 
+
+\begin_inset Figure size 225 141
+file Image4.eps
+height 1 5
+flags 9
+
+\end_inset 
+
+
+\layout Caption
+
+
+\begin_inset LatexCommand \label{fig:speedup for ant}
+
+\end_inset 
+
+The speedup factors for the number of cycles (
+\begin_inset Formula \( Speedup_{cycles} \)
+\end_inset 
+
+) and the time (
+\begin_inset Formula \( Speedup_{time} \)
+\end_inset 
+
+) for the Ant problem.
+ The 
+\begin_inset Formula \( Speedup_{cycles} \)
+\end_inset 
+
+ shows a linear increase as the number of parallel fitness evaluations is
+ increased, while the 
+\begin_inset Formula \( Speedup_{time} \)
+\end_inset 
+
+ shows a non-linear relationship due to the increased routing delays.
+\end_float 
+\layout Standard
+
+These results show that for the Ant problem, increasing the number of parallel
+ fitness evaluations increases the 
+\begin_inset Formula \( Speedup_{cycles} \)
+\end_inset 
+
+ factor linearly, but because the routing delay on the FPGA increases with
+ larger designs, the maximum clock frequency decreases, offsetting some
+ of the gains made by increasing the parallelism.
+\layout Standard
+
+The number of slices used for 32 parallel evaluations is nearly 80% of the
+ total available on the chip.
+ This is effectively the limit for the XCV2000E FPGA.
+ It is worth remarking that a PC with 750\SpecialChar ~
+MiB of RAM was required to run
+ the Handel-C compiler and the place&route tools before this design could
+ be implemented, and a PC with a 1.4\SpecialChar ~
+GHz Athlon CPU required nearly four hours
+ to complete the place&route.
+ This is in contrast to a modest 500\SpecialChar ~
+MHz Pentium machine capable of compiling
+ and running lilgp and other popular GP packages.
+\layout Standard
+
+Running this problem using lilgp in the PPC simulator needed approximately
+ 
+\begin_inset Formula \( 8.6\times 10^{9} \)
+\end_inset 
+
+ cycles, or over three times the number required by the linear implementation
+ on a PPC processor, giving the FPGA using 32 parallel fitness evaluations
+ a 
+\begin_inset Formula \( Speedup_{cycles} \)
+\end_inset 
+
+ of 2047 and a 
+\begin_inset Formula \( Speedup_{time} \)
+\end_inset 
+
+ of approximately 300 times over lilgp.
+\layout Section
+
+Discussion
+\layout Subsection
+
+Effect of Implementing Pipelines and increasing parallelism
+\layout Standard
+
+A direct comparison between the work in 
+\begin_inset LatexCommand \cite{martin:2001:gpem}
+
+\end_inset 
+
+ showed for the XOR problem that using a pipeline in the main control loop,
+ and in the fitness function provides a useful speedup, but because the
+ fitness evaluation is much shorter than the WriteBack/Select/Breed sub-stage,
+ there is no benefit to increasing the number of parallel fitness evaluations.
+ It was also clear that for small populations there is a limit to the number
+ of parallel fitness evaluations that can be accommodated.
+ However, the situation is reversed in the Ant problem because the time
+ needed for fitness evaluation is much larger than the WriteBack/Select/Breed
+ phase.
+ Clearly for other problems where the fitness function takes a long time
+ it would be worth devising efficient pipelines for the fitness evaluation
+ functions.
+\layout Subsection
+
+Comparison to a popular Software GP system.
+\layout Standard
+
+While this may appear to be an unfair comparison, a lot of work in GP is
+ centered around exploring the detailed operation of GP, which often requires
+ hundreds or thousands of runs with minor parameter changes, and performance
+ is still likely to be an issue even with processors running at 2\SpecialChar ~
+GHz and
+ beyond.
+ This comparison was done to see if using a hardware implementation would
+ be of benefit to researchers.
+ The results show that where a fixed problem type needs to be run many times,
+ a hardware implementation using many parallel fitness evaluations could
+ reduce the time required for extended runs by over two orders of magnitude.
+ While this looks promising, it must also be noted that changing parameters
+ for a FPGA run requires a large investment in time and the hardware approach
+ may not always be suitable.
+\layout Subsection
+
+Handel-C as an Implementation Language
+\layout Standard
+
+Using Handel-C to implement this design has highlighted two major benefits:
+ Firstly, the design of the system by someone trained as a software engineer
+ with limited hardware experience was relatively straightforward.
+ Secondly, it meant that the algorithm could be tested and debugged using
+ traditional software tools.
+ This is important when the time to compile a Handel-C design for the larger
+ problems into a simulation on a 1.4\SpecialChar ~
+GHz PC is of the order of 25 minutes,
+ and to place and route could take an hour or more.
+ In contrast, compilation of the code using the GNU compiler took seconds.
+\layout Standard
+
+An implication of using Handel-C is that to get the best throughput some
+ familiar programming constructs must be abandoned and new techniques adopted.
+ It is not possible to completely ignore the hardware aspects of a design,
+ for example when interfacing to SRAM, and when trying to squeeze the last
+ few nano seconds out of the design during the final place and route stages.
+ 
+\layout Section
+
+Further Work
+\layout Standard
+
+The latest Virtex-II FPGAs from Xilinx are bigger and faster than the Virtex-E
+ device used so far.
+ These devices promise even better speedups, and initial studies using these
+ devices have indicated that a further speedup of two to three times is
+ possible.
+ The Virtex-II devices also have larger gate counts and bigger on-chip block
+ RAMs.
+ The largest of these devices - the XC2V10000 could theoretically support
+ up to 128 parallel fitness evaluations for the artificial ant problem.
+ The initial indication is that by combining the faster clock frequency
+ and more parallel fitness evaluations the ant problem could see a further
+ 10 times speedup.
+ Further work needs to be done to verify this.
+\layout Standard
+
+Whilst the performance gains are substantial for one of the problems looked
+ at, the costs associated with using this technology need to be evaluated
+ with respect to software engineering effort, capital equipment costs and
+ operational considerations, so that practitioners can make the appropriate
+ choices when choosing a technology for implementing a GP system.
+\layout Standard
+
+As already noted, the cost in time to make small changes to a GP system
+ in an FPGA can be large, so it would seem reasonable to add the means of
+ varying some of the run-time parameters for a given design.
+ This could be done by supplying them during start-up, for example, a design
+ with a fixed maximum population size could have a run-time limit below
+ this specified by the host program, and this would make the technique more
+ useful for exploring particular aspects of GP behavior.
+\layout Standard
+
+For these experiments the main GP engine remained substantially unchanged,
+ but each problem required a full design/code/test development cycle and
+ a lengthy place and route phase before the problem could be run on an FPGA.
+ It would be worthwhile investigating methods of re-using the core GP engine
+ and using partial reconfiguration of the FPGA to load problem specific
+ fitness functions.
+\layout Standard
+
+Finally, the work to date has concentrated on the implementation issues
+ and clock speed.
+ Further analysis now needs to be done to understand the effects of the
+ various design decisions made.
+ In particular the effects of the crossover operator and the method of limiting
+ program lengths needs to be investigated.
+\layout Section
+
+Conclusions
+\layout Standard
+
+Moving the population storage to off-chip SRAM has allowed the design to
+ solve problems requiring larger population sizes, an example of which is
+ the Ant problem.
+ Pipelining the breed, selection and evaluation phases gives a performance
+ boost to problems that have short evaluation time requirements like the
+ XOR problem.
+ For problems like the Ant problem that require extended fitness evaluation
+ times the benefits of using a pipeline are even greater, allowing the number
+ of parallel fitness evaluations to be increased and the performance increasing
+ in a nearly linear relationship.
+\layout Section*
+
+Acknowledgments
+\layout Standard
+
+I would like to thank Marconi plc, Celoxica Ltd and Xilinx Inc for supporting
+ this work.
+ I would also like to thank my supervisor Riccardo Poli and the reviewers
+ for the helpful comments.
+\layout LyX-Code
+
+\layout LyX-Code
+
+\layout Standard
+
+
+\begin_inset LatexCommand \BibTeX[abbrv]{handelc}
+
+\end_inset 
+
+
+\the_end
