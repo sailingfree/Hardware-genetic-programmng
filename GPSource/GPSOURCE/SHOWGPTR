@@ -1,0 +1,223 @@
+#!/usr/local/bin/tree_wish -f
+# -*-Tcl-*-
+#################################################################################
+#
+#   ####   #    #   ####   #    #   ####   #####    #####  #####   ######  ######
+#  #       #    #  #    #  #    #  #    #  #    #     #    #    #  #       #
+#   ####   ######  #    #  #    #  #       #    #     #    #    #  #####   #####
+#       #  #    #  #    #  # ## #  #  ###  #####      #    #####   #       #
+#  #    #  #    #  #    #  ##  ##  #    #  #          #    #   #   #       #
+#   ####   #    #   ####   #    #   ####   #          #    #    #  ######  ######
+#################################################################################
+# This script parses a GP data file and produces an X tree
+# Based on the dirtree demo from Alan Brightons tree package
+#
+#################################################################################
+
+option add *highlightThickness 0 
+ 
+#################################################################################
+# create a canvas with horizontal and verical scrollbars in the 
+# given frame with the given name
+#################################################################################
+proc MakeCanvas {frame canvas} {
+    set vscroll [scrollbar $frame.vscroll -command "$canvas yview"]
+    set hscroll [scrollbar $frame.hscroll -orient horiz -command "$canvas xview"]
+    set canvas [canvas $canvas \
+		    -xscrollcommand "$hscroll set" \
+		    -yscrollcommand "$vscroll set"] 
+    pack $vscroll -side right -fill y
+    pack $hscroll -side bottom -fill x
+    pack $canvas -fill both -expand 1
+    bind $canvas <ButtonPress-2> "$canvas scan mark %x %y"
+    bind $canvas <B2-Motion> "$canvas scan dragto %x %y"
+
+    return $canvas
+}
+
+    
+
+#################################################################################
+# layout the components of the given node depending on whether
+# the tree is vertical or horizontal
+#################################################################################
+proc LayoutNode {canvas tree dir} {
+    set text $dir:text
+    set bitmap $dir:bitmap
+    
+    if {[$tree cget -layout] == "horizontal"} {
+        scan [$canvas bbox $text] "%d %d %d %d" x1 y1 x2 y2
+	$canvas itemconfig $bitmap -anchor se
+	$canvas coords $bitmap $x1 $y2
+    } else {
+        scan [$canvas bbox $bitmap] "%d %d %d %d" x1 y1 x2 y2
+	$canvas itemconfig $text -anchor n
+	$canvas coords $text [expr "$x1+($x2-$x1)/2"] $y2
+    }
+}
+
+set  uniq 0
+set  SPC "" 
+set  LB   "<"
+set  RB   ">"
+
+#################################################################################
+# add the given node to the tree
+#
+# Args: 
+#  canvas  - tree's canvas
+#  tree    - the tree
+#  parent  - name of parent node 
+#  dir     - name of new node being added
+#  text    - text for tree node label (last component of name)
+#################################################################################
+proc AddNode {canvas tree parent dir text} {
+    global dirtree
+    global uniq
+    global SPC
+    global LB
+    global RB
+
+    set temp [string trimleft $text 0123456789]
+    set text $temp
+    set font $dirtree(font)
+    set font $dirtree(boldfont)
+    set cnt  "$LB$uniq$RB"
+
+    $canvas create oval -20 -10 30 20  -tags $dir -fill grey
+    $canvas create oval -25 -15 25 15  -tags $dir -fill white
+    $canvas create text 0 10 -font $font -text $cnt -tags $dir
+    $canvas create text 0 0 -font $font -text $text -tags $dir
+    set line [$canvas create line 0 0 0 0 -tag "line"]
+    $tree addlink $parent $dir $line -border 2
+
+    set x1 [$canvas coords $dir]
+	
+}
+
+set  loc 0
+
+###############################################################################
+# GetToken performs a simple (inneffeicient) lexical analysis of the expression
+# return either a ( ) or a string of alpha numeric chars
+###############################################################################
+proc GetToken {} {
+global loc
+global expr
+global uniq
+
+set result " "
+
+# Get a char and see if it is a parenthesis.
+    while {$result == " "} {
+	set result [string index $expr $loc]
+	incr loc
+    }
+    if {$result == "("} {
+	return [string trim $result]
+    }
+    if {$result == ")"} {
+	return $result
+    }
+# Not a parenthesis, so get as many chars as we can and make a string
+# token, not forgetting to 'put back' and non alphanumeric characters we find
+
+    set tok $result
+    
+    while {$loc < [string length $expr] } {
+	set result [string index $expr $loc]
+	
+	if {$result == ")"} {
+	    set temp "$uniq$tok"
+	    incr uniq
+	    set tok $temp
+	    return $tok
+	}
+	if {$result == "("} {
+	    set temp "$uniq$tok"
+	    incr uniq
+	    set tok $temp
+	    return $tok
+	}
+	if {$result == " "} {
+	    incr loc
+	    if {$tok != "" } { 
+		set temp "$uniq$tok"
+		set tok $temp
+		incr uniq
+		return [string trim $tok]
+	    }
+	}
+	incr loc
+	set temp "$tok$result"
+	set tok $temp
+    }
+    set temp "$uniq$tok"
+    set tok $temp
+    incr uniq
+    return [string trim $tok]
+}
+
+#################################################################################
+# Main procedure to tie it all together
+#################################################################################
+proc ListGP {canvas tree root} {
+    global stack
+    set t "xx"
+    while {$t != ""} {
+	set t [GetToken]
+	if {$t == "("} {
+	    set t [GetToken]
+	    AddNode $canvas $tree $root $t $t
+	    ListGP $canvas $tree $t
+	} elseif {$t == ")"} {
+	    return
+	} else {
+	    AddNode $canvas $tree $root $t $t
+	}
+    }
+}
+
+#################################################################################
+# Define the graphic scafolding
+#################################################################################
+wm geometry . 400x275
+
+set canvas [MakeCanvas . .c]
+set tree [tree $canvas.t -layout vertical]
+
+set dirtree(font) -Adobe-Helvetica-Medium-R-Normal--*-100-*
+set dirtree(boldfont) -Adobe-Helvetica-Bold-R-Normal--*-100-*
+
+button .print -text Print
+pack .print
+
+#################################################################################
+# The print method outputs a postscript rendition of the tree
+#################################################################################
+bind .print <Button-1> {
+.c postscript -pagewidth 6.0i -file tmp.ps
+}
+
+.c configure -background white
+
+#################################################################################
+# Read the input stream ready for processing
+#################################################################################
+gets stdin expr
+
+#Get the first two tokens as the root of the tree
+set t [GetToken]  
+set t [GetToken]
+set root $t
+AddNode $canvas $tree {} $t $t
+
+ListGP $canvas $tree $root
+
+#################################################################################
+# Run the main procedure to generate the tree and display it in a window
+#################################################################################
+update idletasks
+
+
+
